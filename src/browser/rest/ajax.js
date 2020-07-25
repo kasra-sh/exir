@@ -13,15 +13,20 @@ X.Ajax = function (method, url, params, headers, content) {
         // to be overridden
     };
 
-    self.progressCallback = function (rq, rs) {
+    self.progressCallback = function (ev, rq) {
         // to be overridden
+    };
+
+    self.uploadProgressCallback = function (xhr) {
     };
 
     self.successCallback = function (rq, rs) {
         // to be overridden
         // console.log('REQUEST:', rq, 'RESPONSE:', rs)
     };
+    self.uploadFinishCallback = function (xhr) {
 
+    };
     self.failCallback = function (rq, rs) {
         // to be overridden
         // console.log('REQUEST:', rq, 'RESPONSE:', rs)
@@ -46,6 +51,10 @@ X.Ajax = function (method, url, params, headers, content) {
         self.successCallback = callbackRqRs;
         return self;
     };
+    self.uploadFinish = function (callbackRqRs) {
+        self.uploadFinishCallback = callbackRqRs;
+        return self;
+    };
 
     self.fail = function (callbackRqRs) {
         self.failCallback = callbackRqRs;
@@ -54,6 +63,10 @@ X.Ajax = function (method, url, params, headers, content) {
 
     self.progress = function(callbackRqRs) {
         self.progressCallback = callbackRqRs;
+        return self;
+    };
+    self.uploadProgress = function(callbackRqRs) {
+        self.uploadProgressCallback = callbackRqRs;
         return self;
     };
 
@@ -123,10 +136,16 @@ X.Ajax = function (method, url, params, headers, content) {
         };
 
         self.xhr.onprogress = function (ev) {
-            let xhr = ev.target;
-            self.Rs = new X.HttpRs(xhr);
-            self.onprogress && self.onprogress(self.Rq, self.Rs);
+            // let xhr = ev.target;
+            // self.Rs = new X.HttpRs(xhr);
+            self.progressCallback && self.progressCallback(ev, self.Rq, self.Rs);
         };
+        self.xhr.upload.onprogress = function (ev) {
+            self.uploadProgressCallback && self.uploadProgressCallback(ev);
+        }
+        self.xhr.upload.onloadend = function (ev) {
+            self.uploadFinishCallback && self.uploadFinishCallback(ev);
+        }
 
         self.xhr.send(self.Rq.content.data);
 

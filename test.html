@@ -20,6 +20,7 @@
         <span>testFile</span>
         <input type="file" name="testFile">
     </label>
+    <button type="button">Send</button>
 </form>
 <div id="app" class="a b Cc $s 1">
     <!--AAAA-->
@@ -42,8 +43,8 @@
     var o1 = {
         a: 5,
         b: {
-            a:44,
-            b:55
+            a: 44,
+            b: 55
         },
         c: null
     }
@@ -51,11 +52,29 @@
         a1: 67,
         a: 5,
         b: {
-            a:44,
-            b:55
+            a: 44,
+            b: 55
         },
         d: 8234
-    }
+    };
+    console.log(X.cmpO(o1, o2));
+    X.event(X.Q1("#form>button"), "click", function () {
+        X.Post("http://www.httpbin.org/post", {a: 1})
+            .formData("#form")
+            .uploadProgress(function (e) {
+                console.log("UPLOAD", e.loaded * 100 / e.total);
+            })
+            .progress(function (e) {
+                console.log("DOWNLOAD", e.loaded * 100 / e.total);
+            })
+            .send(function (rq, rs) {
+                console.log(rs.json())
+            });
+    });
+    X.Get('https://www.cloudflare.com/cdn-cgi/trace').send(function (rq,rs) {
+        console.log(rs.text);
+    })
+
 </script>
 </body>
 </html>

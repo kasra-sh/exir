@@ -2,7 +2,7 @@ require("../njs/xeer-node")
 
 /**
  * Select All elements from query
- * @param qe {QueryString, Element, Node}
+ * @param qe {String, Element, Node}
  * @param root {Element, Node}
  * @return {NodeList}
  */
