@@ -1,0 +1,13 @@
+{
+  "name": "xeer-js",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {},
+  "keywords": [],
+  "author": "Kasra Shamsaei",
+  "license": "ISC",
+  "dependencies": {
+    "kenpo-js": "~0.1.1",
+    "parcel-plugin-codegen": "^0.5.0"
+  }
+}
