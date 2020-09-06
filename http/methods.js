@@ -1,0 +1,127 @@
+const Ajax = require("./ajax").Ajax;
+const Rq = require("./request");
+let Http = {}
+Http.Ajax = Ajax;
+/**
+ *
+ * @param method {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS'}
+ * @param url {String}
+ * @param params Object
+ * @param headers Object
+ * @param content {{type: ('json', 'urlencoded', 'form', '*'), data: Object|String}}
+ * @param callbacks {{success:Function?, fail: Function?, progress: Function?, prepare: Function?,
+ * uploadProgress: Function?, uploadFinish: Function?}}
+ * @return {Ajax}
+ */
+Http.makeHttpRequest = function (method, url, params, headers, content, callbacks) {
+    let ajax = new Ajax(method.toUpperCase(), url, params, headers);
+    if (content && content.type) {
+        if (content.type.toLowerCase() === 'json') {
+            ajax.jsonData(content.data);
+        } else if (content.type.toLowerCase() === 'urlencoded') {
+            ajax.urlEncodedData(content.data);
+        } else if (content.type.toLowerCase() === 'form') {
+            ajax.formData(content.data);
+        } else {
+            ajax.Rq.setContent(content.type, content.data);
+        }
+    }
+    callbacks.success && ajax.onSuccess(callbacks.success);
+    callbacks.fail && ajax.onFail(callbacks.fail);
+    callbacks.progress && ajax.onProgress(callbacks.progress);
+    callbacks.prepare && (ajax.preparedCallback = callbacks.prepare);
+    callbacks.uploadProgress && (ajax.uploadProgressCallback = callbacks.uploadProgress);
+    callbacks.uploadFinish && (ajax.uploadFinishCallback = callbacks.uploadFinish);
+    return ajax;
+};
+
+Http.makeRequest = function(opts) {
+    return Http.makeHttpRequest(opts.method || 'OPTIONS', opts.url, opts.args, opts.headers, new Rq.HttpContent(opts.type, opts.data), {
+        success: opts.success,
+        fail: opts.fail,
+        progress: opts.progress,
+        prepare: opts.prepare,
+        uploadProgress: opts.uploadProgress,
+        uploadFinish: opts.uploadFinish
+    })
+};
+
+// function makePromise(r) {
+//     return new Promise((res, rej) => {
+//         r.onSuccess(()=>res(r));
+//         r.onFail(()=>rej(r));
+//     })
+// }
+// R.sendRequest = function(opts) {
+//     let r = R.makeRequest(opts);
+//     return r.send(opts.finish)
+// }
+// R.sendRequest = function(opts) {
+//     let r = R.makeRequest(opts);
+//     return r.send(opts.finish);
+//     // return await makePromise(r);
+// };
+
+Http.Get = function (url, params){
+    return new Ajax('GET', url, params);
+};
+
+Http.Post = function (url, params){
+    return new Ajax('POST', url, params);
+};
+
+Http.Delete = function (url, params){
+    return new Ajax('DELETE', url, params);
+};
+
+Http.Put = function (url, params){
+    return new Ajax('PUT', url, params);
+};
+
+Http.Patch = function (url, params){
+    return new Ajax('PATCH', url, params);
+};
+
+/**
+ * {@inheritDoc REST.sendRequest}
+ * @return {Promise<*>}
+ */
+Http.sendGet = function (opt) {
+    opt.method = 'GET';
+    opt.type = undefined;
+    opt.data = undefined;
+    return Http.sendRequest(opt)
+};
+
+Http.sendDelete = function (opt) {
+    opt.method = 'DELETE';
+    return Http.sendRequest(opt)
+};
+
+Http.sendPost = function (opt) {
+    opt.method = 'POST';
+    return Http.sendRequest(opt)
+};
+
+Http.sendPut = function (opt) {
+    opt.method = 'PUT';
+    return Http.sendRequest(opt)
+};
+
+Http.sendPatch = function (opt) {
+    opt.method = 'PATCH';
+    return Http.sendRequest(opt)
+};
+function makePromise(r) {
+    return new Promise((res, rej) => {
+        r.onSuccess(()=>res(r));
+        r.onFail(()=>rej(r));
+    })
+}
+
+Http.sendRequest = async function sendRequest(opts) {
+    let r = Http.makeRequest(opts);
+    r.send(opts.finish);
+    return await makePromise(r);
+}
+module.exports = {Http: Http, Ajax};

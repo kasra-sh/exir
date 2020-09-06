@@ -1,6 +1,0 @@
-require("./base")
-require("./events")
-require("./prototypes")
-require("./queryGen")
-require("./viewmodel/vdom")
-require("./rest/rest")

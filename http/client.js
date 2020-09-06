@@ -1,0 +1,5 @@
+class XHttpClient {
+    constructor(endpoint) {
+
+    }
+}

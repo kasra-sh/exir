@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ProjectTasksOptions">
-    <TaskOptions isEnabled="true">
-      <option name="arguments" value="build $ProjectFileDir$/xeer.js -d $ProjectFileDir$/dist" />
+    <TaskOptions isEnabled="false">
+      <option name="arguments" value="build $ProjectFileDir$/src/xeer-esm.js -d $ProjectFileDir$/dist" />
       <option name="checkSyntaxErrors" value="true" />
       <option name="description" />
       <option name="exitCodeBehavior" value="ERROR" />
