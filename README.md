@@ -1,11 +1,9 @@
 # Xeer
-
-#### How-to build
+#
+Experimantal FrontEnd Framework
+#### How-to bundle for browser
 > $ npm install
-> $ parcel build src/xeer-browser.js
+> $ parcel build xeer-browser.js
 #
 #### Use in Browser
 >\<script src="dist/xeer-browser.js">\</script>
-#
-#### Use in NodeJS
-> require("src/xeer-node")
