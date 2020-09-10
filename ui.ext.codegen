@@ -1,0 +1,88 @@
+const S = require("./core/scope");
+const I = require("./core/iter");
+const T = require("./core/types");
+// const L = require("./core/logging");
+
+let array = new S.Proto([Array]);
+let str = new S.Proto([String]);
+let arrayObject = new S.Proto([Array, Object]);
+let list = new S.Proto(global.document !== undefined ? [Array, HTMLCollection, NodeList] : [Array]);
+
+// array.define(function item(i) {
+//     return this[i]
+// });
+// str.define(function item(i) {
+//     return this[i];
+// });
+
+array.define(function $contains(x) {
+    return this.indexOf(x) >= 0
+})
+
+str.define(function $contains(x) {
+    return this.indexOf(x) >= 0
+})
+
+arrayObject.define(function $each(func) {
+    return I.ForEach(this, func);
+});
+
+arrayObject.define(function $forEach(func) {
+    return I.ForEach(this, func);
+});
+
+list.define(function $loopArray(func) {
+    return I.ArrayForEach(this, func);
+});
+
+list.polyfill(function $first(func) {
+    return I.First(this, func);
+});
+
+list.polyfill(function $last(func) {
+    return I.Last(this, func);
+});
+
+list.define(function $any(func) {
+    return I.Any(this, func);
+});
+str.define(function $any(func) {
+    return I.Any(this, func);
+});
+
+list.define(function $all(func) {
+    return I.All(this, func);
+});
+
+arrayObject.define(function $filter(f) {
+    return I.Filter(this, f);
+});
+
+arrayObject.define(function $filterRight(f) {
+    return I.FilterRTL(this, f);
+});
+
+arrayObject.polyfill(function $map(f) {
+    return I.Map(this, f);
+});
+
+arrayObject.polyfill(function $flatMap(f) {
+    return I.FlatMap(this, f);
+});
+
+arrayObject.define(function $toEnum() {
+    return T.Enum(this);
+});
+
+list.define(function $forEach(f) {
+    return I.ForEach(this, f);
+})
+
+const reqs = `const I = require("./core/iter");
+const T = require("./core/types");
+const L = require("./core/logging");`;
+let code = reqs + array.pcode + str.pcode + arrayObject.pcode + list.pcode;
+
+module.exports = function () {
+    return code
+}

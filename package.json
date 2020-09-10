@@ -5,19 +5,17 @@
   "scripts": {},
   "keywords": [],
   "author": "Kasra Shamsaei",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "kenpo-js": "~0.1.3",
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-codegen": "^0.5.0",
-    "regenerator-runtime": "^0.13.7",
-    "typescript": "^3.9.7"
+    "regenerator-runtime": "^0.13.7"
   },
   "main": "index.js",
   "directories": {
     "example": "examples"
   },
-  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kasra-sh/xeer-js.git"
