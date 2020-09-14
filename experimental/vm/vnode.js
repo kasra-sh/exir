@@ -1,4 +1,4 @@
-const I = require("../../core/iter");
+const I = require("../../core/streams");
 const T = require("../../core/types");
 const Case = require("../../core/cases");
 const Dom = require("../../ui/dom")
