@@ -26,12 +26,12 @@ XEER framework contains :
   - [How to use](#how-to-use)
 - [TODO](#todo)
 ## Installation
-##### Package Manager
+#### Package Manager
 Simply use any package manager (npm, yarn, pnpm, ...) to install from [npmjs.org](https://npmjs.org)
 ```shell script
 $ npm i xeer-js
 ```
-##### From Source
+#### From Source
 Clone the repository and install dependencies using your prefered package manager
 ```sh
 $ git clone https://github.com/kasra-sh/xeer-js.git
@@ -40,13 +40,13 @@ $ npm install
 ```
 ---
 ## Usage
-##### Node module
+#### Node module
 Simply use any package manager (npm, yarn, pnpm, ...) to install from [npmjs.org](https://npmjs.org)
 ```shell script
 $ npm i xeer-js
 ```
 Import
-##### Bundled
+#### Bundled
 Clone the repository and install dependencies using your prefered package manager
 ```sh
 $ git clone https://github.com/kasra-sh/xeer-js.git
@@ -57,7 +57,7 @@ $ npm install
 Extensions are helper methods appended to prototypes which help make the code cleaner.<br>
 For example `X.addClass($('div'), 'container')` will become `$('div').$addClass('container')`.<br>
 Extension method names all have `$` prepended to their names to prevent method overrides or duplication.
-##### How to use
+#### How to use
 - If using bundled `xeer-bundle.js`, extensions are enabled by default.
   ```html
   <!-- ... !-->
