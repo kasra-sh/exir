@@ -4,7 +4,7 @@
   "description": "Javascript Framework",
   "scripts": {
     "generate": "node generateExt.js",
-    "bundle": "parcel build xeer-bundle.js --target modern --target legacy"
+    "bundle": "node generateExt.js && parcel build xeer-bundle.js --target modern --target legacy"
   },
   "keywords": ["xeer","xeer-js","framework","stream","dom","virtualdom","render","viewmodel","rest"],
   "author": "Kasra Shamsaei",
