@@ -1,6 +1,6 @@
 const scope = require('./scope');
 module.exports = scope.mergeAll(
-    require('./iter'),
+    require('./streams'),
     require('./logging'),
     require('./types'),
     require('./cases'),

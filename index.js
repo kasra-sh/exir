@@ -1,11 +1,7 @@
 const scope = require("./core/scope");
-
-module.exports = function (extensions = false) {
-    if (extensions) {
-        require('./ext.generated');
-    }
-    return scope.mergeAll(
-        require('./ui'),
-        require('./core')
-    );
-}
+const core = require('./core');
+const ui = require('./ui');
+const http = require('./http');
+module.exports = scope.mergeAll(
+        core, ui, http
+)
