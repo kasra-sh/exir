@@ -41,11 +41,11 @@ $ npm install
 ---
 ## Usage
 #### Node module
-Simply use any package manager (npm, yarn, pnpm, ...) to install from [npmjs.org](https://npmjs.org)
+Use any package manager (npm, yarn, pnpm, ...) to install from [npmjs.org](https://npmjs.org)
 ```shell script
 $ npm i xeer-js
 ```
-Import
+
 #### Bundled
 Clone the repository and install dependencies using your prefered package manager
 ```sh
