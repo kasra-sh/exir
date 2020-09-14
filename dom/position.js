@@ -1,14 +1,22 @@
 let E = {};
 
-E.left = function (e) {
-    return e.offsetLeft
+function left(e) {
+    return e.offset
 }
-
-E.width = function (e) {
+function leftW(e) {
+    return e.clientLeft
+}
+function width(e) {
     return e.offsetWidth
 }
-
-E.right = function (e) {
-    return E.left(e) + E.width(e)
+function widthW(e) {
+    return e.clientWidth
+}
+function right(e) {
+    return left(e) + width(e)
+}
+function rightW(e) {
+    return leftW(e) + widthW(e)
 }
 
+module.exports = {left, width, right}
