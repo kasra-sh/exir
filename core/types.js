@@ -53,7 +53,9 @@ T.isEls = function (x) {
 }
 
 T.funcEqual = function (f1, f2) {
-    return f1.toString().match(/{[\w\W]*}/) === f2.toString().match(/{[\w\W]*}/)
+    let a = f1.toString().match(/{[\w\W]*}/)[0];
+    let b = f2.toString().match(/{[\w\W]*}/)[0];
+    return a === b
 }
 
 T.hasField = function hasField(obj, field, pred) {
