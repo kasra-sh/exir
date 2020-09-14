@@ -1,7 +1,7 @@
 const Ajax = require("./ajax").Ajax;
 const Rq = require("./request");
 let Http = {}
-Http.Ajax = Ajax;
+// Http.Ajax = Ajax;
 /**
  *
  * @param method {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS'}
@@ -34,7 +34,11 @@ Http.makeHttpRequest = function (method, url, params, headers, content, callback
     callbacks.uploadFinish && (ajax.uploadFinishCallback = callbacks.uploadFinish);
     return ajax;
 };
-
+/**
+ *
+ * @param opts {{method, url, args, headers, type, data, success, fail, progress, prepare, uploadProgress, uploadFinish}}
+ * @return {Ajax}
+ */
 Http.makeRequest = function(opts) {
     return Http.makeHttpRequest(opts.method || 'OPTIONS', opts.url, opts.args, opts.headers, new Rq.HttpContent(opts.type, opts.data), {
         success: opts.success,
@@ -46,21 +50,23 @@ Http.makeRequest = function(opts) {
     })
 };
 
-// function makePromise(r) {
-//     return new Promise((res, rej) => {
-//         r.onSuccess(()=>res(r));
-//         r.onFail(()=>rej(r));
-//     })
-// }
-// R.sendRequest = function(opts) {
-//     let r = R.makeRequest(opts);
-//     return r.send(opts.finish)
-// }
-// R.sendRequest = function(opts) {
-//     let r = R.makeRequest(opts);
-//     return r.send(opts.finish);
-//     // return await makePromise(r);
-// };
+Http.makePromise = function(r) {
+    return new Promise((res, rej) => {
+        r.onSuccess(()=>res(r));
+        r.onFail(()=>rej(r));
+    })
+}
+
+/**
+ *
+ * @param opts {{method, url, args, headers, type, data, success, fail, progress, prepare, finish, uploadProgress, uploadFinish}}
+ * @return {Promise<any>}
+ */
+Http.sendRequest = async function sendRequest(opts) {
+    let r = Http.makeRequest(opts);
+    r.send(opts.finish);
+    return await Http.makePromise(r);
+}
 
 Http.Get = function (url, params){
     return new Ajax('GET', url, params);
@@ -112,16 +118,5 @@ Http.sendPatch = function (opt) {
     opt.method = 'PATCH';
     return Http.sendRequest(opt)
 };
-function makePromise(r) {
-    return new Promise((res, rej) => {
-        r.onSuccess(()=>res(r));
-        r.onFail(()=>rej(r));
-    })
-}
 
-Http.sendRequest = async function sendRequest(opts) {
-    let r = Http.makeRequest(opts);
-    r.send(opts.finish);
-    return await makePromise(r);
-}
-module.exports = {Http: Http, Ajax};
+module.exports = Http;

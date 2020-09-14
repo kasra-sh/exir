@@ -1,7 +1,8 @@
 const S = require("../core/scope");
 const Rq = require("./request");
 const Rs = require("./response");
-const T = require("../core/types")
+const T = require("../core/types");
+const I = require("../core/streams");
 class Ajax {
     Rq = {}
     Rs = {}
@@ -48,10 +49,9 @@ class Ajax {
     };
 
     headers (hdrs) {
-        for (let h in hdrs) {
-            if (hdrs.hasOwnProperty(h))
-                this.Rq.setHeader(h, hdrs[h]);
-        }
+        I.ForEach(hdrs, (v, k) =>{
+            this.Rq.setHeader(k, v);
+        });
         return this;
     };
 
@@ -79,6 +79,10 @@ class Ajax {
         this.uploadProgressCallback = callbackRqRs;
         return this;
     };
+
+    withContent(content) {
+        this.Rq.setContent(content.type, content.data);
+    }
 
     xmlData (data) {
         this.Rq.xmlContent(data);
