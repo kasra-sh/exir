@@ -63,8 +63,13 @@ Extension method names all have `$` prepended to their names to prevent method o
   <!-- ... !-->
       <script src="xeer-bundle.js"></script>
       <script>
-        console.log(.$filter((v,k,i)=>k.$startsWith('A')));
-        // array of all fields/properties of window object which names' start with 'A'  
+        var obj = {
+            ABC: "text1",
+            ACD: "text2",
+            BAR: 1
+        }
+        console.log(obj.$filter((v,k)=>k.$startsWith('A')));
+        // Outputs object { ABC: "text1", ACD: "text2" }
       </script>
   <!-- ... !-->
   ```
