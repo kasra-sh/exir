@@ -11,8 +11,8 @@ function merge(src, target) {
 }
 function mergeAll(...obj) {
     let res = {};
-    for (let o in obj) {
-        merge(o, res);
+    for (let k of Object.keys(obj)) {
+        merge(obj[k], res);
     }
     return res;
 }
@@ -67,6 +67,16 @@ class Extension {
 
 function isBrowser() {
     return global.window !== undefined && global.document !== undefined && global.navigator !== undefined
+}
+
+if (!isBrowser()) {
+// -------------
+    global.HTMLElement = !global.HTMLElement? function HTMLElement(){}: global.HTMLElement
+    global.Element = !global.Element? function Element(){}: global.Element
+    global.Node = !global.Node? function Node(){}: global.Node
+    global.HTMLCollection = !global.HTMLCollection? function HTMLCollection(){}: global.HTMLCollection
+    global.NodeList = !global.NodeList? function NodeList(){}: global.NodeList
+// -------------
 }
 
 module.exports = {merge, mergeAll, setGlobal, Proto: Extension, isBrowser}
