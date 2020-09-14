@@ -2,7 +2,7 @@ require("./scope");
 const T = require("./types");
 const L = require("./logging");
 
-let I = {};
+let S = {};
 
 if (!global._X_LOOP_BREAK_) {
     global._X_LOOP_BREAK_ = Symbol("BREAK_LOOP");
@@ -10,11 +10,11 @@ if (!global._X_LOOP_BREAK_) {
     global._X_ALL_ = Symbol("ALL");
 }
 
-I.BREAK = global._X_LOOP_BREAK_;
-I.ANY = global._X_ANY_;
-I.ALL = global._X_ALL_;
+S.BREAK = global._X_LOOP_BREAK_;
+S.ANY = global._X_ANY_;
+S.ALL = global._X_ALL_;
 
-I.item = function item(s, i) {
+S.item = function item(s, i) {
     if (!T.isVal(s)) return undefined;
     if (T.isObj(s)) return s[i]
     if (T.isStr(s)) return s[i]
@@ -22,24 +22,24 @@ I.item = function item(s, i) {
     else return s.item(i)
 }
 
-I.contains = function contains(s, v, k) {
+S.contains = function contains(s, v, k) {
     if (!T.isArr(s) && T.isObj(s)) return s[k] === v;
     return s.indexOf(v)>=0;
 }
 
-I.add = function add(src, ...v) {
+S.add = function add(src, ...v) {
     if (T.isArr(src)) {
-        I.ForEach(v, (vi)=>src.push(vi))
+        S.ForEach(v, (vi)=>src.push(vi))
         // src.push(v);
     } else if (T.isMutableList(src)) {
         src.add(v);
     }
 }
 
-I.remove = function remove(src, ...it) {
-    it = I.FlatMap(it);
+S.remove = function remove(src, ...it) {
+    it = S.FlatMap(it);
     let any = false;
-    I.ForEach(it, (item)=> {
+    S.ForEach(it, (item)=> {
         let idx = src.indexOf(item);
         if (idx>=0) {
             any = true
@@ -50,18 +50,18 @@ I.remove = function remove(src, ...it) {
     return any;
 }
 
-I.toggle = function toggle(src, ...c) {
+S.toggle = function toggle(src, ...c) {
     if (c.length===0) return;
-    c = I.FlatMap(c);
+    c = S.FlatMap(c);
     let idx = undefined;
     if (c.length===1){
-        if (!I.remove(src, c)) {
-            I.add(src, c[0])
+        if (!S.remove(src, c)) {
+            S.add(src, c[0])
         }
     } else {
         c.push(c[0]);
         let any = false;
-        I.ForEach(src, (cl, i)=> {
+        S.ForEach(src, (cl, i)=> {
             idx = c.indexOf(cl);
             if (idx>=0 && c.length>(idx+1)) {
                 any = true;
@@ -74,21 +74,21 @@ I.toggle = function toggle(src, ...c) {
     }
 }
 
-I.objMatchOne = function objMatchOne(o, match) {
+S.objMatchOne = function objMatchOne(o, match) {
     let m = Object.keys(match);
     for (let k of m) {
         // if (!T.isObj(o[k])) continue;
-        if (match[k] === I.ANY && o.hasOwnProperty(k)) return true;
+        if (match[k] === S.ANY && o.hasOwnProperty(k)) return true;
         if (match[k] === o[k]) return true;
     }
     return false
 }
 
-I.objMatchAll = function objMatchAll(o, match) {
+S.objMatchAll = function objMatchAll(o, match) {
     let m = Object.keys(match);
     for (let k of m) {
         // if (!T.isObj(o[k])) return false;
-        if (match[k] === I.ANY) continue;
+        if (match[k] === S.ANY) continue;
         if (match[k] !== o[k]) return false
     }
     return true
@@ -100,20 +100,20 @@ function funOrEq(f, def, inc = true) {
     else if (f instanceof RegExp) return (v)=>!T.isObj(v)?f.test(v.toString()):false;
     else if (T.isObj(f)) {
         if (Object.keys(f).length===0) return def;
-        return inc?(v)=>I.objMatchOne(v, f):(v)=>I.objMatchAll(v, f);
+        return inc?(v)=>S.objMatchOne(v, f):(v)=>S.objMatchAll(v, f);
     }
     else return (v)=>v===f;
 }
 
-I.DeepClone = function (src, opt={skips:[], maxLevel: 999}, lvl=0) {
+S.DeepClone = function (src, opt={skips:[], maxLevel: 999}, lvl=0) {
     if (lvl>=opt.maxLevel) return src;
     let cl = T.isArr(src)?[]:{};
     for (let k in src) {
         if (src.hasOwnProperty(k)) {
-            if (opt.skips && I.contains(opt.skips, k)) continue;
+            if (opt.skips && S.contains(opt.skips, k)) continue;
             let val = src[k];
             if (!T.isPrim(val)) {
-                val = I.DeepClone(val, opt, lvl++);
+                val = S.DeepClone(val, opt, lvl++);
             }
             if (T.isArr(cl)) {
                 cl.push(val);
@@ -125,7 +125,7 @@ I.DeepClone = function (src, opt={skips:[], maxLevel: 999}, lvl=0) {
     return cl;
 }
 
-I.DeepConcat = function (o1, o2) {
+S.DeepConcat = function (o1, o2) {
     if (T.isStr(o1)) {
         return o1.concat(o2);
     }
@@ -136,35 +136,35 @@ I.DeepConcat = function (o1, o2) {
     for (let k of Object.keys(o2)) {
         if (T.isArr(o2[k])){
             if (!T.isVal(o1[k])) o1[k] = [];
-            I.DeepConcat(o1[k], o2[k]);
+            S.DeepConcat(o1[k], o2[k]);
         } else if(T.isObj(o2[k])) {
             if (!T.isVal(o1[k])) o1[k] = {};
-            I.DeepConcat(o1[k], o2[k])
+            S.DeepConcat(o1[k], o2[k])
         } else
             d[k] = o2[k];
     }
     return d
 }
 
-I.ForRange = function (src, func, start = 0, end) {
+S.ForRange = function (src, func, start = 0, end) {
     if (!T.isArr(src) || !T.isStr(src)) {
         let keys = Object.keys(src);
         end = end || keys.length -1
         for (let i=start; i<=end; i++) {
             let r = func(src[keys[i]], keys[i], i, src);
-            if (r === I.BREAK) return i;
+            if (r === S.BREAK) return i;
         }
         return end;
     }
     end = end || src.length;
     for (let i = start; i < end; i++) {
-        let r = func(I.item(src,i), i, i, src);
-        if (r === I.BREAK) return i;
+        let r = func(S.item(src,i), i, i, src);
+        if (r === S.BREAK) return i;
     }
     return end
 }
 
-I.ForEach = function (src, func) {
+S.ForEach = function (src, func) {
     if (!T.isVal(src)) return -1;
     if (!T.isArr(src) || !T.isStr(src) || !T.isList(src)) {
         let i = 0;
@@ -173,7 +173,7 @@ I.ForEach = function (src, func) {
         for (; i<len; i++) {
             // let r = ;
             const k = keys[i], v=src[k];
-            if (func(v, k, i, src) === I.BREAK) return i;
+            if (func(v, k, i, src) === S.BREAK) return i;
         }
         return i;
     }
@@ -182,19 +182,19 @@ I.ForEach = function (src, func) {
         for (let i = 0; i < len; i++) {
             const v = src[i];
             let r = func(v, i, i, src);
-            if (r === I.BREAK) return i;
+            if (r === S.BREAK) return i;
         }
     } else {
         for (let i = 0; i < len; i++) {
-            const v = I.item(src,i);
+            const v = S.item(src,i);
             let r = func(v, i, i, src);
-            if (r === I.BREAK) return i;
+            if (r === S.BREAK) return i;
         }
     }
     return src.length
 }
 
-I.ForEachRTL = function (src, func, range=[]) {
+S.ForEachRTL = function (src, func, range=[]) {
     if (!T.isArr(src) || !T.isStr(src)) {
         let i = 0;
         let keys = Object.keys(src);
@@ -202,61 +202,66 @@ I.ForEachRTL = function (src, func, range=[]) {
             if (i<range[1]) continue;
             if (i>=range[0]) return i;
             let r = func(src[keys[i]], keys[i], i, src);
-            if (r === I.BREAK) return i;
+            if (r === S.BREAK) return i;
         }
         return i;
     }
     for (let i=src.length-1; i>=0; i--) {
-        let r = func(I.item(src, i), i, i, src);
-        if (r === I.BREAK) return i;
+        let r = func(S.item(src, i), i, i, src);
+        if (r === S.BREAK) return i;
     }
     return src.length
 }
 
-I.ArrayForEach = function (src, func) {
+S.ArrayForEach = function (src, func) {
     let arr = Array.from(src);
-    let rev = I.ForEach(arr, func);
+    let rev = S.ForEach(arr, func);
     return rev < arr.length ? arr.slice(0, rev) : arr;
 }
 
-I.ArrayForEachRTL = function (src, func) {
+S.ArrayForEachRTL = function (src, func) {
     let arr = Array.from(src);
-    let rev = I.ForEachRTL(arr, func);
+    let rev = S.ForEachRTL(arr, func);
     return rev < arr.length ? arr.slice(0, rev) : arr;
 }
 
-I.First = function (src, func) {
+S.First = function (src, func) {
     // if (!func) return item(src, 0);
     func = funOrEq(func,()=>true);
     let r;
-    I.ForEach(src, function (v,k,i) {
+    S.ForEach(src, function (v,k,i) {
         r = func(v, k, i);
         if (r === true) {
             r = v;
-            return I.BREAK;
+            return S.BREAK;
         }
     })
     return r;
 }
 
-I.Last = function (src, func) {
+S.StartsWith = function(src, func) {
+    func = funOrEq(func,()=>true);
+    return func(S.First(src))
+}
+
+S.Last = function (src, func) {
     // if (!func) return item(src, 0);
     func = funOrEq(func, ()=>true);
     let r;
-    I.ForEachRTL(src, function (v,k,i) {
+    S.ForEachRTL(src, function (v,k,i) {
         r = func(v, k, i);
         if (r === true) {
             r = v;
-            return I.BREAK;
+            return S.BREAK;
         }
     })
     return r;
 }
 
-I.Reverse = function (src) {
+S.Reverse = function (src) {
     if (T.isArr(src)) return src.reverse();
     let rev = "";
-    I.ForEachRTL(src, function (it) {
+    S.ForEachRTL(src, function (it) {
         rev+=it;
     });
     return rev;
@@ -269,26 +274,26 @@ I.Reverse = function (src) {
  * @return {boolean}
  * @constructor
  */
-I.Any = function (src, func) {
+S.Any = function (src, func) {
     // if (!func){
     //     if (T.isArr(src) || T.isStr(src)) return src.length>0;
     //     return Object.keys(src).length>0;
     // }
     let fn = funOrEq(func);
     let r = false;
-    I.ForEach(src, function (v, k, i, src) {
+    S.ForEach(src, function (v, k, i, src) {
         r = fn(v, k, i, src);
-        if (r === true) return I.BREAK;
+        if (r === true) return S.BREAK;
     });
     return r;
 }
 
-I.All = function (src, func) {
+S.All = function (src, func) {
     func = funOrEq(func, ()=>true);
     let r = true;
-    I.ForEach(src, function (v, k, i, src) {
+    S.ForEach(src, function (v, k, i, src) {
         r = func(v, k, i, src);
-        if (r === false) return I.BREAK;
+        if (r === false) return S.BREAK;
     })
     return r;
 }
@@ -296,7 +301,7 @@ I.All = function (src, func) {
 function filterS(src, pred, right = false){
     pred = funOrEq(pred, ()=>true);
     let res = "";
-    let loop = right? I.ForEachRTL: I.ForEach;
+    let loop = right? S.ForEachRTL: S.ForEach;
     loop(src, function (v, k, i) {
         if (!pred || pred(v, k, i, src) === true) res += v;
     });
@@ -305,14 +310,14 @@ function filterS(src, pred, right = false){
 
 function filterO(src, pred, right = false){
     if (T.isArr(pred)) {
-        let a = I.DeepClone(pred);
+        let a = S.DeepClone(pred);
         pred = (v, k, i)=>{
-            return I.Any(a, k);
+            return S.Any(a, k);
         }
     } else
         pred = funOrEq(pred,  ()=>true);
     let res = {};
-    let loop = right? I.ForEachRTL: I.ForEach;
+    let loop = right? S.ForEachRTL: S.ForEach;
     loop(src, function (v, k, i) {
         if (pred(v, k, i, src) === true) res[k] = v;
     });
@@ -321,8 +326,8 @@ function filterO(src, pred, right = false){
 
 function filterA(src, pred, right= false) {
     if (T.isArr(pred)) {
-        let a = I.DeepClone(pred)
-        pred = (v, k, i, src)=>I.Any(a, i);
+        let a = S.DeepClone(pred)
+        pred = (v, k, i, src)=>S.Any(a, i);
     } else
         pred = funOrEq(pred,  ()=>true);
     let res = [];
@@ -352,19 +357,19 @@ function filterA(src, pred, right= false) {
     return res;
 }
 
-I.Filter = function (src, pred, right = false) {
+S.Filter = function (src, pred, right = false) {
     if (T.isStr(src)) return filterS(src, pred, right);
     if (T.isArr(src) || T.isList(src)) return filterA(src, pred, right);
     return filterO(src, pred, right);
 };
 
-I.FilterRTL = function (src, func) {
-    return I.Filter(src, func, true);
+S.FilterRTL = function (src, func) {
+    return S.Filter(src, func, true);
 };
 
 function mapA(src, func, right = false) {
     let res = [];
-    let loop = right? I.ForEachRTL: I.ForEach;
+    let loop = right? S.ForEachRTL: S.ForEach;
     loop(src, function (a, i) {
         let r = func(a, i, src);
         if (!T.isUnd(r))
@@ -375,7 +380,7 @@ function mapA(src, func, right = false) {
 
 function mapO(src, func, right = false) {
     let res = {};
-    let loop = right? I.ForEachRTL: I.ForEach;
+    let loop = right? S.ForEachRTL: S.ForEach;
     loop(src, function (v, k, i) {
         let r = func(v, k, i, src);
         if (!T.isUnd(r))
@@ -384,18 +389,18 @@ function mapO(src, func, right = false) {
     return res;
 }
 
-I.Map = function (src, func, right = false) {
+S.Map = function (src, func, right = false) {
     func = funOrEq(func,(v)=>v);
     if (T.isArr(src)) return mapA(src, func);
     else if (T.isObj(src)) return mapO(src, func);
 }
 
-I.FlatMap = function (src, func) {
+S.FlatMap = function (src, func) {
     let res;
     if (T.isStr(src)) res = ""
     else if (T.isArr(src)) res = []
     else res = {};
-    I.ForEach(src, function (a, i) {
+    S.ForEach(src, function (a, i) {
         let f;
         if (!!func) {
             f = func(a, i, src);
@@ -407,32 +412,33 @@ I.FlatMap = function (src, func) {
                 f = a
             }
         }
-        res = I.DeepConcat(res, f);
+        res = S.DeepConcat(res, f);
     });
     return res;
 }
 
-I.objectPairs = function (object) {
+S.objectPairs = function (object) {
     let entries = [];
-    I.ForEach(object, (v, k)=> {
+    S.ForEach(object, (v, k)=> {
         entries.push(T.dict(k, v));
     });
     return entries;
 }
 
-I.objectEntriesStd = function (object) {
+S.objectEntriesStd = function (object) {
     let entries = [];
-    I.ForEach(object, (v, k)=> {
+    S.ForEach(object, (v, k)=> {
         entries.push([k, v]);
     });
     return entries;
 }
 
-I.startsWith = function (str, s) {
+S.startsWith = function (str, s) {
     return str.indexOf(s)===0;
 }
-I.endsWith = function (str, s) {
 
+S.endsWith = function (str, s) {
+    return S.Last(str) === s
 }
 
-module.exports = I;
+module.exports = S;
