@@ -67,11 +67,11 @@ node.define(function $setAttr(a, v) {DOM.setAttr(this, a, v)})
 
 list.define(function $event(names, func, opt) {
     I.ForEach(this, function (e) {
-        DOM.$event(e, names, func, opt);
+        DOM.event(e, names, func, opt);
     });
 })
 
-const reqs = `const I = require("../core/iter");
+const reqs = `const I = require("../core/streams");
 const T = require("../core/types");
 const L = require("../core/logging");
 const DOM = require("../dom");`;

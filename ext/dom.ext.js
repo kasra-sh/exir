@@ -1,4 +1,4 @@
-const I = require("../core/iter");
+const I = require("../core/streams");
 const T = require("../core/types");
 const L = require("../core/logging");
 const DOM = require("../dom");
@@ -48,6 +48,6 @@ Array.prototype.$haveAttr = HTMLCollection.prototype.$haveAttr = NodeList.protot
 
 Array.prototype.$event = HTMLCollection.prototype.$event = NodeList.prototype.$event = function $event(names, func, opt) {
     I.ForEach(this, function (e) {
-        DOM.$event(e, names, func, opt);
+        DOM.event(e, names, func, opt);
     });
 };

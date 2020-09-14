@@ -3,7 +3,7 @@ const {ForEach, contains} = require("../../core/streams");
 const T = require("../../core/types");
 const {compile} = require("../../template/fmt").Fmt;
 const L = require("../../core/logging");
-const {$,$$} = require("../../ui/query");
+const {$,$$} = require("../../dom");
 
 class ObjPatch {
     /**

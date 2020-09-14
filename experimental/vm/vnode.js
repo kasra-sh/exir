@@ -1,7 +1,7 @@
 const I = require("../../core/streams");
 const T = require("../../core/types");
 const Case = require("../../core/cases");
-const Dom = require("../../ui/dom")
+const Dom = require("../../dom")
 
 /**
  * @property tag
