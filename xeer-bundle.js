@@ -23,5 +23,5 @@ scope.setGlobal(require("./experimental/vm/vdom"))
 //     dict: T.dict
 // });
 // apply extensions and polyfills
-require("./iter.ext");
-require("./ui.ext");
+require("./ext/stream.ext");
+require("./ext/dom.ext");
