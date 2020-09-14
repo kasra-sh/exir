@@ -63,7 +63,7 @@ For example `X.addClass($('div'), 'container')` will become `$('div').$addClass(
 Extension method names all have `$` prepended to their names to prevent method overrides or duplication.
 
 #### How to use
-- If using bundled `xeer-bundle.js`, extensions are enabled by default.
+- If using a bundled version, extensions are enabled by default.
   ```html
   <!-- Modern !-->
       <script src="xeer-bundle.js"></script>
