@@ -1,0 +1,83 @@
+const S = require("../core/scope");
+const I = require("../core/streams");
+const T = require("../core/types");
+const DOM = require("../dom");
+
+// let array = new S.Proto([Array]);
+// let str = new S.Proto([String]);
+// let arrayObject = new S.Proto([Array, Object]);
+let list = new S.Proto([Array, global.HTMLCollection, global.NodeList]);
+let node = new S.Proto([global.HTMLElement, global.Element, global.Node]);
+
+// Element Classes Helper
+node.define(function $class() {
+    return DOM.cls(this)
+});
+
+// Add class(es) to Element Collection
+list.define(function $addClass(c) {
+    I.ForEach(this, (e)=>DOM.addClass(e, c))
+});
+// Add class(es) to Element
+node.define(function $addClass(c) {return DOM.addClass(this, c)});
+
+
+// Remove Element Collection's class(es)
+list.define(function $removeClass(c) {
+    I.ForEach(this, (e)=>DOM.removeClass(e, c))
+});
+// Remove Element class
+node.define(function $removeClass(c) {return DOM.removeClass(this, c)});
+
+
+// Toggle Element Collection's class(es)
+list.define(function $toggleClass(c) {
+    I.ForEach(this, (e)=>DOM.toggleClass(e, c))
+});
+// Toggle Element
+node.define(function $toggleClass(c) {return DOM.toggleClass(this, c)});
+
+
+// Element Collection all have class(es)
+list.define(function $haveClass(c) {
+    return I.All(this, (e)=>DOM.hasClass(e, c));
+});
+// Element has class
+node.define(function $hasClass(c) {return DOM.hasClass(this, c)});
+
+
+// Element Attributes Helper
+node.define(function $attrs() {return DOM.attrs(this)});
+
+
+// Set Element Collection's Attributes
+list.define(function $setAttr(a, v) {
+    I.ForEach(this, (e)=>DOM.setAttr(e, a, v));
+});
+// Set Element Attribute
+node.define(function $setAttr(a, v) {DOM.setAttr(this, a, v)})
+
+
+// Element Collection have attribute
+list.define(function $haveAttr(a, v) {
+    I.All(this, (e)=>DOM.hasAttr(e, a, v));
+});
+// Element has attribute
+node.define(function $setAttr(a, v) {DOM.setAttr(this, a, v)})
+
+list.define(function $event(names, func, opt) {
+    I.ForEach(this, function (e) {
+        DOM.$event(e, names, func, opt);
+    });
+})
+
+const reqs = `const I = require("../core/iter");
+const T = require("../core/types");
+const L = require("../core/logging");
+const DOM = require("../dom");`;
+let code = reqs + node.pcode + list.pcode;
+
+// parcel codegen
+module.exports = function () {
+    return code
+}

@@ -1,6 +1,6 @@
 const S = require("../core/scope");
 const T = require("../core/types");
-const I = require("../core/iter");
+const I = require("../core/streams");
 
 class Classes {
     static split(className) {

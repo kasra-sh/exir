@@ -1,4 +1,4 @@
-const I = require("../core/iter")
+const I = require("../core/streams")
 const T = require("../core/types")
 
 function getAttributes(e) {
