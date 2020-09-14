@@ -1,5 +1,5 @@
 const S = require("../core/scope");
-const I = require("../core/streams");
+const I = require("../core/stream");
 const T = require("../core/types");
 const DOM = require("../dom");
 
@@ -71,7 +71,7 @@ list.define(function $event(names, func, opt) {
     });
 })
 
-const reqs = `const I = require("../core/streams");
+const reqs = `const I = require("../core/stream");
 const T = require("../core/types");
 const L = require("../core/logging");
 const DOM = require("../dom");`;

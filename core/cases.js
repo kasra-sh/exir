@@ -82,4 +82,4 @@ function pascal(name) {
     return psc;
 }
 
-module.exports = {toKebab: kebab, camel, pascal, toSnake: snake}
+module.exports = {kebab, camel, pascal, snake}

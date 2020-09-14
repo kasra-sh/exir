@@ -1,16 +1,27 @@
 {
   "name": "xeer-js",
-  "version": "0.2.1",
+  "version": "0.2.1-alpha",
   "description": "Javascript Framework",
   "scripts": {
     "generate": "node generateExt.js",
-    "bundle": "node generateExt.js && parcel build xeer-bundle.js --target modern && parcel build xeer-bundle-legacy.js --target legacy",
+    "bundle": "node generateExt.js && parcel build xeer-bundle.js --target modern && parcel build xeer-bundle-es5.js --target legacy",
     "devServe": "parcel xeer-bundle.js"
   },
-  "keywords": ["xeer","xeer-js","framework","stream","dom","virtualdom","render","viewmodel","rest"],
+  "keywords": [
+    "xeer",
+    "xeer-js",
+    "framework",
+    "stream",
+    "dom",
+    "virtualdom",
+    "render",
+    "viewmodel",
+    "rest"
+  ],
   "author": "Kasra Shamsaei",
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.11.6",
     "kenpo-js": "~0.1.6",
     "parcel": "2.0.0-beta.1",
     "regenerator-runtime": "^0.13.7"
@@ -27,7 +38,7 @@
   },
   "homepage": "https://github.com/kasra-sh/xeer-js#readme",
   "modern": "dist/xeer-bundle.js",
-  "legacy": "dist/xeer-bundle-legacy.js",
+  "legacy": "dist/xeer-bundle-es5.js",
   "targets": {
     "legacy": {
       "engines": {

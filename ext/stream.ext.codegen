@@ -1,5 +1,5 @@
 const S = require("../core/scope");
-const I = require("../core/streams");
+const I = require("../core/stream");
 const T = require("../core/types");
 // const L = require("./core/logging");
 
@@ -79,7 +79,7 @@ arrObj.define(function $toEnum() {
 });
 
 
-const reqs = `const I = require("../core/streams");
+const reqs = `const I = require("../core/stream");
 const T = require("../core/types");
 const L = require("../core/logging");`;
 let code = reqs + all.pcode + arrObj.pcode;

@@ -1,4 +1,4 @@
-const I = require("../core/streams");
+const I = require("../core/stream");
 const T = require("../core/types");
 const L = require("../core/logging");
 

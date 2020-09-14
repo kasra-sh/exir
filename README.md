@@ -25,6 +25,7 @@ XEER framework contains :
 - [Extensions](#extensions)
   - [How to use](#how-to-use)
 - [TODO](#todo)
+
 ## Installation
 #### Package Manager
 Simply use any package manager (npm, yarn, pnpm, ...) to install from [npmjs.org](https://npmjs.org)
@@ -52,16 +53,22 @@ Clone the repository and install dependencies using your prefered package manage
 $ git clone https://github.com/kasra-sh/xeer-js.git
 $ cd xeer-js
 $ npm install
+$ npm bundle
 ```
+bundled files are generated in `dist` directory. `xeer-bundle-es5.js` supports IE9+ and `xeer-bundle.js` is for modern browsers supporting async/await syntax.
+
 ## Extensions
 Extensions are helper methods appended to prototypes which help make the code cleaner.<br>
 For example `X.addClass($('div'), 'container')` will become `$('div').$addClass('container')`.<br>
 Extension method names all have `$` prepended to their names to prevent method overrides or duplication.
+
 #### How to use
 - If using bundled `xeer-bundle.js`, extensions are enabled by default.
   ```html
-  <!-- ... !-->
+  <!-- Modern !-->
       <script src="xeer-bundle.js"></script>
+  <!-- Legacy !-->
+      <script src="xeer-bundle-es5.js"></script>
       <script>
         var obj = {
             ABC: "text1",
@@ -79,10 +86,10 @@ Extension method names all have `$` prepended to their names to prevent method o
   require("xeer-js/ext"); 
 
   // Stream processing extensions
-  require("xeer-js/iter.ext");  
+  require("xeer-js/stream.ext");  
   
   // DOM extensions
-  require("xeer-js/ui.ext");
+  require("xeer-js/dom.ext");
   ```
 
 
@@ -90,3 +97,4 @@ Extension method names all have `$` prepended to their names to prevent method o
 > - ViewModel Rendering
 > - Documentation
 > - Better code generation
+> - Experiment with other packagers

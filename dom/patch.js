@@ -1,5 +1,5 @@
 const {isVal, isObj, isEl, hasField} = require("../core/types");
-const {ForEach} = require("../core/streams");
+const {ForEach} = require("../core/stream");
 const {setAttr} = require("./attributes");
 const {cls} = require("./classes");
 const {error} = require("../core/logging");

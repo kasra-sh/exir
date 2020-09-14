@@ -1,4 +1,4 @@
-const I = require("../../core/streams");
+const I = require("../../core/stream");
 const T = require("../../core/types");
 const Case = require("../../core/cases");
 const Dom = require("../../dom")
@@ -84,7 +84,7 @@ class VNode {
             if (k === "style" && !T.isStr(a)) {
                 let ns = "";
                 I.ForEach(a,(v, k) => {
-                    ns += `${Case.toKebab(k)}: ${v};`;
+                    ns += `${Case.kebab(k)}: ${v};`;
                     // ns[k.toKebab()] = v;
                 });
                 e.setAttribute(k, ns);

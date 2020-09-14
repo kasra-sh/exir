@@ -2,7 +2,7 @@ const S = require("../core/scope");
 const Rq = require("./request");
 const Rs = require("./response");
 const T = require("../core/types");
-const I = require("../core/streams");
+const I = require("../core/stream");
 class Ajax {
     Rq = {}
     Rs = {}

@@ -1,5 +1,5 @@
 const {VNode} = require("./vnode")
-const {ForEach, contains} = require("../../core/streams");
+const {ForEach, contains} = require("../../core/stream");
 const T = require("../../core/types");
 const {compile} = require("../../template/fmt").Fmt;
 const L = require("../../core/logging");
