@@ -27,7 +27,7 @@ function event(target, event, listener, options) {
         let f = function (e) {
             listener(e, target);
         };
-        if (!!options && (!options.allowDuplicates)) {
+        if (!T.hasField(options, 'duplicates', (a)=>a)) {
             // console.log('removing dups')
             target.__EVENTS__[ev] = I.Filter(target.__EVENTS__[ev],(fl)=> {
                 if (T.funcEqual(fl.l, listener)) {
