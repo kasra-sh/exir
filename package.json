@@ -16,7 +16,8 @@
     "virtualdom",
     "render",
     "viewmodel",
-    "rest"
+    "rest",
+    "ajax"
   ],
   "author": "Kasra Shamsaei",
   "license": "MIT",
