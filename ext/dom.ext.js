@@ -21,6 +21,14 @@ HTMLElement.prototype.$setAttr = Element.prototype.$setAttr = Node.prototype.$se
 
 HTMLElement.prototype.$setAttr = Element.prototype.$setAttr = Node.prototype.$setAttr = function $setAttr(a, v) {DOM.setAttr(this, a, v)};
 
+HTMLElement.prototype.$event = Element.prototype.$event = Node.prototype.$event = function $event(names, func, opt) {
+    DOM.setEvent(this, names, func, opt);
+};
+
+HTMLElement.prototype.$clearEvent = Element.prototype.$clearEvent = Node.prototype.$clearEvent = function $clearEvent(names) {
+    DOM.clearEvent(this, names);
+};
+
 
 Array.prototype.$addClass = HTMLCollection.prototype.$addClass = NodeList.prototype.$addClass = function $addClass(c) {
     I.ForEach(this, (e)=>DOM.addClass(e, c))
@@ -48,6 +56,12 @@ Array.prototype.$haveAttr = HTMLCollection.prototype.$haveAttr = NodeList.protot
 
 Array.prototype.$event = HTMLCollection.prototype.$event = NodeList.prototype.$event = function $event(names, func, opt) {
     I.ForEach(this, function (e) {
-        DOM.event(e, names, func, opt);
+        DOM.setEvent(e, names, func, opt);
+    });
+};
+
+Array.prototype.$clearEvent = HTMLCollection.prototype.$clearEvent = NodeList.prototype.$clearEvent = function $clearEvent(names) {
+    I.ForEach(this, function (e) {
+        DOM.clearEvent(e, names);
     });
 };
