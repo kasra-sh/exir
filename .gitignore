@@ -115,3 +115,5 @@ out
 .yarn/install-state.gz
 .pnp.*
 /.idea/
+/package-lock.json
+/pnpm-lock.yaml
