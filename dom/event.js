@@ -10,7 +10,7 @@ const L = require("../core/logging");
  * @param listener {Function}
  * @param options {AddEventListenerOptions}
  */
-function event(target, event, listener, options) {
+function setEvent(target, event, listener, options) {
     if (!scope.isBrowser()) {
         L.error("Events are browser only!");
         return
@@ -44,4 +44,30 @@ function event(target, event, listener, options) {
     });
 }
 
-module.exports = {event};
+function clearEvent(target, event) {
+    if (!scope.isBrowser()) {
+        L.error("Events are browser only!");
+        return
+    }
+    if (!T.isArr(event)) {
+        if (I.contains(event,' ')) {
+            event = event.split(' ').Map((it)=>it.trim())
+        } else
+            event = [event];
+    }
+    target.__EVENTS__ = target.__EVENTS__ || {};
+    if (T.isEmpty(target.__EVENTS__)) return;
+    I.ForEach(event,function (ev) {
+        target.__EVENTS__[ev] = target.__EVENTS__[ev] || [];
+        if (T.isEmpty(target.__EVENTS__[ev])) return;
+
+        I.ForEach(target.__EVENTS__[ev],(fl)=> {
+            target.removeEventListener(ev, fl.f, fl.o);
+            return false
+        });
+        target.__EVENTS__[ev] = [];
+
+    });
+}
+
+module.exports = {setEvent, clearEvent};

@@ -67,10 +67,21 @@ node.define(function $setAttr(a, v) {DOM.setAttr(this, a, v)})
 
 list.define(function $event(names, func, opt) {
     I.ForEach(this, function (e) {
-        DOM.event(e, names, func, opt);
+        DOM.setEvent(e, names, func, opt);
     });
+});
+node.define(function $event(names, func, opt) {
+    DOM.setEvent(this, names, func, opt);
 })
 
+list.define(function $clearEvent(names) {
+    I.ForEach(this, function (e) {
+        DOM.clearEvent(e, names);
+    });
+});
+node.define(function $clearEvent(names) {
+    DOM.clearEvent(this, names);
+})
 const reqs = `const I = require("../core/stream");
 const T = require("../core/types");
 const L = require("../core/logging");
