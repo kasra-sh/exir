@@ -1,6 +1,5 @@
-require("./scope");
+const {merge, mergeAll} = require("./scope");
 const T = require("./types");
-const L = require("./logging");
 
 let S = {};
 
@@ -417,7 +416,7 @@ S.FlatMap = function (src, func) {
     return res;
 }
 
-S.objectPairs = function (object) {
+S.keyValuePairs = function (object) {
     let entries = [];
     S.ForEach(object, (v, k)=> {
         entries.push(T.dict(k, v));
@@ -425,13 +424,17 @@ S.objectPairs = function (object) {
     return entries;
 }
 
-S.objectEntriesStd = function (object) {
+S.entries = function (object) {
     let entries = [];
     S.ForEach(object, (v, k)=> {
         entries.push([k, v]);
     });
     return entries;
 }
+
+S.merge = merge;
+
+S.mergeAll = mergeAll;
 
 S.startsWith = function (str, s) {
     return str.indexOf(s)===0;
