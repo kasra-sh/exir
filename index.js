@@ -1,7 +1,8 @@
-const scope = require("./core/scope");
 const core = require('./core');
 const dom = require('./dom');
 const http = require('./http');
 module.exports = {
-    X: scope.mergeAll(core, dom, http)
+    ...core,
+    ...dom,
+    ...http
 }

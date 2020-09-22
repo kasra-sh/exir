@@ -1,4 +1,3 @@
-const S = require("../core/scope");
 const Rq = require("./request");
 const Rs = require("./response");
 const T = require("../core/types");

@@ -1,12 +1,28 @@
 {
   "name": "xeer-js",
-  "version": "0.3.0-alpha",
+  "version": "0.4.0-alpha2",
   "description": "Javascript Framework",
+  "author": "Kasra Shamsaei",
+  "license": "MIT",
   "scripts": {
     "generate": "node generateExt.js",
     "bundle": "node generateExt.js && parcel build xeer-bundle.js --target modern && parcel build xeer-bundle-es5.js --target legacy",
     "devServe": "parcel xeer-bundle.js"
   },
+  "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "kenpo-js": "0.1.7",
+    "parcel": "2.0.0-beta.1",
+    "regenerator-runtime": "^0.13.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kasra-sh/xeer-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kasra-sh/xeer-js/issues"
+  },
+  "homepage": "https://github.com/kasra-sh/xeer-js#readme",
   "keywords": [
     "xeer",
     "xeer-js",
@@ -19,25 +35,9 @@
     "rest",
     "ajax"
   ],
-  "author": "Kasra Shamsaei",
-  "license": "MIT",
-  "devDependencies": {
-    "@babel/core": "^7.11.6",
-    "kenpo-js": "~0.1.6",
-    "parcel": "2.0.0-beta.1",
-    "regenerator-runtime": "^0.13.7"
-  },
   "directories": {
     "example": "examples"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kasra-sh/xeer-js.git"
-  },
-  "bugs": {
-    "url": "https://github.com/kasra-sh/xeer-js/issues"
-  },
-  "homepage": "https://github.com/kasra-sh/xeer-js#readme",
   "modern": "dist/xeer-bundle.js",
   "legacy": "dist/xeer-bundle-es5.js",
   "targets": {

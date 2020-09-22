@@ -1,7 +1,5 @@
 require("../core/types");
-let R = {}
-
-R.HttpRs = class {
+class HttpRs {
     json
     xml
     constructor(xhr) {
@@ -35,4 +33,4 @@ R.HttpRs = class {
     }
 
 }
-module.exports = R;
+module.exports = {HttpRs};

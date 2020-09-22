@@ -72,3 +72,5 @@ class XHttpClient {
         return this._contentRequest(http.Delete, route, args, headers, content);
     }
 }
+
+module.exports = {XHttpClient}

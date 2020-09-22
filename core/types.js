@@ -52,12 +52,6 @@ T.isEls = function (x) {
     return x instanceof HTMLCollection || x instanceof NodeList;
 }
 
-T.funcEqual = function (f1, f2) {
-    let a = f1.toString().match(/{[\w\W]*}/)[0];
-    let b = f2.toString().match(/{[\w\W]*}/)[0];
-    return a === b
-}
-
 T.hasField = function hasField(obj, field, pred) {
     if (!T.isVal(obj)) return undefined;
     if (T.isFun(pred)) {
