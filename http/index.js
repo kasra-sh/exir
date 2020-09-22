@@ -1,9 +1,12 @@
-const scope = require('../core/scope');
-
-module.exports = scope.mergeAll(
-    ...require('./request'),
-    ...require('./response'),
-    ...require('./ajax'),
-    ...require('./methods'),
-    ...require('./client')
-)
+let request = require('./request');
+let response = require('./response');
+let ajax = require('./ajax');
+let methods = require('./methods');
+let client = require('./client');
+module.exports = {
+    ...request,
+    ...response,
+    ...ajax,
+    ...methods,
+    ...client
+}

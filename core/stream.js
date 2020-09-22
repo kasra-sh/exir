@@ -432,7 +432,7 @@ S.entries = function (object) {
     return entries;
 }
 
-S.merge = merge;
+S.spread = merge;
 
 S.mergeAll = mergeAll;
 
