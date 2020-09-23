@@ -1,4 +1,4 @@
-require("./vdom");
+const {View} = require("./vdom");
 
 class XViewModel {
     model = {}
@@ -6,7 +6,7 @@ class XViewModel {
 
     /**
      * @abstract {Function}
-     * @return {VDom}
+     * @return {View}
      */
     render() {}
 }

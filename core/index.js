@@ -1,8 +1,14 @@
-const scope = require('./scope');
-module.exports = scope.mergeAll(
-    require('./stream'),
-    require('./logging'),
-    require('./types'),
-    require('./cases'),
-    require('./strings')
-);
+let stream = require('./stream');
+let logging = require('./logging');
+let types = require('./types');
+let cases = require('./cases');
+let strings = require('./strings');
+let queryable = require('./queryable');
+module.exports = {
+    ...stream,
+    ...logging,
+    ...types,
+    ...cases,
+    ...strings,
+    ...queryable
+}

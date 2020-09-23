@@ -133,4 +133,4 @@ class Queryable {
     }
 }
 
-module.exports = Queryable;
+module.exports = {Queryable};

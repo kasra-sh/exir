@@ -1,69 +1,67 @@
-let T = {};
-
-T.isUnd = function (x) {
-    return x!==null && x === undefined;
+function isUnd(x) {
+    return x !== null && x === undefined;
 }
 
-T.isNull = function (x) {
+function isNull(x) {
     return x === null;
 }
 
-T.isVal = function (x) {
-    return !T.isUnd(x) && !T.isNull(x);
+function isVal(x) {
+    return !isUnd(x) && !isNull(x);
 }
 
-T.isNum = function (x) {
+function isNum(x) {
     return typeof x === "number";
 }
 
-T.isStr = function (x) {
+function isStr(x) {
     return typeof x === "string" || x instanceof String;
 }
 
-T.isFun = function (x) {
+function isFun(x) {
     return typeof x === "function";
 }
 
-T.isObj = function (x) {
+function isObj(x) {
     return typeof x === "object";
 }
 
-T.isArr = function (x) {
+function isArr(x) {
     return x instanceof Array
 }
 
-T.isPrim = function (x) {
-    return T.isVal(x) && !T.isObj(x) && !T.isFun(x);
+function isPrim(x) {
+    return isVal(x) && !isObj(x) && !isFun(x);
 }
 
-T.isList = function (x) {
-    return T.isVal(x.length) && T.isFun(x.item)
+function isList(x) {
+    return isVal(x.length) && isFun(x.item)
 }
 
-T.isMutableList = function (x) {
-    return T.isVal(x.length) && T.isFun(x.item) && T.isFun(x.add)
+function isMutableList(x) {
+    return isVal(x.length) && isFun(x.item) && isFun(x.add)
 }
 
-T.isEl = function (x) {
+function isEl(x) {
     return x instanceof Element || x instanceof HTMLElement || x instanceof Node;
 }
 
-T.isEls = function (x) {
+function isEls(x) {
     return x instanceof HTMLCollection || x instanceof NodeList;
 }
 
-T.hasField = function hasField(obj, field, pred) {
-    if (!T.isVal(obj)) return undefined;
-    if (T.isFun(pred)) {
+function hasField(obj, field, pred) {
+    if (!isVal(obj)) return undefined;
+    if (isFun(pred)) {
         return pred(obj[field]);
     }
     return obj.hasOwnProperty(field);
 }
 
-T.isEmpty = function (x) {
-    if (T.hasField(x, 'length')) return x.length <= 0;
-    if (T.isFun(x)) return false;
-    if (T.isObj(x)) return Object.keys(x).length <= 0
+function isEmpty(x) {
+    if (hasField(x, 'length')) return x.length <= 0;
+    if (isFun(x)) return false;
+    if (isObj(x)) return Object.keys(x).length <= 0
     return true;
 }
 
@@ -73,7 +71,7 @@ T.isEmpty = function (x) {
  * @return {(array)}
  * @constructor
  */
-T.Enum = function (src) {
+function Enum(src) {
     let c = 0;
     let MAP = {};
     for (let i of Object.keys(src)) {
@@ -82,7 +80,7 @@ T.Enum = function (src) {
     return MAP;
 }
 
-T.Set = class {
+class Set {
     items = [];
 
     constructor(items) {
@@ -90,17 +88,17 @@ T.Set = class {
     }
 
     static of(src) {
-        return new T.Set(src)
+        return new Set(src)
     }
 
     add(item) {
-        if (this.items.indexOf(item)<0) {
+        if (this.items.indexOf(item) < 0) {
             this.items.push(item)
         }
     }
 
     contains(item) {
-        return this.items.indexOf(item)>=0
+        return this.items.indexOf(item) >= 0
     }
 
     remove(item) {
@@ -108,13 +106,20 @@ T.Set = class {
     }
 }
 
-T.dict = function (...args) {
+function dict(...args) {
     let o = {};
-    for (let i=0;i<args.length; i++) {
-        if (i%2!==0) continue;
-        o[args[i]] = args[i+1]
+    for (let i = 0; i < args.length; i++) {
+        if (i % 2 !== 0) continue;
+        o[args[i]] = args[i + 1]
     }
     return o;
 }
 
-module.exports = T;
+module.exports = {
+    isUnd, isNull, isVal,
+    isNum, isStr, isFun,
+    isObj, isArr, isPrim,
+    isList, isMutableList,
+    isEl, isEls, hasField,
+    isEmpty, Enum, Set, dict
+};

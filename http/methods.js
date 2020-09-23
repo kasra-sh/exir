@@ -1,7 +1,6 @@
 const Ajax = require("./ajax").Ajax;
-const Rq = require("./request");
-let Http = {}
-// Http.Ajax = Ajax;
+const {HttpContent} = require("./request");
+
 /**
  *
  * @param method {'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS'}
@@ -13,7 +12,7 @@ let Http = {}
  * uploadProgress: Function?, uploadFinish: Function?}}
  * @return {Ajax}
  */
-Http.makeHttpRequest = function (method, url, params, headers, content, callbacks) {
+function makeHttpRequest(method, url, params, headers, content, callbacks) {
     let ajax = new Ajax(method.toUpperCase(), url, params, headers);
     if (content && content.type) {
         if (content.type.toLowerCase() === 'json') {
@@ -33,14 +32,14 @@ Http.makeHttpRequest = function (method, url, params, headers, content, callback
     callbacks.uploadProgress && (ajax.uploadProgressCallback = callbacks.uploadProgress);
     callbacks.uploadFinish && (ajax.uploadFinishCallback = callbacks.uploadFinish);
     return ajax;
-};
+}
 /**
  *
  * @param opts {{method, url, args, headers, type, data, success, fail, progress, prepare, uploadProgress, uploadFinish}}
  * @return {Ajax}
  */
-Http.makeRequest = function(opts) {
-    return Http.makeHttpRequest(opts.method || 'OPTIONS', opts.url, opts.args, opts.headers, new Rq.HttpContent(opts.type, opts.data), {
+function makeRequest(opts) {
+    return makeHttpRequest(opts.method || 'OPTIONS', opts.url, opts.args, opts.headers, new HttpContent(opts.type, opts.data), {
         success: opts.success,
         fail: opts.fail,
         progress: opts.progress,
@@ -48,9 +47,9 @@ Http.makeRequest = function(opts) {
         uploadProgress: opts.uploadProgress,
         uploadFinish: opts.uploadFinish
     })
-};
+}
 
-Http.makePromise = function(r, resolved = null, params = null) {
+function makePromise(r, resolved = null, params = null) {
     return new Promise((res, rej) => {
         r.onSuccess(()=>{
             if (resolved)
@@ -68,61 +67,65 @@ Http.makePromise = function(r, resolved = null, params = null) {
  * @param opts {{method, url, args, headers, type, data, success, fail, progress, prepare, finish, uploadProgress, uploadFinish}}
  * @return {Promise<any>}
  */
-Http.sendRequest = async function sendRequest(opts) {
-    let r = Http.makeRequest(opts);
+async function sendRequest(opts) {
+    let r = makeRequest(opts);
     r.send(opts.finish);
-    return await Http.makePromise(r);
+    return await makePromise(r);
 }
 
-Http.Get = function (url, params){
+function Get(url, params){
     return new Ajax('GET', url, params);
-};
+}
 
-Http.Post = function (url, params){
+function Post(url, params){
     return new Ajax('POST', url, params);
-};
+}
 
-Http.Delete = function (url, params){
+function Delete(url, params){
     return new Ajax('DELETE', url, params);
-};
+}
 
-Http.Put = function (url, params){
+function Put(url, params){
     return new Ajax('PUT', url, params);
-};
+}
 
-Http.Patch = function (url, params){
+function Patch(url, params){
     return new Ajax('PATCH', url, params);
-};
+}
 
 /**
- * {@inheritDoc REST.sendRequest}
+ * {@inheritDoc sendRequest}
  * @return {Promise<*>}
  */
-Http.sendGet = function (opt) {
+function sendGet(opt) {
     opt.method = 'GET';
     opt.type = undefined;
     opt.data = undefined;
-    return Http.sendRequest(opt)
-};
+    return sendRequest(opt)
+}
 
-Http.sendDelete = function (opt) {
+function sendDelete(opt) {
     opt.method = 'DELETE';
-    return Http.sendRequest(opt)
-};
+    return sendRequest(opt)
+}
 
-Http.sendPost = function (opt) {
+function sendPost(opt) {
     opt.method = 'POST';
-    return Http.sendRequest(opt)
-};
+    return sendRequest(opt)
+}
 
-Http.sendPut = function (opt) {
+function sendPut(opt) {
     opt.method = 'PUT';
-    return Http.sendRequest(opt)
-};
+    return sendRequest(opt)
+}
 
-Http.sendPatch = function (opt) {
+function sendPatch(opt) {
     opt.method = 'PATCH';
-    return Http.sendRequest(opt)
-};
+    return sendRequest(opt)
+}
 
-module.exports = Http;
+module.exports = {
+    makeHttpRequest, makeRequest, makePromise, sendRequest,
+    Get, Post, Delete, Put, Patch,
+    sendGet, sendDelete, sendPost, sendPut, sendPatch
+};

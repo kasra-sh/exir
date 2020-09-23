@@ -1,16 +1,15 @@
 const T = require("../core/types");
-let R = {};
 
-R.HttpContent = class {
+class HttpContent{
     type
     data
     constructor(type, data) {
         this.type = type;
         this.data = data;
     }
-};
+}
 
-R.HttpRq = class {
+class HttpRq{
     setMethod(m) {
         this.method = m.toUpperCase();
     };
@@ -95,18 +94,18 @@ R.HttpRq = class {
      * @param url {String?}
      * @param args {{name: value}?}
      * @param headers {{name: value}?}
-     * @param content {R.HttpContent?}
+     * @param content {HttpContent?}
      */
     constructor(method, url, args, headers, content) {
         this.args = args || {};
         this.headers = headers || {};
-        this.content = content || new R.HttpContent('#urlencoded', {});
+        this.content = content || new HttpContent('#urlencoded', {});
 
         this.setMethod(method);
 
         this.setUrl(url);
     }
 
-};
+}
 
-module.exports = R;
+module.exports = {HttpContent, HttpRq};

@@ -4,11 +4,11 @@ const S = {};
 S.numRegex = /0[xXbB][\daAbBcCdDeEfF]+|\d*\.?\d+/
 S.getNumberRegex = /(0[xXbB][\daAbBcCdDeEfF]+|\d*\.?\d+)([a-zA-Z]+)/g
 
-S.isNumeric = function (s) {
+function isNumeric(s) {
     return S.numRegex.test(s)
 }
 
-S.getNumeric = function (s) {
+function getNumeric(s) {
     let all = s.matchAll(S.getNumberRegex);
     let arr = [];
     do {
@@ -19,4 +19,4 @@ S.getNumeric = function (s) {
     return arr;
 }
 
-module.exports = S;
+module.exports = {};

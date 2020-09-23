@@ -1,4 +1,4 @@
-export class Component {
+class Component {
     constructor() {
         if (arguments.length>0) throw Error("Component constructor has no args")
     }

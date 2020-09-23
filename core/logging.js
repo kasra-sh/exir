@@ -1,5 +1,5 @@
 const T = require("./types");
-let X = {};
+
 function __logtime__() {
     let t = new Date();
     return `${t.getHours()}:${t.getMinutes()}:${t.getSeconds()}:${t.getMilliseconds()}`;
@@ -15,41 +15,47 @@ function prepareLog(args, lt) {
     args.reverse();
 }
 
-X.Level = T.Enum({TRACE:0, INFO:0, WARN:0, ERROR:0, SILENT:0});
-X.LogLevel = X.Level.TRACE;
-
-X.showTrace = function () {X.LogLevel = X.Level.TRACE;}
-X.showInfo = function () {X.LogLevel = X.Level.INFO;}
-X.showWarn = function () {X.LogLevel = X.Level.WARN;}
-X.showError = function () {X.LogLevel = X.Level.ERROR;}
-X.silent = function () {X.LogLevel = X.Level.SILENT;}
-function lvl(l) {
-    return X.LogLevel !== X.Level.SILENT && X.LogLevel <= l
+const LogLevels = T.Enum({TRACE:0, INFO:0, WARN:0, ERROR:0, SILENT:0});
+const Config = {
+    LogLevel : LogLevels.TRACE
 }
-X.trace = function (...args) {
-    if (!lvl(X.Level.TRACE)) return;
+
+function showTrace() {Config.LogLevel = LogLevels.TRACE;}
+function showInfo() {Config.LogLevel = LogLevels.INFO;}
+function showWarn() {Config.LogLevel = LogLevels.WARN;}
+function showError() {Config.LogLevel = LogLevels.ERROR;}
+function silent() {Config.LogLevel = LogLevels.SILENT;}
+function lvl(l) {
+    return Config.LogLevel !== LogLevels.SILENT && Config.LogLevel <= l
+}
+function trace(...args) {
+    if (!lvl(LogLevels.TRACE)) return;
     args.reverse();
     args.push(logTitle("X-TRACE"));
     args.reverse();    // args.push("\n");
     console.trace.apply(X, args);
 }
 
-X.info = function (...args) {
-    if (!lvl(X.Level.INFO)) return;
+function info(...args) {
+    if (!lvl(LogLevels.INFO)) return;
     prepareLog(args, logTitle("X-INFO"));
     console.log.apply(X, args);
 }
 
-X.warn = function (...args) {
-    if (!lvl(X.Level.WARN)) return;
+function warn(...args) {
+    if (!lvl(LogLevels.WARN)) return;
     prepareLog(args, logTitle("X-WARN"));
     console.warn.apply(X, args);
 }
 
-X.error = function (...args) {
-    if (!lvl(X.Level.ERROR)) return;
+function error(...args) {
+    if (!lvl(LogLevels.ERROR)) return;
     prepareLog(args, logTitle("X-ERROR"));
     console.error.apply(X, args);
 }
 
-module.exports = X;
+module.exports = {
+    Config,
+    LogLevels,
+    showTrace, showInfo, showWarn, showError, silent, trace, info, warn, error
+};
