@@ -1,13 +1,9 @@
-const S = require("../core/scope");
+const {Extension} = require("../core/scope");
 const I = require("../core/stream");
-const T = require("../core/types");
 const DOM = require("../dom");
 
-// let array = new S.Proto([Array]);
-// let str = new S.Proto([String]);
-// let arrayObject = new S.Proto([Array, Object]);
-let list = new S.Proto([Array, global.HTMLCollection, global.NodeList]);
-let node = new S.Proto([global.HTMLElement, global.Element, global.Node]);
+let list = new Extension([Array, global.HTMLCollection, global.NodeList]);
+let node = new Extension([global.HTMLElement, global.Element, global.Node]);
 
 // Element Classes Helper
 node.define(function $class() {
@@ -83,7 +79,6 @@ node.define(function $clearEvent(names) {
     DOM.clearEvent(this, names);
 })
 const reqs = `const I = require("../core/stream");
-const T = require("../core/types");
 const L = require("../core/logging");
 const DOM = require("../dom");`;
 let code = reqs + node.pcode + list.pcode;

@@ -1,22 +1,17 @@
-const S = require("../core/scope");
+const {Extension} = require("../core/scope");
 const I = require("../core/stream");
 const T = require("../core/types");
 // const L = require("./core/logging");
 
-let arrObj = new S.Proto([Array, Object]);
-let str = new S.Proto([String]);
-// let arrStrObj = new S.Proto([Array, String, Object]);
-// let nodes = new S.Proto([global.HTMLCollection, global.NodeList]);
-let arrNodes = new S.Proto([Array, global.HTMLCollection, global.NodeList])
-let iterables = new S.Proto([Array, String, Object, global.HTMLCollection, global.NodeList])
-let all = new S.Proto([Array, Object, String, global.HTMLCollection, global.NodeList])
+let arrObj = new Extension([Array, Object]);
+// let str = new Extension([String]);
+// let arrNodes = new Extension([Array, global.HTMLCollection, global.NodeList])
+let iterables = new Extension([Array, String, global.HTMLCollection, global.NodeList])
+let all = new Extension([Array, Object, String, global.HTMLCollection, global.NodeList])
 
-// array.define(function item(i) {
-//     return this[i]
-// });
-// str.define(function item(i) {
-//     return this[i];
-// });
+iterables.polyfill(function item(i) {
+    return I.item(this, i)
+});
 
 all.define(function $contains(x) {
     return this.$any(x);
