@@ -31,7 +31,7 @@ function setEvent(target, event, listener, options) {
         if (!T.hasField(options, 'duplicates', (a)=>a)) {
             // console.log('removing dups')
             target.__EVENTS__[ev] = I.Filter(target.__EVENTS__[ev],(fl)=> {
-                if (F.bodyEquals(fl.l, listener)) {
+                if (F.funcBodyEquals(fl.l, listener)) {
                     target.removeEventListener(ev, fl.f, fl.o);
                     return false
                 } else {
