@@ -1,4 +1,3 @@
-
 // if (scope.isBrowser()) {
 //     $event(window, "load", function (){
 //         window.__WINLOADED__ = true;
@@ -25,14 +24,20 @@
 //         window.dispatchEvent(new CustomEvent(window.X_DOMAPPENDEVENT, {detail: {target: this}}))
 //     }
 //
-// // Add tracking for addEventListener
-//     const ael = Node.prototype.addEventListener;
-//     HTMLElement.prototype.addEventListener = Element.prototype.addEventListener =
-//         Node.prototype.addEventListener = function (type, listener, options) {
-//             ael.call(this, type, listener, options);
-//             this.__EVENTS__ = this.__EVENTS__ || {};
-//             this.__EVENTS__[type] = this.__EVENTS__[type] || [];
-//             this.__EVENTS__[type].push({listener, options});
-//         }
+// Add tracking for addEventListener
+class Intercept {
+    static addEventListener() {
+        window.__NATIVE__ = window.__NATIVE__ || {};
+        window.__NATIVE__.addEventListener = window.__NATIVE__.addEventListener || window.addEventListener;
+
+        HTMLElement.prototype.addEventListener = Element.prototype.addEventListener =
+            Node.prototype.addEventListener = function (type, listener, options) {
+                window.__NATIVE__.addEventListener.call(this, type, listener, options);
+                this.__EVENTS__ = this.__EVENTS__ || {};
+                this.__EVENTS__[type] = this.__EVENTS__[type] || [];
+                this.__EVENTS__[type].push({listener, options});
+            }
+    }
+}
 // }
 
