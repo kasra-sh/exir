@@ -25,7 +25,9 @@ X.Post("http://www.httpbin.org/post", {a: 1})
         X.trace(rs.json)
     });
 
-X.$('input').$event('click', (e, el)=>{console.log("Clicked on",el)})
+X.$('input').$event('click', (e, el)=>{console.log("Clicked on",el)});
+// Does not duplicate
+X.$('input').$event('click', (e, el)=>{console.log("Clicked on",el)});
 
 
 // var client = new X.XHttpClient('http://conduit.productionready.io/api', {ratePerMinute: 10});
