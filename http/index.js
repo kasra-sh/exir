@@ -10,4 +10,3 @@ module.exports = {
     ...methods,
     ...client
 }
-console.log(module.exports)
