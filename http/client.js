@@ -1,4 +1,5 @@
-const http = require('./methods')
+const http = require('./methods');
+const {startsWith, endsWith, contains, All, Filter, ForEach} = require('../core/stream');
 
 class InterceptorStore {
     all = []
@@ -8,68 +9,108 @@ class InterceptorStore {
 }
 
 class XHttpClient {
-    base
-    queue = []
-    sending = []
-    interval
-    maxPerMinute
+    host = ""
+    __queue = []
+    __sending = []
+    __interval
+    __timeBetween
+    __ratePerMinute
+    __lastRequestTime
     interceptors = {
         request : new InterceptorStore(),
         response: new InterceptorStore()
     }
 
-    constructor(base_path = '') {
-        this.base = base_path;
+    constructor(host = '' ,{ratePerMinute = 300}={}) {
+        if (endsWith(host, '/')) {
+            host = host.split('').splice(host.length-1).join()
+        }
+        this.host = host
+        this.__ratePerMinute = ratePerMinute
+        this.__timeBetween = 60000/ratePerMinute
+        this.__lastRequestTime = new Date().getTime() - this.__timeBetween;
     }
 
-    async _intervalSend() {
-        if (this.queue.length === 0) {
-            clearInterval(this.interval);
-            this.interval = undefined;
+    _intervalSend(client) {
+        if (client.__queue.length === 0) {
+            clearInterval(client.__interval);
+            client.__interval = undefined;
+            return;
         }
-        // fix promise
-        let ajax = this.queue.pop();
-        ajax.send();
+        let now = new Date().getTime();
+        if (now - client.__lastRequestTime > client.__timeBetween) {
+            let ajax = client.__queue.pop().send();
+            client.__sending.push(ajax);
+            client.__lastRequestTime = now;
+        }
     }
 
-    _addRequest(ajax) {
-        this.queue.push(ajax);
-        if (!this.interval) {
-            this.interval = setInterval(this._intervalSend, 1);
+    _addRequest(ajax, {responseType, cancelToken}) {
+        this.__queue.push(ajax);
+        if (!this.__interval) {
+            this.__interval = setInterval(this._intervalSend, 1, this);
         }
-        return http.makePromise(ajax);
+        ajax.cancelToken = cancelToken;
+        console.log(responseType)
+        if (responseType) ajax.xhr.responseType = responseType;
+        return http.makePromise(ajax, ({client, request}) => {
+            let rqi = client.__sending.indexOf(request);
+            if (rqi >= 0) {
+                client.__sending.splice(rqi);
+            }
+        }, {client: this, request: ajax});
     }
 
     send(ajax) {
         this._addRequest(ajax)
     }
 
-    get(route, args= {params:{}, headers:{}}) {
-        return this._addRequest(http.Get(this.base+route, args.params).headers(args.headers));
-    }
-
-    _contentRequest(method, route, args) {
+    _contentRequest(method, route, {params, headers, content,responseType, cancelToken}) {
+        if (!startsWith(route, '/') && route.length > 1) {
+            route = '/' + route;
+        }
         return this._addRequest(
-            method(this.base+route, args || {})
-                .headers(args.headers || {})
-                .withContent(args.content || {type: '', data: ''})
-        )
+            method(this.host+route, params || {})
+                .headers(headers || {})
+                .withContent(content || {type: '', data: ''})
+        , {responseType,cancelToken})
     }
 
-    post(route, args={}, headers={}, content) {
-        return this._contentRequest(http.Post, route, args, headers, content);
+    get(route, {params, headers, responseType, cancelToken}={}) {
+        if (!startsWith(route, '/') && route.length > 1) {
+            route = '/' + route;
+        }
+        return this._addRequest(http.Get(this.host+route, params).headers(headers), {responseType, cancelToken});
     }
 
-    put(route, args={}, headers={}, content) {
-        return this._contentRequest(http.Put, route, args, headers, content);
+    post(route, {params, headers, content,responseType, cancelToken}={}) {
+        return this._contentRequest(http.Post, route, {params, headers, content,responseType, cancelToken});
     }
 
-    patch(route, args={}, headers={}, content) {
-        return this._contentRequest(http.Patch, route, args, headers, content);
+    put(route, {params, headers, content,responseType, cancelToken}={}) {
+        return this._contentRequest(http.Put, route, {params, headers, content,responseType, cancelToken});
     }
 
-    delete(route, args={}, headers={}, content) {
-        return this._contentRequest(http.Delete, route, args, headers, content);
+    patch(route, {params, headers, content,responseType, cancelToken}={}) {
+        return this._contentRequest(http.Patch, route, {params, headers, content,responseType, cancelToken});
+    }
+
+    delete(route, {params, headers, content,responseType, cancelToken}={}) {
+        return this._contentRequest(http.Delete, route, {params, headers, content,responseType, cancelToken});
+    }
+
+    cancel(token) {
+        this.__queue = Filter(this.__queue, (a)=>a.cancelToken !== token);
+        let sending = Filter(this.__sending, (a)=>a.cancelToken === token);
+        ForEach(sending, (ajax)=>{
+            try {
+                ajax.xhr.abort();
+            } catch (e) {
+                console.log(e)
+            }
+        });
+
+        this.__sending = Filter(this.__sending, (a)=>a.cancelToken !== token);
     }
 }
 

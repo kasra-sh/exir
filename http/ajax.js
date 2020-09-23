@@ -47,7 +47,7 @@ class Ajax {
         return this;
     };
 
-    headers (hdrs) {
+    headers (hdrs={}) {
         I.ForEach(hdrs, (v, k) =>{
             this.Rq.setHeader(k, v);
         });
@@ -132,7 +132,6 @@ class Ajax {
     };
 
     send (finishCallback) {
-        // let rqi = X.AjaxInterceptors.__rq.First((ic)=>ic(this));
         this._prepare();
         let ajax = this;
         let xhr = this.xhr;
@@ -147,7 +146,6 @@ class Ajax {
                     callback = ajax.failCallback;
                 }
                 ajax.Rs = new Rs.HttpRs(xhr);
-                // let rsi = X.AjaxInterceptors.__rs.First((ic)=>ic(this));
                 finishCallback && finishCallback(ajax.Rq, ajax.Rs, ajax.xhr);
                 callback && callback(ajax.Rq, ajax.Rs, ajax.xhr);
             }
@@ -164,7 +162,11 @@ class Ajax {
             ajax.uploadFinishCallback && ajax.uploadFinishCallback(ev, ajax);
         };
 
-        this.xhr.send(this.Rq.content.data);
+        try {
+            this.xhr.send(this.Rq.content.data);
+        } catch (e) {
+            this.onFail(e);
+        }
 
         return ajax;
     }

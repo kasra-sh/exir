@@ -244,7 +244,6 @@ S.StartsWith = function(src, func) {
 }
 
 S.Last = function (src, func) {
-    // if (!func) return item(src, 0);
     func = funOrEq(func, ()=>true);
     let r;
     S.ForEachRTL(src, function (v,k,i) {
@@ -255,6 +254,11 @@ S.Last = function (src, func) {
         }
     })
     return r;
+}
+
+S.EndsWith = function(src, func) {
+    func = funOrEq(func,()=>true);
+    return func(S.Last(src))
 }
 
 S.Reverse = function (src) {
@@ -330,7 +334,6 @@ function filterA(src, pred, right= false) {
     } else
         pred = funOrEq(pred,  ()=>true);
     let res = [];
-    // let loop = right? I.ForEachRTL: I.ForEach;
     const len = src.length;
     if (!right) {
         for (let i = 0; i < len; i++) {
@@ -347,12 +350,6 @@ function filterA(src, pred, right= false) {
             }
         }
     }
-
-    // loop(src, function (v, k, i) {
-    //     if (pred(v, k, i, src) === true) {
-    //         res.push(v);
-    //     }
-    // });
     return res;
 }
 
@@ -437,11 +434,11 @@ S.spread = merge;
 S.mergeAll = mergeAll;
 
 S.startsWith = function (str, s) {
-    return str.indexOf(s)===0;
+    return str.indexOf(s) === 0;
 }
 
 S.endsWith = function (str, s) {
-    return S.Last(str) === s
+    return str.indexOf(s) === str.length-1;
 }
 
 module.exports = S;

@@ -50,9 +50,15 @@ Http.makeRequest = function(opts) {
     })
 };
 
-Http.makePromise = function(r) {
+Http.makePromise = function(r, resolved = null, params = null) {
     return new Promise((res, rej) => {
-        r.onSuccess(()=>res(r));
+        r.onSuccess(()=>{
+            if (resolved)
+                try {
+                    resolved(params);
+                } catch (e) {}
+            return res(r)
+        });
         r.onFail(()=>rej(r));
     })
 }
