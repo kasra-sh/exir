@@ -1,5 +1,5 @@
 const T = require("../core/types");
-
+const {$, $$} = require("../dom/query")
 class HttpContent{
     type
     data
@@ -65,11 +65,10 @@ class HttpRq{
     };
     /**
      *
-     * @param form {string} form id
+     * @param form {string|Node|Element} form id
      */
     formContent(form) {
-        //TODO make form data from element id
-        let formElement = (form);
+        let formElement = $$(form)[0];
         let frm = new FormData(formElement);
         this.formMultiPartContent(frm);
     };

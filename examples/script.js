@@ -17,30 +17,29 @@ var o2 = {
     d: 8234
 };
 
-X.setEvent(X.$("#form>button"), "click", function () {
-    X.Post("http://www.httpbin.org/post", {a: 1})
-        .formData("#form")
-        .uploadProgress(function (e) {
-            X.info("UPLOAD", (e.loaded * 100 / e.total).toFixed());
-        })
-        .progress(function (e) {
-            X.info("DOWNLOAD", (e.loaded * 100 / e.total).toFixed());
-        })
-        .send(function (rq, rs) {
-            X.trace(rs.json())
-        });
-});
+X.Post("http://www.httpbin.org/post", {a: 1})
+    .formData("#form")
+    .onUploadProgress(function (e) {
+        X.info("UPLOAD", (e.loaded * 100 / e.total).toFixed());
+    })
+    .onProgress(function (e) {
+        X.info("DOWNLOAD", (e.loaded * 100 / e.total).toFixed());
+    })
+    .send(function (rq, rs) {
+        X.trace(rs.json)
+    });
 // this listener replaces previous one
-X.event(X.$$("#form>button"), "click", function () {
-    R.Post("http://www.httpbin.org/post", {a: 1})
-        .formData("#form")
-        .onUploadProgress(function (e) {
-            X.info("UPLOAD", (e.loaded * 100 / e.total).toFixed());
-        })
-        .onProgress(function (e) {
-            X.info("DOWNLOAD", (e.loaded * 100 / e.total).toFixed());
-        })
-        .send(function (rq, rs) {
-            X.trace(rs.json())
-        });
-});
+// X.win
+// X.event(X.$$("#form>button"), "click", function () {
+//     R.Post("http://www.httpbin.org/post", {a: 1})
+//         .formData("#form")
+//         .onUploadProgress(function (e) {
+//             X.info("UPLOAD", (e.loaded * 100 / e.total).toFixed());
+//         })
+//         .onProgress(function (e) {
+//             X.info("DOWNLOAD", (e.loaded * 100 / e.total).toFixed());
+//         })
+//         .send(function (rq, rs) {
+//             X.trace(rs.json())
+//         });
+// });

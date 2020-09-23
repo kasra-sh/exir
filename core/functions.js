@@ -1,6 +1,3 @@
-const T = require("./types");
-const S = require("./stream");
-const js = require("./jstokenizer");
 
 function bodyOf(func) {
     return func.toString().match(/{[\w\W]*}/)[0]
@@ -15,5 +12,5 @@ const validChars = /[\w$_0-9]/i
 
 module.exports = {
     bodyOf,
-    tokenizer
+    bodyEquals
 }
