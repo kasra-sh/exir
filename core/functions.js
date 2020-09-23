@@ -1,16 +1,39 @@
-
 function bodyOf(func) {
     return func.toString().match(/{[\w\W]*}/)[0]
 }
 
-function bodyEquals(f1, f2) {
+function funcBodyEquals(f1, f2) {
     return bodyOf(f1) === bodyOf(f2)
 }
 
-const nameRegex = /^[$\w_][0-9\w_$]*$/i;
-const validChars = /[\w$_0-9]/i
+function throttle(func, intervalMs) {
+    var ___last___ = new Date().getTime();
+    function throttled(args) {
+        if (new Date().getTime()-___last___ >= intervalMs) {
+            ___last___ = new Date().getTime();
+            func.call(this, args);
+        }
+    }
+    return throttled;
+}
+
+function debounce(func, afterMs) {
+    var ___timeout___ = null;
+
+    function caller(_this, args) {
+        func.call(_this, args);
+    }
+
+    function debounced(args) {
+        clearTimeout(___timeout___);
+        ___timeout___ = setTimeout(caller, afterMs, this, args)
+    }
+
+    return debounced
+}
 
 module.exports = {
-    bodyOf,
-    bodyEquals
+    funcBodyEquals,
+    throttle,
+    debounce
 }
