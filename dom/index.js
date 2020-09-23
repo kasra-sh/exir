@@ -5,6 +5,7 @@ const attributes = require('./attributes');
 const position = require('./position');
 const append = require('./append');
 const patch = require('./patch');
+const styles = require('./styles');
 module.exports = {
     ...query,
     ...event,
@@ -12,5 +13,6 @@ module.exports = {
     ...attributes,
     ...position,
     ...append,
-    ...patch
+    ...patch,
+    ...styles
 };
