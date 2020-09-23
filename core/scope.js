@@ -79,4 +79,4 @@ if (!isBrowser()) {
 // -------------
 }
 
-module.exports = {merge, mergeAll, setGlobal, Proto: Extension, isBrowser}
+module.exports = {merge, mergeAll, setGlobal, Extension, isBrowser}
