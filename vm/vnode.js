@@ -1,7 +1,7 @@
-const I = require("../../core/stream");
-const T = require("../../core/types");
-const Case = require("../../core/cases");
-const Dom = require("../../dom")
+const I = require("../core/stream");
+const T = require("../core/types");
+const Case = require("../core/cases");
+const Dom = require("../dom")
 
 /**
  * @property tag
@@ -97,12 +97,13 @@ class VNode {
             e[p] = prp[p];
         });
         I.ForEach(vn.nodes,function (n) {
-            Dom.Append(e, VNode.toElement(n));
+            Dom.append(e, VNode.toElement(n));
         });
         return e
     }
 
     static from(element, parentVNode) {
+        element = Dom.$$(element)[0];
         let vnd = new VNode();
         if (element === undefined) return vnd;
         if (T.isVal(element.id) && element.id.trim() !== "") {
@@ -116,7 +117,6 @@ class VNode {
             if (vnd.text.trim() === "") vnd.tag = null;
             return vnd;
         }
-
         if (element.tagName && element.attributes.length > 1 || element.attributes.length > 0) {
             vnd.attrs = {};
             let atrs = vnd.attrs;
@@ -126,12 +126,14 @@ class VNode {
             });
         }
         if (vnd.attrs && vnd.attrs["class"])
-            vnd.cls = element.cls().items();
+            vnd.cls = Dom.cls(element).items;
 
         for (let k in element) {
             if (!element.hasOwnProperty(k)) continue;
             vnd.props || (vnd.props = {});
-            vnd.props[k] = element[k]
+            let val = element[k];
+            if (T.isEl(val) || T.isList(val) && I.Any(val, (v)=>T.isEl(v))) continue;
+            vnd.props[k] = val;
         }
 
         // vnd.relQuery = X.queryOf(element, element.parentElement);
