@@ -106,6 +106,30 @@ if (NodeList.prototype.$flatMap === undefined) NodeList.prototype.$flatMap = fun
     return I.FlatMap(this, f);
 };
 
+Array.prototype.$minIndex = Object.prototype.$minIndex = String.prototype.$minIndex = HTMLCollection.prototype.$minIndex = NodeList.prototype.$minIndex = function $minIndex(f) {
+    return I.MinIndex(this, f);
+};
+
+Array.prototype.$min = Object.prototype.$min = String.prototype.$min = HTMLCollection.prototype.$min = NodeList.prototype.$min = function $min(f) {
+    return I.Min(this, f);
+};
+
+Array.prototype.$maxIndex = Object.prototype.$maxIndex = String.prototype.$maxIndex = HTMLCollection.prototype.$maxIndex = NodeList.prototype.$maxIndex = function $maxIndex(f) {
+    return I.MaxIndex(this, f);
+};
+
+Array.prototype.$max = Object.prototype.$max = String.prototype.$max = HTMLCollection.prototype.$max = NodeList.prototype.$max = function $max(f) {
+    return I.Max(this, f);
+};
+
+Array.prototype.$firstIndex = Object.prototype.$firstIndex = String.prototype.$firstIndex = HTMLCollection.prototype.$firstIndex = NodeList.prototype.$firstIndex = function $firstIndex(f) {
+    return I.FirstIndex(this, f);
+};
+
+Array.prototype.$lastIndex = Object.prototype.$lastIndex = String.prototype.$lastIndex = HTMLCollection.prototype.$lastIndex = NodeList.prototype.$lastIndex = function $lastIndex(f) {
+    return I.LastIndex(this, f);
+};
+
 
 Array.prototype.$toEnum = Object.prototype.$toEnum = function $toEnum() {
     return T.Enum(this);

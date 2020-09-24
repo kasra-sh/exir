@@ -69,6 +69,30 @@ all.polyfill(function $flatMap(f) {
     return I.FlatMap(this, f);
 });
 
+all.define(function $minIndex(f) {
+    return I.MinIndex(this, f);
+})
+
+all.define(function $min(f) {
+    return I.Min(this, f);
+})
+
+all.define(function $maxIndex(f) {
+    return I.MaxIndex(this, f);
+})
+
+all.define(function $max(f) {
+    return I.Max(this, f);
+})
+
+all.define(function $firstIndex(f) {
+    return I.FirstIndex(this, f);
+})
+
+all.define(function $lastIndex(f) {
+    return I.LastIndex(this, f);
+})
+
 arrObj.define(function $toEnum() {
     return T.Enum(this);
 });
