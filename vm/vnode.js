@@ -1,7 +1,7 @@
 const I = require("../core/stream");
 const T = require("../core/types");
 const Case = require("../core/cases");
-const Dom = require("../dom")
+const Dom = require("../dom");
 
 /**
  * @property tag
@@ -176,7 +176,7 @@ function ve(a1, ...a) {
             vn.cls = ic.slice(1);
             // add classes to attributes
             // if (!vn.attrs) vn.attrs = {};
-            // vn.attrs['class'] = '.'+vn.cls.join(' .');
+            // vn.attrs['class'] = '.' + vn.cls.join(' .');
         }
     } else {
         vn.tag = a1.toUpperCase();
