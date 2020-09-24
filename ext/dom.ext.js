@@ -28,6 +28,10 @@ HTMLElement.prototype.$clearEvent = Element.prototype.$clearEvent = Node.prototy
     DOM.clearEvent(this, names);
 };
 
+HTMLElement.prototype.$style = Element.prototype.$style = Node.prototype.$style = function $style(prop, value) {
+    DOM.style(this, prop, value)
+};
+
 
 Array.prototype.$addClass = HTMLCollection.prototype.$addClass = NodeList.prototype.$addClass = function $addClass(c) {
     I.ForEach(this, (e)=>DOM.addClass(e, c))
@@ -63,4 +67,10 @@ Array.prototype.$clearEvent = HTMLCollection.prototype.$clearEvent = NodeList.pr
     I.ForEach(this, function (e) {
         DOM.clearEvent(e, names);
     });
+};
+
+Array.prototype.$style = HTMLCollection.prototype.$style = NodeList.prototype.$style = function $style(prop, value) {
+    ForEach(this, (v)=>{
+        DOM.style(v, prop, value)
+    })
 };

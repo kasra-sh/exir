@@ -75,9 +75,21 @@ list.define(function $clearEvent(names) {
         DOM.clearEvent(e, names);
     });
 });
+
 node.define(function $clearEvent(names) {
     DOM.clearEvent(this, names);
+});
+
+node.define(function $style(prop, value) {
+    DOM.style(this, prop, value)
 })
+
+list.define(function $style(prop, value) {
+    ForEach(this, (v)=>{
+        DOM.style(v, prop, value)
+    })
+})
+
 const reqs = `const I = require("../core/stream");
 const L = require("../core/logging");
 const DOM = require("../dom");`;
