@@ -20,7 +20,7 @@ function throttle(func, intervalMs) {
 function debounce(func, afterMs) {
     var ___timeout___ = null;
 
-    function caller(_this, args) {
+    function caller(_this, ...args) {
         func.call(_this, args);
     }
 
@@ -28,7 +28,7 @@ function debounce(func, afterMs) {
         func(args);
     }
 
-    function debounced(args) {
+    function debounced(...args) {
         clearTimeout(___timeout___);
         ___timeout___ = setTimeout(caller, afterMs, this, args)
     }
