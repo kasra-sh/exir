@@ -1,6 +1,5 @@
 const S = {};
 
-// const numRegex = /^0[xXbB][\daAbBcCdDeEfF]+$|^\d*\.?\d+$/
 S.numRegex = /0[xXbB][\daAbBcCdDeEfF]+|\d*\.?\d+/
 S.getNumberRegex = /(0[xXbB][\daAbBcCdDeEfF]+|\d*\.?\d+)([a-zA-Z]+)/g
 
@@ -19,4 +18,12 @@ function getNumeric(s) {
     return arr;
 }
 
-module.exports = {};
+function startsWith(str, s) {
+    return str.indexOf(s) === 0;
+}
+
+function endsWith(str, s) {
+    return str.indexOf(s) === str.length-1;
+}
+
+module.exports = {isNumeric, getNumeric, startsWith, endsWith};
