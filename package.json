@@ -1,6 +1,6 @@
 {
   "name": "xeer-js",
-  "version": "0.4.2-beta.1",
+  "version": "0.4.3-beta.1",
   "description": "Javascript Framework",
   "author": "Kasra Shamsaei",
   "license": "MIT",
@@ -51,7 +51,20 @@
     },
     "modern": {
       "engines": {
-        "browsers": "since 2019"
+        "browsers": ["since 2019"]
+      }
+    },
+    "custom-legacy": {
+      "engines": {
+        "browsers": [
+          "ie >= 9",
+          "iOS >= 6"
+        ]
+      }
+    },
+    "custom": {
+      "engines": {
+        "node": "8"
       }
     }
   }
