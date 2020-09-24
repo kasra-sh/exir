@@ -20,8 +20,8 @@ function throttle(func, intervalMs) {
 function debounce(func, afterMs) {
     var ___timeout___ = null;
 
-    function caller(_this, ...args) {
-        func.call(_this, args);
+    function caller(_this, args) {
+        func.apply(_this, args);
     }
 
     function flush(args) {
