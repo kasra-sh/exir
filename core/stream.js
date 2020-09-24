@@ -102,6 +102,16 @@ function funOrEq(f, def, inc = true) {
     else return (v)=>v===f;
 }
 
+function funOrKey(f) {
+    if (T.isUnd(f)) return (v)=>v;
+    if (T.isFun(f)) return f;
+    if (T.isStr(f)) {
+        const key = f;
+        f = (v) => v[key];
+    }
+    throw Error(`Predicate ${f} cannot be of type ${typeof f}`)
+}
+
 function DeepClone(src, {skips=[], maxLevel= 999}, lvl=0) {
     if (lvl>=maxLevel) return src;
     let cl = T.isArr(src)?[]:{};
@@ -222,18 +232,21 @@ function ArrayForEachRTL(src, func) {
     return rev < arr.length ? arr.slice(0, rev) : arr;
 }
 
-function First(src, func) {
-    // if (!func) return item(src, 0);
+function FirstIndex(src, func) {
     func = funOrEq(func,()=>true);
     let r;
     ForEach(src, function (v,k,i) {
         r = func(v, k, i);
         if (r === true) {
-            r = v;
+            r = i;
             return BREAK;
         }
     })
     return r;
+}
+
+function First(src, func) {
+    return src[FirstIndex(src, func)]
 }
 
 function StartsWith(src, func) {
@@ -241,17 +254,21 @@ function StartsWith(src, func) {
     return func(First(src))
 }
 
-function Last(src, func) {
+function LastIndex(src, func) {
     func = funOrEq(func, ()=>true);
     let r;
     ForEachRTL(src, function (v,k,i) {
         r = func(v, k, i);
         if (r === true) {
-            r = v;
+            r = i;
             return BREAK;
         }
     })
     return r;
+}
+
+function Last(src, func) {
+    return src[LastIndex(src, func)]
 }
 
 function EndsWith(src, func) {
@@ -361,6 +378,48 @@ function FilterRTL(src, func) {
     return Filter(src, func, true);
 }
 
+function MaxIndex(list, func) {
+    func = funOrKey(func);
+    let mx;
+    let index = -1;
+    ForEach(list, function (i, ix) {
+        let x = func(i,ix);
+        if (!mx) {
+            mx = x;
+            index = ix;
+        } else if (x>=mx) {
+            mx = x;
+            index = ix;
+        }
+    });
+    return index;
+}
+
+function Max(list, func) {
+    return list[MaxIndex(list, func)];
+}
+
+function MinIndex(list, func) {
+    func = funOrKey(func);
+    let mn;
+    let index = -1;
+    ForEach(list, function (i, ix) {
+        let x = func(i,ix);
+        if (!mn) {
+            mn = x;
+            index = ix;
+        } else if (x<=mn) {
+            mn = x;
+            index = ix;
+        }
+    });
+    return index;
+}
+
+function Min(list, func) {
+    return list[MinIndex(list, func)];
+}
+
 function mapA(src, func, right = false) {
     let res = [];
     let loop = right? ForEachRTL: ForEach;
@@ -427,17 +486,9 @@ function entries(object) {
     return entries;
 }
 
-function startsWith(str, s) {
-    return str.indexOf(s) === 0;
-}
-
-function endsWith(str, s) {
-    return str.indexOf(s) === str.length-1;
-}
-
 module.exports = {
     ANY, ALL, BREAK, item, contains, add, remove, toggle, objMatchOne, objMatchAll,
     DeepClone, DeepConcat, ForRange, ForEach, ForEachRTL, ArrayForEach, ArrayForEachRTL,
-    First, StartsWith, Last, EndsWith, Reverse, Any, All, Filter, FilterRTL,
-    Map, FlatMap, keyValuePairs, entries, spread: merge, spreadAll: mergeAll, startsWith, endsWith
+    FirstIndex, First, StartsWith, LastIndex, Last, EndsWith, Reverse, Any, All, Filter, FilterRTL,
+    Map, FlatMap, keyValuePairs, entries, spread: merge, spreadAll: mergeAll, MaxIndex, Max, MinIndex, Min
 }
