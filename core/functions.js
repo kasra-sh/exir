@@ -24,6 +24,10 @@ function debounce(func, afterMs) {
         func.call(_this, args);
     }
 
+    function flush(args) {
+        func(args);
+    }
+
     function debounced(args) {
         clearTimeout(___timeout___);
         ___timeout___ = setTimeout(caller, afterMs, this, args)
