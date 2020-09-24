@@ -9,7 +9,7 @@ const F = require("../core/functions");
  * @param target {Node|Element}
  * @param event {String|Array}
  * @param listener {Function}
- * @param options {AddEventListenerOptions}
+ * @param options {AddEventListenerOptions?}
  */
 function setEvent(target, event, listener, options) {
     if (!scope.isBrowser()) {
