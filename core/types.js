@@ -1,3 +1,10 @@
+function typeName(x) {
+    if (x.hasOwnProperty('constructor')) {
+        return x.constructor.name;
+    }
+    return typeof x;
+}
+
 function isUnd(x) {
     return x !== null && x === undefined;
 }
@@ -42,6 +49,18 @@ function isMutableList(x) {
     return isVal(x.length) && isFun(x.item) && isFun(x.add)
 }
 
+function isSet(x) {
+    return x instanceof Set
+}
+
+function isMap(x) {
+    return x instanceof Map
+}
+
+function isError(x) {
+    return x instanceof Error
+}
+
 function isEl(x) {
     return x instanceof Element || x instanceof HTMLElement || x instanceof Node;
 }
@@ -80,32 +99,6 @@ function Enum(src) {
     return MAP;
 }
 
-class Set {
-    items = [];
-
-    constructor(items) {
-        this.items = items
-    }
-
-    static of(src) {
-        return new Set(src)
-    }
-
-    add(item) {
-        if (this.items.indexOf(item) < 0) {
-            this.items.push(item)
-        }
-    }
-
-    contains(item) {
-        return this.items.indexOf(item) >= 0
-    }
-
-    remove(item) {
-        this.items.splice(this.items.indexOf(item), 1);
-    }
-}
-
 function dict(...args) {
     let o = {};
     for (let i = 0; i < args.length; i++) {
@@ -116,10 +109,12 @@ function dict(...args) {
 }
 
 module.exports = {
+    typeName,
     isUnd, isNull, isVal,
     isNum, isStr, isFun,
     isObj, isArr, isPrim,
     isList, isMutableList,
+    isSet,isMap, isError,
     isEl, isEls, hasField,
-    isEmpty, Enum, Set, dict
+    isEmpty, Enum, dict
 };
