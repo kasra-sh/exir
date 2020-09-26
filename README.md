@@ -8,7 +8,7 @@
 <img src="https://img.shields.io/badge/Gzipped-15Kb-green" alt="Gzipped Size" />
 <img src="https://img.shields.io/badge/Compatibility-ES5-informational" alt="Compatibility ES5" />
 <br>
-<h1 align="center">XEER JS Framework</h1>
+<h1 align="center">XEER Framework</h1>
 </p>
 
 An experimental javascript framework aiming to be a complete prototyping framework (at least).<br>
