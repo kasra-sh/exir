@@ -39,7 +39,7 @@ $ git clone https://github.com/kasra-sh/xeer-js.git
 $ cd xeer-js
 $ npm install
 ```
-To generate extensions and bundles from changes to source, make sure you have [Parcel](https://parceljs.org) installed globaly:
+To regenerate extensions and bundles, make sure you have [Parcel](https://parceljs.org) installed globaly:
 ```sh
 $ pnpm bundle
 ```

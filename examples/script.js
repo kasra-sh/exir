@@ -1,18 +1,3 @@
-// X.showTrace();
-
-var o1 = {
-    a: {},
-    b: {
-        a: 44,
-        b: 55
-    },
-    c: {
-        a: 7
-    }
-}
-
-console.log(o1.$filter({a: X.ANY}))
-
 X.Post("http://www.httpbin.org/post", {a: 1})
     .formData("#form")
     .onUploadProgress(function (e) {
@@ -24,10 +9,6 @@ X.Post("http://www.httpbin.org/post", {a: 1})
     .send(function (rq, rs) {
         X.trace(rs.json)
     });
-
-X.$('input').$event('click', (e, el)=>{console.log("Clicked on",el)});
-// Does not duplicate
-X.$('input').$event('click', (e, el)=>{console.log("Clicked on",el)});
 
 
 // var client = new X.XHttpClient('http://conduit.productionready.io/api', {ratePerMinute: 10});

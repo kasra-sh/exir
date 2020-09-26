@@ -71,7 +71,7 @@ Array.prototype.$filter = Object.prototype.$filter = String.prototype.$filter = 
 };
 
 Array.prototype.$filterRight = Object.prototype.$filterRight = String.prototype.$filterRight = HTMLCollection.prototype.$filterRight = NodeList.prototype.$filterRight = function $filterRight(f) {
-    return I.FilterRTL(this, f);
+    return I.FilterRight(this, f);
 };
 
 if (Array.prototype.$map === undefined) Array.prototype.$map = function $map(f) {

@@ -91,7 +91,7 @@ function objMatchAll(o, match) {
     return true
 }
 
-function funOrEq(f, def, inc = true) {
+function predicate(f, def=()=>true, inc = true) {
     if (T.isUnd(f)) return def;
     if (T.isFun(f)) return f;
     else if (f instanceof RegExp) return (v)=>!T.isObj(v)?f.test(v.toString()):false;
@@ -201,7 +201,7 @@ function ForEach(src, func) {
     return src.length
 }
 
-function ForEachRTL(src, func, range=[]) {
+function ForEachRight(src, func, range=[]) {
     if (!T.isArr(src) || !T.isStr(src)) {
         let i = 0;
         let keys = Object.keys(src);
@@ -220,23 +220,11 @@ function ForEachRTL(src, func, range=[]) {
     return src.length
 }
 
-function ArrayForEach(src, func) {
-    let arr = Array.from(src);
-    let rev = ForEach(arr, func);
-    return rev < arr.length ? arr.slice(0, rev) : arr;
-}
-
-function ArrayForEachRTL(src, func) {
-    let arr = Array.from(src);
-    let rev = ForEachRTL(arr, func);
-    return rev < arr.length ? arr.slice(0, rev) : arr;
-}
-
-function FirstIndex(src, func) {
-    func = funOrEq(func,()=>true);
+function FirstIndex(src, pred) {
+    pred = predicate(pred,()=>true);
     let r;
     ForEach(src, function (v,k,i) {
-        r = func(v, k, i);
+        r = pred(v, k, i);
         if (r === true) {
             r = i;
             return BREAK;
@@ -245,20 +233,23 @@ function FirstIndex(src, func) {
     return r;
 }
 
-function First(src, func) {
-    return src[FirstIndex(src, func)]
+function First(src, pred) {
+    return src[FirstIndex(src, pred)]
 }
 
-function StartsWith(src, func) {
-    func = funOrEq(func,()=>true);
-    return func(First(src))
+function StartsWith(src, pred) {
+    if (T.isStr(src) && T.isStr(pred)) {
+        return src.indexOf(pred) === 0
+    }
+    pred = predicate(pred,()=>true);
+    return pred(First(src))
 }
 
-function LastIndex(src, func) {
-    func = funOrEq(func, ()=>true);
+function LastIndex(src, pred) {
+    pred = predicate(pred, ()=>true);
     let r;
-    ForEachRTL(src, function (v,k,i) {
-        r = func(v, k, i);
+    ForEachRight(src, function (v, k, i) {
+        r = pred(v, k, i);
         if (r === true) {
             r = i;
             return BREAK;
@@ -267,19 +258,22 @@ function LastIndex(src, func) {
     return r;
 }
 
-function Last(src, func) {
-    return src[LastIndex(src, func)]
+function Last(src, pred) {
+    return src[LastIndex(src, pred)]
 }
 
-function EndsWith(src, func) {
-    func = funOrEq(func,()=>true);
-    return func(Last(src))
+function EndsWith(src, pred) {
+    if (T.isStr(src) && T.isStr(pred)) {
+        return src.indexOf(pred) === src.length-pred.length
+    }
+    pred = predicate(pred,()=>true);
+    return pred(Last(src))
 }
 
 function Reverse(src) {
     if (T.isArr(src)) return src.reverse();
     let rev = "";
-    ForEachRTL(src, function (it) {
+    ForEachRight(src, function (it) {
         rev+=it;
     });
     return rev;
@@ -288,16 +282,16 @@ function Reverse(src) {
 /**
  *
  * @param src
- * @param func
+ * @param pred
  * @return {boolean}
  * @constructor
  */
-function Any(src, func) {
+function Any(src, pred) {
     // if (!func){
     //     if (T.isArr(src) || T.isStr(src)) return src.length>0;
     //     return Object.keys(src).length>0;
     // }
-    let fn = funOrEq(func);
+    let fn = predicate(pred);
     let r = false;
     ForEach(src, function (v, k, i, src) {
         r = fn(v, k, i, src);
@@ -307,7 +301,7 @@ function Any(src, func) {
 }
 
 function All(src, func) {
-    func = funOrEq(func, ()=>true);
+    func = predicate(func, ()=>true);
     let r = true;
     ForEach(src, function (v, k, i, src) {
         r = func(v, k, i, src);
@@ -317,9 +311,9 @@ function All(src, func) {
 }
 
 function filterS(src, pred, right = false){
-    pred = funOrEq(pred, ()=>true);
+    pred = predicate(pred, ()=>true);
     let res = "";
-    let loop = right? ForEachRTL: ForEach;
+    let loop = right? ForEachRight: ForEach;
     loop(src, function (v, k, i) {
         if (!pred || pred(v, k, i, src) === true) res += v;
     });
@@ -333,9 +327,9 @@ function filterO(src, pred, right = false){
             return Any(a, k);
         }
     } else
-        pred = funOrEq(pred,  ()=>true);
+        pred = predicate(pred,  ()=>true);
     let res = {};
-    let loop = right? ForEachRTL: ForEach;
+    let loop = right? ForEachRight: ForEach;
     loop(src, function (v, k, i) {
         if (pred(v, k, i, src) === true) res[k] = v;
     });
@@ -347,7 +341,7 @@ function filterA(src, pred, right= false) {
         let a = DeepClone(pred)
         pred = (v, k, i, src)=>Any(a, i);
     } else
-        pred = funOrEq(pred,  ()=>true);
+        pred = predicate(pred,  ()=>true);
     let res = [];
     const len = src.length;
     if (!right) {
@@ -374,16 +368,16 @@ function Filter(src, pred, right = false) {
     return filterO(src, pred, right);
 }
 
-function FilterRTL(src, func) {
-    return Filter(src, func, true);
+function FilterRight(src, pred) {
+    return Filter(src, pred, true);
 }
 
-function MaxIndex(list, func) {
-    func = funOrKey(func);
+function MaxIndex(list, pred) {
+    pred = funOrKey(pred);
     let mx;
     let index = -1;
     ForEach(list, function (i, ix) {
-        let x = func(i,ix);
+        let x = pred(i,ix);
         if (!mx) {
             mx = x;
             index = ix;
@@ -395,16 +389,16 @@ function MaxIndex(list, func) {
     return index;
 }
 
-function Max(list, func) {
-    return list[MaxIndex(list, func)];
+function Max(list, pred) {
+    return list[MaxIndex(list, pred)];
 }
 
-function MinIndex(list, func) {
-    func = funOrKey(func);
+function MinIndex(list, pred) {
+    pred = funOrKey(pred);
     let mn;
     let index = -1;
     ForEach(list, function (i, ix) {
-        let x = func(i,ix);
+        let x = pred(i,ix);
         if (!mn) {
             mn = x;
             index = ix;
@@ -416,13 +410,13 @@ function MinIndex(list, func) {
     return index;
 }
 
-function Min(list, func) {
-    return list[MinIndex(list, func)];
+function Min(list, pred) {
+    return list[MinIndex(list, pred)];
 }
 
 function mapA(src, func, right = false) {
     let res = [];
-    let loop = right? ForEachRTL: ForEach;
+    let loop = right? ForEachRight: ForEach;
     loop(src, function (a, i) {
         let r = func(a, i, src);
         if (!T.isUnd(r))
@@ -433,7 +427,7 @@ function mapA(src, func, right = false) {
 
 function mapO(src, func, right = false) {
     let res = {};
-    let loop = right? ForEachRTL: ForEach;
+    let loop = right? ForEachRight: ForEach;
     loop(src, function (v, k, i) {
         let r = func(v, k, i, src);
         if (!T.isUnd(r))
@@ -443,7 +437,7 @@ function mapO(src, func, right = false) {
 }
 
 function Map(src, func, right = false) {
-    func = funOrEq(func,(v)=>v);
+    func = predicate(func,(v)=>v);
     if (T.isArr(src)) return mapA(src, func);
     else if (T.isObj(src)) return mapO(src, func);
 }
@@ -470,6 +464,19 @@ function FlatMap(src, func) {
     return res;
 }
 
+function reduceToArray(src, func, array) {
+
+}
+
+function Reduce(src, func, init = src) {
+    if (T.isList(init)) {
+        return reduceToArray(src, func, init)
+    }
+    ForEach(src, (v, k, i)=>{
+        init = func(init, v, k, i, src);
+    })
+}
+
 function keyValuePairs(object) {
     let entries = [];
     ForEach(object, (v, k)=> {
@@ -488,7 +495,7 @@ function entries(object) {
 
 module.exports = {
     ANY, ALL, BREAK, item, contains, add, remove, toggle, objMatchOne, objMatchAll,
-    DeepClone, DeepConcat, ForRange, ForEach, ForEachRTL, ArrayForEach, ArrayForEachRTL,
-    FirstIndex, First, StartsWith, LastIndex, Last, EndsWith, Reverse, Any, All, Filter, FilterRTL,
+    DeepClone, DeepConcat, ForRange, ForEach, ForEachRight, FirstIndex, First,
+    StartsWith, LastIndex, Last, EndsWith, Reverse, Any, All, Filter, FilterRight,
     Map, FlatMap, keyValuePairs, entries, spread: merge, spreadAll: mergeAll, MaxIndex, Max, MinIndex, Min
 }

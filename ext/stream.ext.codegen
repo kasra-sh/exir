@@ -58,7 +58,7 @@ all.define(function $filter(f) {
 });
 
 all.define(function $filterRight(f) {
-    return I.FilterRTL(this, f);
+    return I.FilterRight(this, f);
 });
 
 all.polyfill(function $map(f) {
