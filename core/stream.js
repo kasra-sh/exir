@@ -112,7 +112,7 @@ function funOrKey(f) {
     throw Error(`Predicate ${f} cannot be of type ${typeof f}`)
 }
 
-function DeepClone(src, {skips=[], maxLevel= 999}, lvl=0) {
+function DeepClone(src, {skips=[], maxLevel= 999}={}, lvl=0) {
     if (lvl>=maxLevel) return src;
     let cl = T.isArr(src)?[]:{};
     for (let k in src) {
