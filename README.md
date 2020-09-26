@@ -1,4 +1,7 @@
-# XEER JS
+<p align="center">
+  <img width="300" height="300" src="file:///home/blkr/Pictures/xeer-copy1.png">
+</p>
+<h1 align="center" style="font-size: 72px">XEER JS</h1>
 
 [![npm](https://img.shields.io/npm/v/xeer-js)](https://npmjs.org/xeer-js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-informational.svg)](https://opensource.org/licenses/MIT)
