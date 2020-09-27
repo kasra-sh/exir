@@ -10,6 +10,7 @@ if (!global._X_LOOP_BREAK_) {
 const BREAK = global._X_LOOP_BREAK_;
 const ANY = global._X_ANY_;
 const ALL = global._X_ALL_;
+const NONPROPS = ['__proto__', 'constructor', '__defineGetter__', '__defineSetter__', 'prototype'];
 
 function item(s, i) {
     if (!T.isVal(s)) return undefined;
@@ -464,17 +465,19 @@ function FlatMap(src, func) {
     return res;
 }
 
-function reduceToArray(src, func, array) {
-
+function Reduce(src, func, res = src) {
+    if (T.isUnd(func)) {
+        func = (rs, v) => rs += v
+    }
+    ForEach(src, (v, k, src)=>{
+        res = func(res, v, k, src);
+    });
 }
 
-function Reduce(src, func, init = src) {
-    if (T.isList(init)) {
-        return reduceToArray(src, func, init)
-    }
-    ForEach(src, (v, k, i)=>{
-        init = func(init, v, k, i, src);
-    })
+function ReduceRight(src, func, res = src) {
+    ForEachRight(src, (v, k, src)=>{
+        res = func(res, v, k, src);
+    });
 }
 
 function keyValuePairs(object) {
@@ -493,9 +496,30 @@ function entries(object) {
     return entries;
 }
 
+function deepMerge(src, target) {
+    for (let k of Object.keys(src)) {
+        const val = src[k];
+        if ((!T.isArr(val)) && T.isObj(val)) {
+            if (contains(NONPROPS, k)) continue;
+            if (!target.hasOwnProperty(k)) target[k] = {}
+            deepMerge(src[k], target[k]);
+        } else
+            target[k] = src[k]
+    }
+    return target;
+}
+
+function deepMergeAll(...obj) {
+    let res = {};
+    for (let k of Object.keys(obj)) {
+        merge(obj[k], res);
+    }
+    return res;
+}
+
 module.exports = {
     ANY, ALL, BREAK, item, contains, add, remove, toggle, objMatchOne, objMatchAll,
     DeepClone, DeepConcat, ForRange, ForEach, ForEachRight, FirstIndex, First,
-    StartsWith, LastIndex, Last, EndsWith, Reverse, Any, All, Filter, FilterRight,
-    Map, FlatMap, keyValuePairs, entries, spread: merge, spreadAll: mergeAll, MaxIndex, Max, MinIndex, Min
+    StartsWith, LastIndex, Last, EndsWith, Reverse, Any, All, Filter, FilterRight, Reduce, ReduceRight,
+    Map, FlatMap, keyValuePairs, entries, deepMerge, deepMergeAll, MaxIndex, Max, MinIndex, Min
 }
