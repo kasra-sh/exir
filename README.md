@@ -11,7 +11,7 @@
 <h1 align="center">XEER Framework</h1>
 </p>
 
-An experimental javascript framework aiming to be a complete prototyping framework (at least).<br>
+An experimental javascript framework aiming to be a complete prototyping framework .<br>
 
 XEER framework contains :
 - **Stream Processing** ~~( lodash )~~
