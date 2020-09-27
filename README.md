@@ -6,7 +6,7 @@
 <a href="https://npmjs.org/xeer-js"><img src="https://img.shields.io/npm/v/xeer-js" alt="npm"></a>
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-informational.svg" alt="License: MIT" /></a>
 <img src="https://img.shields.io/badge/Gzipped-15Kb-green" alt="Gzipped Size" />
-<img src="https://img.shields.io/badge/Compatibility-ES5-informational" alt="Compatibility ES5" />
+<img src="https://img.shields.io/badge/Compatibility-ES5/ES6-informational" alt="Compatibility ES5" />
 <br>
 <h1 align="center">XEER Framework</h1>
 </p>
