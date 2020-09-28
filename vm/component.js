@@ -2,11 +2,18 @@ class Component {
     constructor() {
         if (arguments.length>0) throw Error("Component constructor has no args")
     }
-    __x__ = {}
-    __model__ = {}
+    __instanceRoot__ = global
+    __state__ = {}
     __template__ = {}
 
-    model(prop){}
+    get data() {
+        return this.__state__
+    }
+
+    set data(s) {
+        global.dispatchEvent(new CustomEvent('state.set', {detail: this}));
+        this.__state__ = s;
+    }
 
     /**
      * @param ctx
@@ -21,6 +28,6 @@ class Component {
     destroyed(){}
 
     _renderView() {
-        this.__template__ = this.view(this.model())
+        this.__template__ = this.view(this.data)
     }
 }

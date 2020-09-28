@@ -51,7 +51,9 @@
     },
     "modern": {
       "engines": {
-        "browsers": ["since 2019"]
+        "browsers": [
+          "since 2019"
+        ]
       }
     },
     "custom-legacy": {
@@ -62,10 +64,14 @@
         ]
       }
     },
-    "custom": {
+    "node": {
+      "distDir": "cjs",
       "engines": {
-        "node": "8"
-      }
+        "node": ">=9.x"
+      },
+      "context": "node",
+      "outputFormat": "commonjs",
+      "isLibrary": true
     }
   }
 }
