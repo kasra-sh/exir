@@ -318,11 +318,27 @@ function filterO(src, pred, right = false, omit = false) {
     } else
         pred = predicate(pred, () => true);
     let res = {};
-    let loop = right ? ForEachRight : ForEach;
-    // TODO optimize loop
-    loop(src, function (v, k, i) {
-        if (pred(v, k, i, src) !== omit) res[k] = v;
-    });
+    // let loop = right ? ForEachRight : ForEach;
+    const keys = Object.keys(src);
+    const len = keys.length;
+
+    if (!right) {
+        for (let i = 0; i < len; i++) {
+            const k = keys[i]
+            const v = src[k]
+            if (pred(v, k, i, src) !== omit) res[k] = v;
+        }
+    } else {
+        for (let i = len-1; i >=0; i--) {
+            const k = keys[i]
+            const v = src[k]
+            if (pred(v, k, i, src) !== omit) res[k] = v;
+        }
+    }
+
+    // loop(src, function (v, k, i) {
+    //     if (pred(v, k, i, src) !== omit) res[k] = v;
+    // });
     return res;
 }
 
@@ -343,7 +359,7 @@ function filterA(src, pred, right = false, omit = false) {
             }
         }
     } else {
-        for (let i = len; i >= 0; i--) {
+        for (let i = len - 1; i >= 0; i--) {
             const v = src[i]
             if (!pred(v, i, i, src) !== omit) {
                 res.push(v);
@@ -413,23 +429,61 @@ function Min(list, pred) {
 
 function mapA(src, func, right = false) {
     let res = [];
-    let loop = right ? ForEachRight : ForEach;
-    loop(src, function (a, i) {
-        let r = func(a, i, src);
-        if (!T.isUnd(r))
-            res.push(r);
-    });
+    // let loop = right ? ForEachRight : ForEach;
+    const len = src.length;
+    if (!right) {
+        for (let i=0; i<len; i++) {
+            let r = func(src[i], i, src);
+            if (r === BREAK) break;
+            if (!T.isUnd(r))
+                res.push(r);
+        }
+    } else {
+        for (let i=len; i>=0; i--) {
+            let r = func(src[i], i, src);
+            if (r === BREAK) break;
+            if (!T.isUnd(r))
+                res.push(r);
+        }
+    }
+    // loop(src, function (a, i) {
+    //     let r = func(a, i, src);
+    //     if (!T.isUnd(r))
+    //         res.push(r);
+    // });
     return res;
 }
 
 function mapO(src, func, right = false) {
     let res = {};
-    let loop = right ? ForEachRight : ForEach;
-    loop(src, function (v, k, i) {
-        let r = func(v, k, i, src);
-        if (!T.isUnd(r))
-            res[k] = r
-    });
+    // let loop = right ? ForEachRight : ForEach;
+    const keys = Object.keys(src);
+    const len = src.length;
+    if (!right) {
+        for (let i=0; i<len; i++) {
+            const k = keys[i];
+            const v = src[k];
+            let r = func(v, k, i, src);
+            if (r === BREAK) break;
+            if (!T.isUnd(r))
+                res[k] = r
+        }
+    } else {
+        for (let i=len; i>=0; i--) {
+
+            const k = keys[i];
+            const v = src[k];
+            let r = func(v, k, i, src);
+            if (r === BREAK) break;
+            if (!T.isUnd(r))
+                res[k] = r
+        }
+    }
+    // loop(src, function (v, k, i) {
+    //     let r = func(v, k, i, src);
+    //     if (!T.isUnd(r))
+    //         res[k] = r
+    // });
     return res;
 }
 
@@ -514,11 +568,11 @@ function DeepMerge(target,
                    } = {excludeKeys: [], maxDepth: 999, allowUnsafeProps: false},
                    depth = 0) {
     if (depth >= maxDepth) return target;
-    ForEach(source, (v, k)=>{
+    ForEach(source, (v, k) => {
         if (excludeKeys && contains(excludeKeys, k)) return;
         if (allowUnsafeProps && contains(UNSAFE_PROPS, k)) return;
         if (T.isObj(source[k])) {
-            target[k] = DeepMerge(EmptyOf(source[k]), source[k], {excludeKeys, maxDepth, depth:depth+1});
+            target[k] = DeepMerge(EmptyOf(source[k]), source[k], {excludeKeys, maxDepth, depth: depth + 1});
         } else
             target[k] = v
     });
