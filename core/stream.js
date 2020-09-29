@@ -1,4 +1,3 @@
-const {merge, mergeAll} = require("./scope");
 const T = require("./types");
 
 if (!global._X_LOOP_BREAK_) {
@@ -112,43 +111,33 @@ function funOrKey(f) {
     throw Error(`Predicate ${f} cannot be of type ${typeof f}`)
 }
 
-function DeepClone(src, {skips = [], maxLevel = 999} = {}, lvl = 0) {
-    if (lvl >= maxLevel) return src;
-    let cl = T.isArr(src) ? [] : {};
-    for (let k in src) {
-        if (src.hasOwnProperty(k)) {
-            if (skips && contains(skips, k)) continue;
-            let val = src[k];
-            if (!T.isPrim(val)) {
-                val = DeepClone(val, {skips, maxLevel}, lvl++);
-            }
-            if (T.isArr(cl)) {
-                cl.push(val);
-            } else {
-                cl[k] = val;
-            }
-        }
+function EmptyOf(src, def = {}) {
+    if (T.isStr(src)) return "";
+    if (T.isList(src)) return [];
+    if (T.isObj(src)) {
+        if (src.__proto__)
+            return Object.create(src.__proto__);
+        return {};
     }
-    return cl;
 }
 
-function DeepConcat(o1, o2) {
-    if (T.isStr(o1)) {
-        return o1.concat(o2);
+function concat(target, source) {
+    if (T.isStr(target)) {
+        return target.concat(source);
     }
-    if (T.isArr(o1)) {
-        return o1.concat(o2);
+    if (T.isArr(target)) {
+        return target.concat(source);
     }
-    let d = o1;
-    for (let k of Object.keys(o2)) {
-        if (T.isArr(o2[k])) {
-            if (!T.isVal(o1[k])) o1[k] = [];
-            DeepConcat(o1[k], o2[k]);
-        } else if (T.isObj(o2[k])) {
-            if (!T.isVal(o1[k])) o1[k] = {};
-            DeepConcat(o1[k], o2[k])
+    let d = target;
+    for (let k of Object.keys(source)) {
+        if (T.isArr(source[k])) {
+            if (!T.isVal(target[k])) target[k] = [];
+            concat(target[k], source[k]);
+        } else if (T.isObj(source[k])) {
+            if (!T.isVal(target[k])) target[k] = {};
+            concat(target[k], source[k])
         } else
-            d[k] = o2[k];
+            d[k] = source[k];
     }
     return d
 }
@@ -466,7 +455,7 @@ function FlatMap(src, func) {
                 f = a
             }
         }
-        res = DeepConcat(res, f);
+        res = concat(res, f);
     });
     return res;
 }
@@ -515,31 +504,26 @@ function translateObject(source, translations) {
     return res;
 }
 
-function deepMerge(target, src, fields) {
-    for (let k of Object.keys(src)) {
-        const val = src[k];
-        if ((!T.isArr(val)) && T.isObj(val)) {
-            if (contains(NONPROPS, k)) continue;
-            if (!target.hasOwnProperty(k)) target[k] = {}
-            deepMerge(src[k], target[k]);
+function DeepMerge(target, source, {excludeKeys = [], maxDepth = 999} = {}, depth = 0) {
+    if (depth >= maxDepth) return target;
+    ForEach(source, (v, k)=>{
+        if (contains(excludeKeys, k)) return
+        if (T.isObj(source[k])) {
+            target[k] = DeepMerge(EmptyOf(source[k]), source[k], {excludeKeys, maxDepth, depth:depth+1});
         } else
-            target[k] = src[k]
-    }
+            target[k] = v
+    });
     return target;
 }
 
-function deepMergeAll(...obj) {
-    let res = {};
-    for (let k of Object.keys(obj)) {
-        merge(obj[k], res);
-    }
-    return res;
+function DeepClone(source, {excludeKeys = [], maxDepth = 999} = {}) {
+    return DeepMerge(EmptyOf(source), source, {excludeKeys, maxDepth})
 }
 
 module.exports = {
     ANY, ALL, BREAK, item, contains, add, remove, toggle, objMatchOne, objMatchAll,
-    DeepClone, DeepConcat, ForRange, ForEach, ForEachRight, FirstIndex, First,
+    DeepMerge, DeepClone, ForRange, ForEach, ForEachRight, FirstIndex, First,
     StartsWith, LastIndex, Last, EndsWith, Reverse, Any, All, Filter, FilterRight, Reduce, ReduceRight,
-    Map, FlatMap, keyValuePairs, entries, deepMerge, deepMergeAll, MaxIndex, Max, MinIndex, Min,
+    Map, FlatMap, keyValuePairs, entries, MaxIndex, Max, MinIndex, Min,
     translateObject, Omit
 }
