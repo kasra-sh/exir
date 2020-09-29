@@ -30,7 +30,7 @@ function isFun(x) {
 }
 
 function isObj(x) {
-    return typeof x === "object";
+    return x !== null && typeof x === "object";
 }
 
 function isArr(x) {
