@@ -120,6 +120,7 @@ function EmptyOf(src, def = {}) {
             return Object.create(src.__proto__);
         return {};
     }
+    return def
 }
 
 function concat(target, source) {
@@ -141,6 +142,14 @@ function concat(target, source) {
             d[k] = source[k];
     }
     return d
+}
+
+function objectValues(obj) {
+    if (Object.values) {
+        return Object.values(obj);
+    } else {
+        return Map(obj, (v)=>v)
+    }
 }
 
 function ForRange(src, func, start = 0, end) {
@@ -588,10 +597,44 @@ function DeepClone(source,
     return DeepMerge(EmptyOf(source), source, {excludeKeys, maxDepth})
 }
 
+function Join(key, ...lists) {
+    if (lists.length === 0) return [];
+    if (!All(lists, T.isArr)) throw Error("Join only accepts arrays of data!")
+    if (T.isStr(key)) {
+        const k = key;
+        key = (item)=> item[k]
+    } else if (T.isArr(key)) {
+        key = (item) => Reduce(item, (res, v, k)=> {
+            if (contains(key, k)) {
+                return res + v;
+            }
+        }, "")
+    } else if (!T.isFun(key)) {
+        throw Error("Join key only accepts: String, [String,...], Function")
+    }
+
+    const joined = {};
+    ForEach(lists, (list)=>{
+        ForEach(list, (item) => {
+            const joinKey = key(item);
+            const presentValue = joined[joinKey];
+            if (!presentValue) {
+                joined[joinKey] = item;
+            } else {
+                joined[joinKey] = Object.assign(presentValue, item)
+            }
+        });
+    })
+
+    // return Object.values(joined)
+    return (joined)
+
+}
+
 module.exports = {
     ANY, ALL, BREAK, item, contains, add, remove, toggle, objMatchOne, objMatchAll,
     DeepMerge, DeepClone, ForRange, ForEach, ForEachRight, FirstIndex, First,
     StartsWith, LastIndex, Last, EndsWith, Reverse, Any, All, Filter, FilterRight, Reduce, ReduceRight,
     Map, FlatMap, keyValuePairs, entries, MaxIndex, Max, MinIndex, Min,
-    translateObject, Omit
+    translateObject, Omit, Join, objectValues
 }
