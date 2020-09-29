@@ -9,7 +9,7 @@ if (!global._X_LOOP_BREAK_) {
 const BREAK = global._X_LOOP_BREAK_;
 const ANY = global._X_ANY_;
 const ALL = global._X_ALL_;
-const NONPROPS = ['__proto__', 'constructor', '__defineGetter__', '__defineSetter__', 'prototype'];
+const UNSAFE_PROPS = ['__proto__', 'constructor', '__defineGetter__', '__defineSetter__', 'prototype'];
 
 function item(s, i) {
     if (!T.isVal(s)) return undefined;
@@ -20,6 +20,7 @@ function item(s, i) {
 }
 
 function contains(s, v, k) {
+    if (!T.isVal(s)) return false;
     if (!T.isArr(s) && T.isObj(s)) return s[k] === v;
     return s.indexOf(v) >= 0;
 }
@@ -504,10 +505,18 @@ function translateObject(source, translations) {
     return res;
 }
 
-function DeepMerge(target, source, {excludeKeys = [], maxDepth = 999} = {}, depth = 0) {
+function DeepMerge(target,
+                   source,
+                   {
+                       excludeKeys = [],
+                       maxDepth = 999,
+                       allowUnsafeProps = false
+                   } = {excludeKeys: [], maxDepth: 999, allowUnsafeProps: false},
+                   depth = 0) {
     if (depth >= maxDepth) return target;
     ForEach(source, (v, k)=>{
-        if (contains(excludeKeys, k)) return
+        if (excludeKeys && contains(excludeKeys, k)) return;
+        if (allowUnsafeProps && contains(UNSAFE_PROPS, k)) return;
         if (T.isObj(source[k])) {
             target[k] = DeepMerge(EmptyOf(source[k]), source[k], {excludeKeys, maxDepth, depth:depth+1});
         } else
@@ -516,7 +525,12 @@ function DeepMerge(target, source, {excludeKeys = [], maxDepth = 999} = {}, dept
     return target;
 }
 
-function DeepClone(source, {excludeKeys = [], maxDepth = 999} = {}) {
+function DeepClone(source,
+                   {
+                       excludeKeys = [],
+                       maxDepth = 999,
+                       allowUnsafeProps = false
+                   } = {excludeKeys: [], maxDepth: 999, allowUnsafeProps: false},) {
     return DeepMerge(EmptyOf(source), source, {excludeKeys, maxDepth})
 }
 
