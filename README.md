@@ -1,5 +1,5 @@
 <p align="center">
-<img width="300px" style="max-width: 70%" src="https://raw.githubusercontent.com/kasra-sh/xeer-js/master/.github/logo.png">
+<img width="200px" style="max-width: 70%" src="https://raw.githubusercontent.com/kasra-sh/xeer-js/master/.github/logo.png">
 </p>
 <br>
 <p align="center">
