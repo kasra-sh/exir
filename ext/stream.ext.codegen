@@ -33,10 +33,6 @@ all.define(function $forEach(func) {
     return I.ForEach(this, func);
 });
 
-all.define(function $loopArray(func) {
-    return I.ArrayForEach(this, func);
-});
-
 all.polyfill(function $first(func) {
     return I.First(this, func);
 });

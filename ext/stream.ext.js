@@ -22,10 +22,6 @@ Array.prototype.$forEach = Object.prototype.$forEach = String.prototype.$forEach
     return I.ForEach(this, func);
 };
 
-Array.prototype.$loopArray = Object.prototype.$loopArray = String.prototype.$loopArray = HTMLCollection.prototype.$loopArray = NodeList.prototype.$loopArray = function $loopArray(func) {
-    return I.ArrayForEach(this, func);
-};
-
 if (Array.prototype.$first === undefined) Array.prototype.$first = function $first(func) {
     return I.First(this, func);
 };
