@@ -1,5 +1,5 @@
 const T = require("../core/types");
-const I = require("../core/stream");
+const I = require("../core/collections");
 
 class Classes {
     static split(className) {
@@ -34,13 +34,13 @@ class Classes {
     }
 
     contains(...c) {
-        c = I.FlatMap(c);
-        return I.All(c, (it)=>I.contains(this.classes, it));
+        c = I.flatMap(c);
+        return I.all(c, (it)=>I.contains(this.classes, it));
     }
 
     add(...c) {
-        c = I.FlatMap(c);
-        I.ForEach(c, (it)=>{
+        c = I.flatMap(c);
+        I.forEach(c, (it)=>{
             if (!this.contains(it)) {
                 this.classes.push(it.toString());
             }
@@ -49,10 +49,10 @@ class Classes {
     }
 
     remove(...c) {
-        c = I.FlatMap(c);
+        c = I.flatMap(c);
         let l = this.classes.length;
-        this.classes = I.Filter(this.classes, (it)=>{
-            return !I.Any(c, (ci) => ci.endsWith('*')?it.startsWith(ci.replace('*','')):it===ci);
+        this.classes = I.filter(this.classes, (it)=>{
+            return !I.any(c, (ci) => ci.endsWith('*')?it.startsWith(ci.replace('*','')):it===ci);
         });
         this.__update__();
         return l !== this.classes.length

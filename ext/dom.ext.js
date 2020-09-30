@@ -1,4 +1,4 @@
-const I = require("../core/stream");
+const I = require("../core/collections");
 const L = require("../core/logging");
 const DOM = require("../dom");
 
@@ -34,43 +34,43 @@ HTMLElement.prototype.$style = Element.prototype.$style = Node.prototype.$style 
 
 
 Array.prototype.$addClass = HTMLCollection.prototype.$addClass = NodeList.prototype.$addClass = function $addClass(c) {
-    I.ForEach(this, (e)=>DOM.addClass(e, c))
+    I.forEach(this, (e)=>DOM.addClass(e, c))
 };
 
 Array.prototype.$removeClass = HTMLCollection.prototype.$removeClass = NodeList.prototype.$removeClass = function $removeClass(c) {
-    I.ForEach(this, (e)=>DOM.removeClass(e, c))
+    I.forEach(this, (e)=>DOM.removeClass(e, c))
 };
 
 Array.prototype.$toggleClass = HTMLCollection.prototype.$toggleClass = NodeList.prototype.$toggleClass = function $toggleClass(c) {
-    I.ForEach(this, (e)=>DOM.toggleClass(e, c))
+    I.forEach(this, (e)=>DOM.toggleClass(e, c))
 };
 
 Array.prototype.$haveClass = HTMLCollection.prototype.$haveClass = NodeList.prototype.$haveClass = function $haveClass(c) {
-    return I.All(this, (e)=>DOM.hasClass(e, c));
+    return I.all(this, (e)=>DOM.hasClass(e, c));
 };
 
 Array.prototype.$setAttr = HTMLCollection.prototype.$setAttr = NodeList.prototype.$setAttr = function $setAttr(a, v) {
-    I.ForEach(this, (e)=>DOM.setAttr(e, a, v));
+    I.forEach(this, (e)=>DOM.setAttr(e, a, v));
 };
 
 Array.prototype.$haveAttr = HTMLCollection.prototype.$haveAttr = NodeList.prototype.$haveAttr = function $haveAttr(a, v) {
-    I.All(this, (e)=>DOM.hasAttr(e, a, v));
+    I.all(this, (e)=>DOM.hasAttr(e, a, v));
 };
 
 Array.prototype.$event = HTMLCollection.prototype.$event = NodeList.prototype.$event = function $event(names, func, opt) {
-    I.ForEach(this, function (e) {
+    I.forEach(this, function (e) {
         DOM.setEvent(e, names, func, opt);
     });
 };
 
 Array.prototype.$clearEvent = HTMLCollection.prototype.$clearEvent = NodeList.prototype.$clearEvent = function $clearEvent(names) {
-    I.ForEach(this, function (e) {
+    I.forEach(this, function (e) {
         DOM.clearEvent(e, names);
     });
 };
 
 Array.prototype.$style = HTMLCollection.prototype.$style = NodeList.prototype.$style = function $style(prop, value) {
-    ForEach(this, (v)=>{
+    forEach(this, (v)=>{
         DOM.style(v, prop, value)
     })
 };

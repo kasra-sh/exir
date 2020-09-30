@@ -1,6 +1,6 @@
 const scope = require("../core/scope");
 const T = require("../core/types");
-const I = require("../core/stream");
+const I = require("../core/collections");
 const L = require("../core/logging");
 const F = require("../core/functions");
 
@@ -23,14 +23,14 @@ function setEvent(target, event, listener, options) {
             event = [event];
     }
     target.__EVENTS__ = target.__EVENTS__ || {};
-    I.ForEach(event,function (ev) {
+    I.forEach(event,function (ev) {
         target.__EVENTS__[ev] = target.__EVENTS__[ev] || [];
         let f = function (e) {
             listener(e, target);
         };
         if (!T.hasField(options, 'duplicates', (a)=>a)) {
             // console.log('removing dups')
-            target.__EVENTS__[ev] = I.Filter(target.__EVENTS__[ev],(fl)=> {
+            target.__EVENTS__[ev] = I.filter(target.__EVENTS__[ev],(fl)=> {
                 if (F.funcBodyEquals(fl.l, listener)) {
                     target.removeEventListener(ev, fl.f, fl.o);
                     return false
@@ -58,11 +58,11 @@ function clearEvent(target, event) {
     }
     target.__EVENTS__ = target.__EVENTS__ || {};
     if (T.isEmpty(target.__EVENTS__)) return;
-    I.ForEach(event,function (ev) {
+    I.forEach(event,function (ev) {
         target.__EVENTS__[ev] = target.__EVENTS__[ev] || [];
         if (T.isEmpty(target.__EVENTS__[ev])) return;
 
-        I.ForEach(target.__EVENTS__[ev],(fl)=> {
+        I.forEach(target.__EVENTS__[ev],(fl)=> {
             target.removeEventListener(ev, fl.f, fl.o);
             return false
         });

@@ -4,10 +4,8 @@ let component = require('./component');
 let context = require('./context');
 
 module.exports = {
-    XVM: {
-        ...app,
-        ...vnode,
-        ...component,
-        ...context
-    }
+    ...app,
+    ...vnode,
+    ...component,
+    ...context
 }

@@ -1,5 +1,5 @@
 const {Extension} = require("../core/scope");
-const I = require("../core/stream");
+const I = require("../core/collections");
 const T = require("../core/types");
 // const L = require("./core/logging");
 
@@ -22,71 +22,71 @@ all.define(function $in(x) {
 })
 
 all.define(function $startsWith(x) {
-    return I.StartsWith(this, x)
+    return I.startsWith(this, x)
 })
 
 all.define(function $each(func) {
-    return I.ForEach(this, func);
+    return I.forEach(this, func);
 });
 
 all.define(function $forEach(func) {
-    return I.ForEach(this, func);
+    return I.forEach(this, func);
 });
 
 all.polyfill(function $first(func) {
-    return I.First(this, func);
+    return I.first(this, func);
 });
 
 all.polyfill(function $last(func) {
-    return I.Last(this, func);
+    return I.last(this, func);
 });
 
 all.define(function $any(func) {
-    return I.Any(this, func);
+    return I.any(this, func);
 });
 
 all.define(function $all(func) {
-    return I.All(this, func);
+    return I.all(this, func);
 });
 
 all.define(function $filter(f) {
-    return I.Filter(this, f);
+    return I.filter(this, f);
 });
 
 all.define(function $filterRight(f) {
-    return I.FilterRight(this, f);
+    return I.filterRight(this, f);
 });
 
 all.polyfill(function $map(f) {
-    return I.Map(this, f);
+    return I.map(this, f);
 });
 
 all.polyfill(function $flatMap(f) {
-    return I.FlatMap(this, f);
+    return I.flatMap(this, f);
 });
 
 all.define(function $minIndex(f) {
-    return I.MinIndex(this, f);
+    return I.minIndex(this, f);
 })
 
 all.define(function $min(f) {
-    return I.Min(this, f);
+    return I.min(this, f);
 })
 
 all.define(function $maxIndex(f) {
-    return I.MaxIndex(this, f);
+    return I.maxIndex(this, f);
 })
 
 all.define(function $max(f) {
-    return I.Max(this, f);
+    return I.max(this, f);
 })
 
 all.define(function $firstIndex(f) {
-    return I.FirstIndex(this, f);
+    return I.firstIndex(this, f);
 })
 
 all.define(function $lastIndex(f) {
-    return I.LastIndex(this, f);
+    return I.lastIndex(this, f);
 })
 
 arrObj.define(function $toEnum() {
@@ -94,7 +94,7 @@ arrObj.define(function $toEnum() {
 });
 
 
-const reqs = `const I = require("../core/stream");
+const reqs = `const I = require("../core/collections");
 const T = require("../core/types");
 const L = require("../core/logging");`;
 let code = reqs + all.pcode + arrObj.pcode;

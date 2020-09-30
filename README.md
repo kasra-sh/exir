@@ -15,9 +15,20 @@
 An experimental javascript framework aiming to be a complete prototyping framework .<br>
 
 XEER framework contains :
-- **Stream Processing** ~~( lodash )~~
-- **DOM Manipulation** ~~( jQuery )~~
-- **Async REST Client** ~~( Axios )~~
+- **Core Utils**
+  - Extended Collection utilities: chunk, omit, join, etc.
+  - Function helpers: throttle, debounce, etc.
+  - String analyzers and transformers.
+  - Concise Type Checking: isNull, isObj, etc.
+- **DOM Utils**
+  - Flexible, Fool-Proof element/class/attribute/style CRUD
+  - Painless, Predicable Event Handling
+  - Optional native method wrappers for addEventListener, etc. for debugging or other purposes
+- **HTTP Client**
+  - Supports Promises and async/await
+  - Rate Limitting
+  - Request cancellation
+  - 
 - **VirtualDOM**
 - **Dynamic ViewModel Components** ~~( React, Vue, Mithril, ... )~~
 
@@ -97,7 +108,7 @@ Extension method names all have `$` prepended to their names to prevent method o
   require("xeer-js/ext"); 
 
   // Stream processing extensions
-  require("xeer-js/stream.ext");  
+  require("xeer-js/colelctions.ext");  
   
   // DOM extensions
   require("xeer-js/dom.ext");

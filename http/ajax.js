@@ -1,7 +1,7 @@
 const Rq = require("./request");
 const Rs = require("./response");
 const T = require("../core/types");
-const I = require("../core/stream");
+const {forEach} = require("../core/collections");
 class Ajax {
     Rq = {}
     Rs = {}
@@ -48,7 +48,7 @@ class Ajax {
     };
 
     headers (hdrs={}) {
-        I.ForEach(hdrs, (v, k) =>{
+        forEach(hdrs, (v, k) =>{
             this.Rq.setHeader(k, v);
         });
         return this;

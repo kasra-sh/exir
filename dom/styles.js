@@ -1,6 +1,6 @@
 // const {getAttr, setAttr, hasAttr} = require("../dom/attributes")
 const {isUnd, isStr} = require("../core/types")
-const {Filter, ForEach, contains} = require("../core/stream")
+const {filter, forEach, contains} = require("../core/collections")
 
 const emptyStyle = ['', 'initial', 'unset', undefined, null];
 
@@ -8,7 +8,7 @@ function style(e, p, v) {
     if (isUnd(p)) {
         // let stl = {};
         let cs = getComputedStyle(e);
-        cs = Filter(cs, (s, n) => isStr(n)&&!contains(emptyStyle, s))
+        cs = filter(cs, (s, n) => isStr(n)&&!contains(emptyStyle, s))
         // ForEach(cs, (s) => stl[s] = cs[s]);
         return cs
     }

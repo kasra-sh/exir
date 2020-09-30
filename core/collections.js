@@ -27,7 +27,7 @@ function contains(s, v, k) {
 
 function add(src, ...v) {
     if (T.isArr(src)) {
-        ForEach(v, (vi) => src.push(vi))
+        forEach(v, (vi) => src.push(vi))
         // src.push(v);
     } else if (T.isMutableList(src)) {
         src.add(v);
@@ -35,9 +35,9 @@ function add(src, ...v) {
 }
 
 function remove(src, ...it) {
-    it = FlatMap(it);
+    it = flatMap(it);
     let any = false;
-    ForEach(it, (item) => {
+    forEach(it, (item) => {
         let idx = src.indexOf(item);
         if (idx >= 0) {
             any = true
@@ -50,7 +50,7 @@ function remove(src, ...it) {
 
 function toggle(src, ...c) {
     if (c.length === 0) return;
-    c = FlatMap(c);
+    c = flatMap(c);
     let idx = undefined;
     if (c.length === 1) {
         if (!remove(src, c)) {
@@ -59,7 +59,7 @@ function toggle(src, ...c) {
     } else {
         c.push(c[0]);
         let any = false;
-        ForEach(src, (cl, i) => {
+        forEach(src, (cl, i) => {
             idx = c.indexOf(cl);
             if (idx >= 0 && c.length > (idx + 1)) {
                 any = true;
@@ -112,10 +112,17 @@ function funOrKey(f) {
     throw Error(`Predicate ${f} cannot be of type ${typeof f}`)
 }
 
-function EmptyOf(src, def = {}) {
+function emptyOf(src, def = {}) {
     if (T.isStr(src)) return "";
     if (T.isList(src)) return [];
     if (T.isObj(src)) {
+        if (T.isEl(src)) {
+            if (src.nodeType === 3 || src.nodeType === 8) {
+                return document.createTextNode(src.textContent);
+            } else {
+                return document.createElement(src.tagName);
+            }
+        }
         if (src.__proto__)
             return Object.create(src.__proto__);
         return {};
@@ -133,11 +140,12 @@ function concat(target, source) {
     let d = target;
     for (let k of Object.keys(source)) {
         if (T.isArr(source[k])) {
-            if (!T.isVal(target[k])) target[k] = [];
-            concat(target[k], source[k]);
+            // if (!T.isVal(target[k])) target[k] = [];
+            // concat(target[k], source[k]);
+
         } else if (T.isObj(source[k])) {
-            if (!T.isVal(target[k])) target[k] = {};
-            concat(target[k], source[k])
+            // if (!T.isVal(target[k])) target[k] = {};
+            // concat(target[k], source[k])
         } else
             d[k] = source[k];
     }
@@ -148,11 +156,11 @@ function objectValues(obj) {
     if (Object.values) {
         return Object.values(obj);
     } else {
-        return Map(obj, (v)=>v)
+        return map(obj, (v)=>v)
     }
 }
 
-function ForRange(src, func, start = 0, end) {
+function forRange(src, func, start = 0, end) {
     if (!T.isArr(src) || !T.isStr(src)) {
         let keys = Object.keys(src);
         end = end || keys.length - 1
@@ -170,7 +178,7 @@ function ForRange(src, func, start = 0, end) {
     return end
 }
 
-function ForEach(src, func) {
+function forEach(src, func) {
     if (!T.isVal(src)) return -1;
     if (!T.isArr(src) || !T.isStr(src) || !T.isList(src)) {
         let i = 0;
@@ -200,7 +208,7 @@ function ForEach(src, func) {
     return src.length
 }
 
-function ForEachRight(src, func, range = []) {
+function forEachRight(src, func, range = []) {
     if (!T.isArr(src) || !T.isStr(src)) {
         let i = 0;
         let keys = Object.keys(src);
@@ -219,10 +227,10 @@ function ForEachRight(src, func, range = []) {
     return src.length
 }
 
-function FirstIndex(src, pred) {
+function firstIndex(src, pred) {
     pred = predicate(pred, () => true);
     let r = -1;
-    ForEach(src, function (v, k, i) {
+    forEach(src, function (v, k, i) {
         r = pred(v, k, i);
         if (r === true) {
             r = i;
@@ -232,22 +240,22 @@ function FirstIndex(src, pred) {
     return r;
 }
 
-function First(src, pred) {
-    return src[FirstIndex(src, pred)]
+function first(src, pred) {
+    return src[firstIndex(src, pred)]
 }
 
-function StartsWith(src, pred) {
+function startsWith(src, pred) {
     if (T.isStr(src) && T.isStr(pred)) {
         return src.indexOf(pred) === 0
     }
     pred = predicate(pred, () => true);
-    return pred(First(src))
+    return pred(first(src))
 }
 
-function LastIndex(src, pred) {
+function lastIndex(src, pred) {
     pred = predicate(pred, () => true);
     let r = -1;
-    ForEachRight(src, function (v, k, i) {
+    forEachRight(src, function (v, k, i) {
         r = pred(v, k, i);
         if (r === true) {
             r = i;
@@ -257,22 +265,22 @@ function LastIndex(src, pred) {
     return r;
 }
 
-function Last(src, pred) {
-    return src[LastIndex(src, pred)]
+function last(src, pred) {
+    return src[lastIndex(src, pred)]
 }
 
-function EndsWith(src, pred) {
+function endsWith(src, pred) {
     if (T.isStr(src) && T.isStr(pred)) {
         return src.indexOf(pred) === src.length - pred.length
     }
     pred = predicate(pred, () => true);
-    return pred(Last(src))
+    return pred(last(src))
 }
 
-function Reverse(src) {
+function reverse(src) {
     if (T.isArr(src)) return src.reverse();
     let rev = "";
-    ForEachRight(src, function (it) {
+    forEachRight(src, function (it) {
         rev += it;
     });
     return rev;
@@ -285,45 +293,45 @@ function Reverse(src) {
  * @return {boolean}
  * @constructor
  */
-function Any(src, pred) {
+function any(src, pred) {
     // if (!func){
     //     if (T.isArr(src) || T.isStr(src)) return src.length>0;
     //     return Object.keys(src).length>0;
     // }
     let fn = predicate(pred);
     let r = false;
-    ForEach(src, function (v, k, i, src) {
+    forEach(src, function (v, k, i, src) {
         r = fn(v, k, i, src);
         if (r === true) return BREAK;
     });
     return r;
 }
 
-function All(src, func) {
+function all(src, func) {
     func = predicate(func, () => true);
     let r = true;
-    ForEach(src, function (v, k, i, src) {
+    forEach(src, function (v, k, i, src) {
         r = func(v, k, i, src);
         if (r === false) return BREAK;
     })
     return r;
 }
 
-function filterS(src, pred, right = false, omit = false) {
+function filterStr(src, pred, right = false, omit = false) {
     pred = predicate(pred, () => true);
     let res = "";
-    let loop = right ? ForEachRight : ForEach;
+    let loop = right ? forEachRight : forEach;
     loop(src, function (v, k, i) {
         if (!pred || pred(v, k, i, src) === omit) res += v;
     });
     return res;
 }
 
-function filterO(src, pred, right = false, omit = false) {
+function filterObj(src, pred, right = false, omit = false) {
     if (T.isArr(pred)) {
         let a = Object.assign({}, pred)
-        if (omit) pred = (v, k) => !Any(a, k);
-        else pred = (v, k) => Any(a, k);
+        if (omit) pred = (v, k) => !any(a, k);
+        else pred = (v, k) => any(a, k);
     } else
         pred = predicate(pred, () => true);
     let res = {};
@@ -351,11 +359,11 @@ function filterO(src, pred, right = false, omit = false) {
     return res;
 }
 
-function filterA(src, pred, right = false, omit = false) {
+function filterArr(src, pred, right = false, omit = false) {
     if (T.isArr(pred)) {
         let a = Object.assign([], pred)
-        if (omit) pred = (v, k, i) => !Any(a, i);
-        else pred = (v, k, i) => Any(a, i);
+        if (omit) pred = (v, k, i) => !any(a, i);
+        else pred = (v, k, i) => any(a, i);
     } else
         pred = predicate(pred, () => true);
     let res = [];
@@ -378,27 +386,27 @@ function filterA(src, pred, right = false, omit = false) {
     return res;
 }
 
-function Filter(src, pred, right = false) {
-    if (T.isStr(src)) return filterS(src, pred, right);
-    if (T.isArr(src) || T.isList(src)) return filterA(src, pred, right);
-    return filterO(src, pred, right);
+function filter(src, pred, right = false) {
+    if (T.isStr(src)) return filterStr(src, pred, right);
+    if (T.isArr(src) || T.isList(src)) return filterArr(src, pred, right);
+    return filterObj(src, pred, right);
 }
 
-function Omit(src, pred, right = false) {
-    if (T.isStr(src)) return filterS(src, pred, right, true);
-    if (T.isArr(src) || T.isList(src)) return filterA(src, pred, right, true);
-    return filterO(src, pred, right, true);
+function omit(src, pred, right = false) {
+    if (T.isStr(src)) return filterStr(src, pred, right, true);
+    if (T.isArr(src) || T.isList(src)) return filterArr(src, pred, right, true);
+    return filterObj(src, pred, right, true);
 }
 
-function FilterRight(src, pred) {
-    return Filter(src, pred, true);
+function filterRight(src, pred) {
+    return filter(src, pred, true);
 }
 
-function MaxIndex(list, pred) {
+function maxIndex(list, pred) {
     pred = funOrKey(pred);
     let mx;
     let index = -1;
-    ForEach(list, function (i, ix) {
+    forEach(list, function (i, ix) {
         let x = pred(i, ix);
         if (!mx) {
             mx = x;
@@ -411,15 +419,15 @@ function MaxIndex(list, pred) {
     return index;
 }
 
-function Max(list, pred) {
-    return list[MaxIndex(list, pred)];
+function max(list, pred) {
+    return list[maxIndex(list, pred)];
 }
 
-function MinIndex(list, pred) {
+function minIndex(list, pred) {
     pred = funOrKey(pred);
     let mn;
     let index = -1;
-    ForEach(list, function (i, ix) {
+    forEach(list, function (i, ix) {
         let x = pred(i, ix);
         if (!mn) {
             mn = x;
@@ -432,11 +440,11 @@ function MinIndex(list, pred) {
     return index;
 }
 
-function Min(list, pred) {
-    return list[MinIndex(list, pred)];
+function min(list, pred) {
+    return list[minIndex(list, pred)];
 }
 
-function mapA(src, func, right = false) {
+function mapArr(src, func, right = false) {
     let res = [];
     // let loop = right ? ForEachRight : ForEach;
     const len = src.length;
@@ -463,7 +471,7 @@ function mapA(src, func, right = false) {
     return res;
 }
 
-function mapO(src, func, right = false) {
+function mapObj(src, func, right = false) {
     let res = {};
     // let loop = right ? ForEachRight : ForEach;
     const keys = Object.keys(src);
@@ -496,18 +504,18 @@ function mapO(src, func, right = false) {
     return res;
 }
 
-function Map(src, func, right = false) {
+function map(src, func, right = false) {
     func = predicate(func, (v) => v);
-    if (T.isArr(src)) return mapA(src, func);
-    else if (T.isObj(src)) return mapO(src, func);
+    if (T.isArr(src)) return mapArr(src, func);
+    else if (T.isObj(src)) return mapObj(src, func);
 }
 
-function FlatMap(src, func) {
+function flatMap(src, func) {
     let res;
     if (T.isStr(src)) res = ""
     else if (T.isArr(src)) res = []
     else res = {};
-    ForEach(src, function (a, i) {
+    forEach(src, function (a, i) {
         let f;
         if (!!func) {
             f = func(a, i, src);
@@ -524,24 +532,24 @@ function FlatMap(src, func) {
     return res;
 }
 
-function Reduce(src, func, res = src) {
+function reduce(src, func, res = src) {
     if (T.isUnd(func)) {
         func = (rs, v) => rs += v
     }
-    ForEach(src, (v, k, src) => {
+    forEach(src, (v, k, src) => {
         res = func(res, v, k, src);
     });
 }
 
-function ReduceRight(src, func, res = src) {
-    ForEachRight(src, (v, k, src) => {
+function reduceRight(src, func, res = src) {
+    forEachRight(src, (v, k, src) => {
         res = func(res, v, k, src);
     });
 }
 
 function keyValuePairs(object) {
     let entries = [];
-    ForEach(object, (v, k) => {
+    forEach(object, (v, k) => {
         entries.push(T.dict(k, v));
     });
     return entries;
@@ -549,7 +557,7 @@ function keyValuePairs(object) {
 
 function entries(object) {
     let entries = [];
-    ForEach(object, (v, k) => {
+    forEach(object, (v, k) => {
         entries.push([k, v]);
     });
     return entries;
@@ -557,10 +565,10 @@ function entries(object) {
 
 function translateObject(source, translations) {
     if (T.isArr(translations)) {
-        Filter(source, translations);
+        filter(source, translations);
     }
     const keys = Object.keys(translations);
-    let res = Filter(source, keys);
+    let res = filter(source, keys);
     for (let key of keys) {
         res[translations[key]] = res[key];
         delete res[key];
@@ -568,7 +576,7 @@ function translateObject(source, translations) {
     return res;
 }
 
-function DeepMerge(target,
+function deepMerge(target,
                    source,
                    {
                        excludeKeys = [],
@@ -577,34 +585,35 @@ function DeepMerge(target,
                    } = {excludeKeys: [], maxDepth: 999, allowUnsafeProps: false},
                    depth = 0) {
     if (depth >= maxDepth) return target;
-    ForEach(source, (v, k) => {
+    forEach(source, (v, k) => {
         if (excludeKeys && contains(excludeKeys, k)) return;
         if (allowUnsafeProps && contains(UNSAFE_PROPS, k)) return;
         if (T.isObj(source[k])) {
-            target[k] = DeepMerge(EmptyOf(source[k]), source[k], {excludeKeys, maxDepth, depth: depth + 1});
+            target[k] = deepMerge(emptyOf(source[k]), source[k], {excludeKeys, maxDepth, depth: depth + 1});
         } else
             target[k] = v
     });
     return target;
 }
 
-function DeepClone(source,
+function deepClone(source,
                    {
                        excludeKeys = [],
                        maxDepth = 999,
                        allowUnsafeProps = false
                    } = {excludeKeys: [], maxDepth: 999, allowUnsafeProps: false},) {
-    return DeepMerge(EmptyOf(source), source, {excludeKeys, maxDepth})
+    return deepMerge(emptyOf(source), source, {excludeKeys, maxDepth})
 }
 
-function Join(key, ...lists) {
+function join(key, ...lists) {
     if (lists.length === 0) return [];
-    if (!All(lists, T.isArr)) throw Error("Join only accepts arrays of data!")
+    if (!all(lists, T.isArr)) throw Error("Join only accepts arrays of data!");
+    let keyGen;
     if (T.isStr(key)) {
         const k = key;
-        key = (item)=> item[k]
+        keyGen = (item)=> item[k]
     } else if (T.isArr(key)) {
-        key = (item) => Reduce(item, (res, v, k)=> {
+        keyGen = (item) => reduce(item, (res, v, k)=> {
             if (contains(key, k)) {
                 return res + v;
             }
@@ -612,11 +621,11 @@ function Join(key, ...lists) {
     } else if (!T.isFun(key)) {
         throw Error("Join key only accepts: String, [String,...], Function")
     }
-
+    keyGen = key
     const joined = {};
-    ForEach(lists, (list)=>{
-        ForEach(list, (item) => {
-            const joinKey = key(item);
+    forEach(lists, (list)=>{
+        forEach(list, (item) => {
+            const joinKey = keyGen(item);
             const presentValue = joined[joinKey];
             if (!presentValue) {
                 joined[joinKey] = item;
@@ -633,8 +642,8 @@ function Join(key, ...lists) {
 
 module.exports = {
     ANY, ALL, BREAK, item, contains, add, remove, toggle, objMatchOne, objMatchAll,
-    DeepMerge, DeepClone, ForRange, ForEach, ForEachRight, FirstIndex, First,
-    StartsWith, LastIndex, Last, EndsWith, Reverse, Any, All, Filter, FilterRight, Reduce, ReduceRight,
-    Map, FlatMap, keyValuePairs, entries, MaxIndex, Max, MinIndex, Min,
-    translateObject, Omit, Join, objectValues
+    deepMerge, deepClone, forRange, forEach, forEachRight, firstIndex, first,
+    startsWith, lastIndex, last, endsWith, reverse, any, all, filter, filterRight, reduce, reduceRight,
+    map, flatMap, keyValuePairs, entries, maxIndex, max, minIndex, min,
+    translateObject, omit, join, objectValues
 }

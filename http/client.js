@@ -1,5 +1,5 @@
 const http = require('./methods');
-const {startsWith, endsWith, contains, All, Filter, ForEach} = require('../core/stream');
+const {startsWith, endsWith, contains, all, filter, forEach} = require('../core/collections');
 
 class InterceptorStore {
     all = []
@@ -100,9 +100,9 @@ class XHttpClient {
     }
 
     cancel(token) {
-        this.__queue = Filter(this.__queue, (a)=>a.cancelToken !== token);
-        let sending = Filter(this.__sending, (a)=>a.cancelToken === token);
-        ForEach(sending, (ajax)=>{
+        this.__queue = filter(this.__queue, (a)=>a.cancelToken !== token);
+        let sending = filter(this.__sending, (a)=>a.cancelToken === token);
+        forEach(sending, (ajax)=>{
             try {
                 ajax.xhr.abort();
             } catch (e) {
@@ -110,7 +110,7 @@ class XHttpClient {
             }
         });
 
-        this.__sending = Filter(this.__sending, (a)=>a.cancelToken !== token);
+        this.__sending = filter(this.__sending, (a)=>a.cancelToken !== token);
     }
 }
 

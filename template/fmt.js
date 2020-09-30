@@ -1,5 +1,5 @@
 const T = require("../core/types")
-const I = require("../core/stream");
+const I = require("../core/collections");
 const Lex = require("kenpo-js/src/lexer/Tokenizer"),
     Tokenizer = Lex.Tokenizer,
     TokenType = Lex.TokenType;

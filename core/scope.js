@@ -1,23 +1,7 @@
-const Log = require("./logging")
-function merge(src, target) {
-    for (let k of Object.keys(src)) {
-        if ((!src[k] instanceof Array) && (typeof src[k] === "object")) {
-            if (!target.hasOwnProperty(k)) target[k] = {}
-            merge(src[k], target[k]);
-        } else
-            target[k] = src[k]
-    }
-    return target;
-}
-function mergeAll(...obj) {
-    let res = {};
-    for (let k of Object.keys(obj)) {
-        merge(obj[k], res);
-    }
-    return res;
-}
 function setGlobal(obj) {
-    merge(obj, global);
+    for (let key of Object.keys(obj)) {
+        global[key] = obj[key];
+    }
 }
 
 class Extension {
@@ -36,7 +20,7 @@ class Extension {
     define(namedFunc) {
         if (!namedFunc.name) {
             let err = `Function must have a name [Extension.define(f)]\n<<${namedFunc}>>`;
-            Log.error(err);
+            console.error(err);
             return `\n/**\n *${err}\n */`;
         }
         let code = "\n";
@@ -54,7 +38,7 @@ class Extension {
     polyfill(namedFunc) {
         if (!namedFunc.name) {
             let err = `Extension function must have a name:\n<<${namedFunc}>>`;
-            Log.error(err);
+            console.error(err);
             return `\n/**\n *${err}\n */`;
         }
         let code = "\n";
@@ -79,4 +63,4 @@ if (!isBrowser()) {
 // -------------
 }
 
-module.exports = {merge, mergeAll, setGlobal, Extension, isBrowser}
+module.exports = {setGlobal, Extension, isBrowser}

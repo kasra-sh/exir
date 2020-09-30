@@ -1,4 +1,4 @@
-let stream = require('./stream');
+let stream = require('./collections');
 let logging = require('./logging');
 let types = require('./types');
 let cases = require('./cases');

@@ -1,4 +1,4 @@
-const I = require("../core/stream");
+const I = require("../core/collections");
 const T = require("../core/types");
 const Case = require("../core/cases");
 const Dom = require("../dom");
@@ -60,7 +60,7 @@ class VNode {
         if (children[0] instanceof Array) {
             children = children[0]
         }
-        children = I.Map(children,(ch)=>T.isStr(ch)?VNode.createText(ch):ch);
+        children = I.map(children,(ch)=>T.isStr(ch)?VNode.createText(ch):ch);
         let vn = new VNode(type);
         vn.attrs = attrs;
         vn.nodes = children;
@@ -80,10 +80,10 @@ class VNode {
 
         let e = document.createElement(vn.tag);
         vn.id && (e.id = vn.id);
-        vn.attrs && I.ForEach(vn.attrs,function (a, k, atr) {
+        vn.attrs && I.forEach(vn.attrs,function (a, k, atr) {
             if (k === "style" && !T.isStr(a)) {
                 let ns = "";
-                I.ForEach(a,(v, k) => {
+                I.forEach(a,(v, k) => {
                     ns += `${Case.kebab(k)}: ${v};`;
                     // ns[k.toKebab()] = v;
                 });
@@ -93,10 +93,10 @@ class VNode {
                 e.setAttribute(k, a);
             }
         });
-        vn.props && I.ForEach(vn.props,function (p, i, prp) {
+        vn.props && I.forEach(vn.props,function (p, i, prp) {
             e[p] = prp[p];
         });
-        I.ForEach(vn.nodes,function (n) {
+        I.forEach(vn.nodes,function (n) {
             Dom.append(e, VNode.toElement(n));
         });
         return e
@@ -120,7 +120,7 @@ class VNode {
         if (element.tagName && element.attributes.length > 1 || element.attributes.length > 0) {
             vnd.attrs = {};
             let atrs = vnd.attrs;
-            I.ForEach(element.attributes, function (kv) {
+            I.forEach(element.attributes, function (kv) {
                 if (kv.name === "id") return vnd;
                 atrs[kv.name] = kv.value;
             });
@@ -132,13 +132,13 @@ class VNode {
             if (!element.hasOwnProperty(k)) continue;
             vnd.props || (vnd.props = {});
             let val = element[k];
-            if (T.isEl(val) || T.isList(val) && I.Any(val, (v)=>T.isEl(v))) continue;
+            if (T.isEl(val) || T.isList(val) && I.any(val, (v)=>T.isEl(v))) continue;
             vnd.props[k] = val;
         }
 
         // vnd.relQuery = X.queryOf(element, element.parentElement);
         let nds = vnd.nodes;
-        I.ForEach(element.childNodes, function (nd) {
+        I.forEach(element.childNodes, function (nd) {
             if (nd.nodeType === 8) return;
             let cvnd = VNode.from(nd, vnd);
             if (T.isNull(cvnd.tag)) return;
@@ -200,9 +200,9 @@ function ve(a1, ...a) {
         } else {
             vn.nodes = a;
         }
-        I.ForEach(vn.nodes,(n, i)=>{
+        I.forEach(vn.nodes,(n, i)=>{
             vn.nodes[i] = T.isStr(n)?vt(n): n;
-            Object.defineProperty(vn.nodes[i], "parent", {value: vn});
+            Object.defineProperty(vn.nodes[i], "parent", {value: vn, enumerable: false});
         });
     }
 

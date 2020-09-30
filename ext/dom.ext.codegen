@@ -1,5 +1,5 @@
 const {Extension} = require("../core/scope");
-const I = require("../core/stream");
+const I = require("../core/collections");
 const DOM = require("../dom");
 
 let list = new Extension([Array, global.HTMLCollection, global.NodeList]);
@@ -12,7 +12,7 @@ node.define(function $class() {
 
 // Add class(es) to Element Collection
 list.define(function $addClass(c) {
-    I.ForEach(this, (e)=>DOM.addClass(e, c))
+    I.forEach(this, (e)=>DOM.addClass(e, c))
 });
 // Add class(es) to Element
 node.define(function $addClass(c) {return DOM.addClass(this, c)});
@@ -20,7 +20,7 @@ node.define(function $addClass(c) {return DOM.addClass(this, c)});
 
 // Remove Element Collection's class(es)
 list.define(function $removeClass(c) {
-    I.ForEach(this, (e)=>DOM.removeClass(e, c))
+    I.forEach(this, (e)=>DOM.removeClass(e, c))
 });
 // Remove Element class
 node.define(function $removeClass(c) {return DOM.removeClass(this, c)});
@@ -28,7 +28,7 @@ node.define(function $removeClass(c) {return DOM.removeClass(this, c)});
 
 // Toggle Element Collection's class(es)
 list.define(function $toggleClass(c) {
-    I.ForEach(this, (e)=>DOM.toggleClass(e, c))
+    I.forEach(this, (e)=>DOM.toggleClass(e, c))
 });
 // Toggle Element
 node.define(function $toggleClass(c) {return DOM.toggleClass(this, c)});
@@ -36,7 +36,7 @@ node.define(function $toggleClass(c) {return DOM.toggleClass(this, c)});
 
 // Element Collection all have class(es)
 list.define(function $haveClass(c) {
-    return I.All(this, (e)=>DOM.hasClass(e, c));
+    return I.all(this, (e)=>DOM.hasClass(e, c));
 });
 // Element has class
 node.define(function $hasClass(c) {return DOM.hasClass(this, c)});
@@ -48,7 +48,7 @@ node.define(function $attrs() {return DOM.attrs(this)});
 
 // Set Element Collection's Attributes
 list.define(function $setAttr(a, v) {
-    I.ForEach(this, (e)=>DOM.setAttr(e, a, v));
+    I.forEach(this, (e)=>DOM.setAttr(e, a, v));
 });
 // Set Element Attribute
 node.define(function $setAttr(a, v) {DOM.setAttr(this, a, v)})
@@ -56,13 +56,13 @@ node.define(function $setAttr(a, v) {DOM.setAttr(this, a, v)})
 
 // Element Collection have attribute
 list.define(function $haveAttr(a, v) {
-    I.All(this, (e)=>DOM.hasAttr(e, a, v));
+    I.all(this, (e)=>DOM.hasAttr(e, a, v));
 });
 // Element has attribute
 node.define(function $setAttr(a, v) {DOM.setAttr(this, a, v)})
 
 list.define(function $event(names, func, opt) {
-    I.ForEach(this, function (e) {
+    I.forEach(this, function (e) {
         DOM.setEvent(e, names, func, opt);
     });
 });
@@ -71,7 +71,7 @@ node.define(function $event(names, func, opt) {
 })
 
 list.define(function $clearEvent(names) {
-    I.ForEach(this, function (e) {
+    I.forEach(this, function (e) {
         DOM.clearEvent(e, names);
     });
 });
@@ -85,12 +85,12 @@ node.define(function $style(prop, value) {
 })
 
 list.define(function $style(prop, value) {
-    ForEach(this, (v)=>{
+    forEach(this, (v)=>{
         DOM.style(v, prop, value)
     })
 })
 
-const reqs = `const I = require("../core/stream");
+const reqs = `const I = require("../core/collections");
 const L = require("../core/logging");
 const DOM = require("../dom");`;
 let code = reqs + node.pcode + list.pcode;

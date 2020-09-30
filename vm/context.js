@@ -1,6 +1,8 @@
 class Context {
-    prop = {}
+    props = {}
+    state = {}
     parent = null;
-    ref = {};
-
+    children = {};
 }
+
+module.exports = { Context }

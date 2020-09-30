@@ -1,9 +1,9 @@
-const I = require("../core/stream")
+const I = require("../core/collections")
 const T = require("../core/types")
 
 function getAttributes(e) {
     let atr = {};
-    I.ForEach(e.getAttributeNames(), (n) => atr[n] = e.getAttribute(n));
+    I.forEach(e.getAttributeNames(), (n) => atr[n] = e.getAttribute(n));
     return atr;
 }
 
@@ -22,9 +22,9 @@ function getAttr(e, a) {
 
 function setAttr(e, a, v) {
     if (T.isArr(a)) {
-        I.ForEach(a, (n) => this.set(n, v))
+        I.forEach(a, (n) => this.set(n, v))
     } else if (T.isObj(a)) {
-        I.ForEach(a, (v, k) => this.set(k, v))
+        I.forEach(a, (v, k) => this.set(k, v))
     } else {
         e.setAttribute(a, v);
     }
