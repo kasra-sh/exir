@@ -31,3 +31,5 @@ class Component {
         this.__template__ = this.view(this.data)
     }
 }
+
+module.exports = {Component}
