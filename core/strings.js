@@ -1,21 +1,27 @@
-const S = {};
+const decimalRegex = /^[-+]?\d*(\.\d+|\d*)(e[-+]?\d+)?$/
+const hexRegex = /^[-+]?[a-f0-9]+$/
+const octRegex = /^[-+]?[0][0-7]+$/
+const binRegex = /^[-+]?[01]+$/
+const emailRegex = /^[a-z0-9]([a-z0-9._%-+][a-z0-9]|[a-z0-9])*@[a-z0-9]([a-z0-9.-][a-z0-9]|[a-z0-9])*\.[a-z]{2,6}$/i
 
-S.numRegex = /0[xXbB][\daAbBcCdDeEfF]+|\d*\.?\d+/
-S.getNumberRegex = /(0[xXbB][\daAbBcCdDeEfF]+|\d*\.?\d+)([a-zA-Z]+)/g
-
-function isNumeric(s) {
-    return S.numRegex.test(s)
+function isDecimal(s) {
+    return decimalRegex.test(s);
 }
 
-function getNumeric(s) {
-    let all = s.matchAll(S.getNumberRegex);
-    let arr = [];
-    do {
-        let m = all.next();
-        if (m.done) break;
-        arr.push(m);
-    } while (true);
-    return arr;
+function isBinary(s) {
+    return binRegex.test(s);
+}
+
+function isOctal(s) {
+    return octRegex.test(s);
+}
+
+function isHex(s) {
+    return hexRegex.test(s);
+}
+
+function isEmail(s) {
+    return emailRegex.test(s);
 }
 
 function startsWith(str, s) {
@@ -26,4 +32,8 @@ function endsWith(str, s) {
     return str.indexOf(s) === str.length-1;
 }
 
-module.exports = {isNumeric, getNumeric, startsWith, endsWith};
+function contains(str, s) {
+    return str.indexOf(s)>=0;
+}
+
+module.exports = {isDecimal, isHex, isOctal, isBinary, isEmail,startsWith, endsWith, contains};
