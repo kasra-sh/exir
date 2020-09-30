@@ -506,8 +506,8 @@ function mapObj(src, func, right = false) {
 
 function map(src, func, right = false) {
     func = predicate(func, (v) => v);
-    if (T.isArr(src)) return mapArr(src, func);
-    else if (T.isObj(src)) return mapObj(src, func);
+    if (T.isArr(src)) return mapArr(src, func, right);
+    else if (T.isObj(src)) return mapObj(src, func, right);
 }
 
 function flatMap(src, func) {
@@ -534,11 +534,12 @@ function flatMap(src, func) {
 
 function reduce(src, func, res = src) {
     if (T.isUnd(func)) {
-        func = (rs, v) => rs += v
+        func = (rs, v) => rs + v
     }
     forEach(src, (v, k, src) => {
         res = func(res, v, k, src);
     });
+    return res
 }
 
 function reduceRight(src, func, res = src) {
@@ -602,7 +603,7 @@ function deepClone(source,
                        maxDepth = 999,
                        allowUnsafeProps = false
                    } = {excludeKeys: [], maxDepth: 999, allowUnsafeProps: false},) {
-    return deepMerge(emptyOf(source), source, {excludeKeys, maxDepth})
+    return deepMerge(emptyOf(source), source, {excludeKeys, maxDepth, allowUnsafeProps})
 }
 
 function join(key, ...lists) {
@@ -640,6 +641,7 @@ function join(key, ...lists) {
 
 }
 
+// noinspection JSUnusedGlobalSymbols
 module.exports = {
     ANY, ALL, BREAK, item, contains, add, remove, toggle, objMatchOne, objMatchAll,
     deepMerge, deepClone, forRange, forEach, forEachRight, firstIndex, first,
