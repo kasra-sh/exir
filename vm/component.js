@@ -1,34 +1,20 @@
+const {isFun} = require("../core/types");
+
 class Component {
     constructor() {
-        if (arguments.length>0) throw Error("Component constructor has no args")
-    }
-    __instanceRoot__ = global
-    __state__ = {}
-    __template__ = {}
-
-    get data() {
-        return this.__state__
+        this.name = "";
+        this.state = {};
+        this.view = (ctx)=>"";
     }
 
-    set data(s) {
-        global.dispatchEvent(new CustomEvent('state.set', {detail: this}));
-        this.__state__ = s;
-    }
+    static create({name, state, view}) {
+        let c = new Component();
+        c.name = name;
+        c.state = state;
+        if (!isFun(view))
+            throw `"Component.view" must be a function: \nComponent:${c} \nview:${view}`;
 
-    /**
-     * @param ctx
-     * @return VNode
-     */
-    view(ctx){}
-
-    created(){}
-
-    mounted(){}
-
-    destroyed(){}
-
-    _renderView() {
-        this.__template__ = this.view(this.data)
+        c.view = view;
     }
 }
 

@@ -1,7 +1,17 @@
-require("../core/types");
+/**
+ * Http Response class
+ * @property json {Object}
+ * @property xml {XMLDocument}
+ *
+ */
 class HttpRs {
     json
     xml
+
+    /**
+     * @constructor
+     * @param {XMLHttpRequest} xhr
+     */
     constructor(xhr) {
         this.xhr = xhr
         this.status = {

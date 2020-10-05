@@ -1,6 +1,10 @@
 const http = require('./methods');
 const {startsWith, endsWith, contains, all, filter, forEach} = require('../core/collections');
 
+/**
+ * @class
+ * @category Http
+ * */
 class InterceptorStore {
     all = []
     use(interceptor) {
@@ -8,6 +12,10 @@ class InterceptorStore {
     }
 }
 
+/**
+ * @class
+ * @category Http
+ * */
 class XHttpClient {
     host = ""
     __queue = []
@@ -114,4 +122,8 @@ class XHttpClient {
     }
 }
 
+/**
+ *
+ * @export XHttpClient
+ */
 module.exports = {XHttpClient}

@@ -2,7 +2,7 @@ class Context {
     props = {}
     state = {}
     parent = null;
-    children = {};
+    child = {};
 }
 
 module.exports = { Context }

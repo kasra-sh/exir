@@ -1,3 +1,8 @@
+/**
+ * @module
+ * @memberOf core
+ */
+
 const T = require("./types");
 
 if (!global._X_LOOP_BREAK_) {
@@ -11,6 +16,11 @@ const ANY = global._X_ANY_;
 const ALL = global._X_ALL_;
 const UNSAFE_PROPS = ['__proto__', 'constructor', '__defineGetter__', '__defineSetter__', 'prototype'];
 
+/**
+ * @param {{a: Function?}} s
+ * @param i
+ * @returns {undefined|*}
+ */
 function item(s, i) {
     if (!T.isVal(s)) return undefined;
     if (T.isObj(s)) return s[i]
@@ -19,12 +29,24 @@ function item(s, i) {
     else return s.item(i)
 }
 
+/**
+ *
+ * @param s
+ * @param v
+ * @param k
+ * @returns {boolean}
+ */
 function contains(s, v, k) {
     if (!T.isVal(s)) return false;
     if (!T.isArr(s) && T.isObj(s)) return s[k] === v;
     return s.indexOf(v) >= 0;
 }
 
+/**
+ *
+ * @param src
+ * @param v
+ */
 function add(src, ...v) {
     if (T.isArr(src)) {
         forEach(v, (vi) => src.push(vi))
@@ -34,6 +56,12 @@ function add(src, ...v) {
     }
 }
 
+/**
+ *
+ * @param src
+ * @param it
+ * @returns {boolean}
+ */
 function remove(src, ...it) {
     it = flatMap(it);
     let any = false;
@@ -48,6 +76,11 @@ function remove(src, ...it) {
     return any;
 }
 
+/**
+ *
+ * @param src
+ * @param c
+ */
 function toggle(src, ...c) {
     if (c.length === 0) return;
     c = flatMap(c);
@@ -112,6 +145,12 @@ function funOrKey(f) {
     throw Error(`Predicate ${f} cannot be of type ${typeof f}`)
 }
 
+/**
+ *
+ * @param {any} src
+ * @param def
+ * @returns {any} Empty of src
+ */
 function emptyOf(src, def = {}) {
     if (T.isStr(src)) return "";
     if (T.isList(src)) return [];
@@ -130,6 +169,12 @@ function emptyOf(src, def = {}) {
     return def
 }
 
+/**
+ *
+ * @param target
+ * @param source
+ * @returns {Array|String|Object}
+ */
 function concat(target, source) {
     if (T.isStr(target)) {
         return target.concat(source);
@@ -152,6 +197,11 @@ function concat(target, source) {
     return d
 }
 
+/**
+ *
+ * @param obj
+ * @returns {Array|Object|undefined}
+ */
 function objectValues(obj) {
     if (Object.values) {
         return Object.values(obj);
@@ -160,6 +210,14 @@ function objectValues(obj) {
     }
 }
 
+/**
+ *
+ * @param src
+ * @param func
+ * @param start
+ * @param end
+ * @returns {*|number}
+ */
 function forRange(src, func, start = 0, end) {
     if (!T.isArr(src) || !T.isStr(src)) {
         let keys = Object.keys(src);
@@ -178,6 +236,12 @@ function forRange(src, func, start = 0, end) {
     return end
 }
 
+/**
+ *
+ * @param src
+ * @param func
+ * @returns {number|*}
+ */
 function forEach(src, func) {
     if (!T.isVal(src)) return -1;
     if (!T.isArr(src) || !T.isStr(src) || !T.isList(src)) {
@@ -208,6 +272,13 @@ function forEach(src, func) {
     return src.length
 }
 
+/**
+ *
+ * @param src
+ * @param func
+ * @param range
+ * @returns {number|*}
+ */
 function forEachRight(src, func, range = []) {
     if (!T.isArr(src) || !T.isStr(src)) {
         let i = 0;
@@ -227,6 +298,12 @@ function forEachRight(src, func, range = []) {
     return src.length
 }
 
+/**
+ *
+ * @param src
+ * @param pred
+ * @returns {number}
+ */
 function firstIndex(src, pred) {
     pred = predicate(pred, () => true);
     let r = -1;
@@ -240,10 +317,22 @@ function firstIndex(src, pred) {
     return r;
 }
 
+/**
+ *
+ * @param src
+ * @param pred
+ * @returns {*}
+ */
 function first(src, pred) {
     return src[firstIndex(src, pred)]
 }
 
+/**
+ *
+ * @param src
+ * @param pred
+ * @returns {boolean|*}
+ */
 function startsWith(src, pred) {
     if (T.isStr(src) && T.isStr(pred)) {
         return src.indexOf(pred) === 0
@@ -252,6 +341,12 @@ function startsWith(src, pred) {
     return pred(first(src))
 }
 
+/**
+ *
+ * @param src
+ * @param pred
+ * @returns {number}
+ */
 function lastIndex(src, pred) {
     pred = predicate(pred, () => true);
     let r = -1;
@@ -286,13 +381,7 @@ function reverse(src) {
     return rev;
 }
 
-/**
- *
- * @param src
- * @param pred
- * @return {boolean}
- * @constructor
- */
+/** @category Collections */
 function any(src, pred) {
     // if (!func){
     //     if (T.isArr(src) || T.isStr(src)) return src.length>0;
@@ -306,6 +395,7 @@ function any(src, pred) {
     });
     return r;
 }
+/** @category Collections */
 
 function all(src, func) {
     func = predicate(func, () => true);
@@ -385,12 +475,14 @@ function filterArr(src, pred, right = false, omit = false) {
     }
     return res;
 }
+/** @category Collections */
 
 function filter(src, pred, right = false) {
     if (T.isStr(src)) return filterStr(src, pred, right);
     if (T.isArr(src) || T.isList(src)) return filterArr(src, pred, right);
     return filterObj(src, pred, right);
 }
+/** @category Collections */
 
 function omit(src, pred, right = false) {
     if (T.isStr(src)) return filterStr(src, pred, right, true);

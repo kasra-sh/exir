@@ -1,7 +1,19 @@
-const scope = require("./core/scope");
+const scope = require("./core/scope")
 
-scope.setGlobal(require("./index"))
-scope.setGlobal(require("./vm"))
+const index = require("./index")
+const hscript = require("./vm/hscript.helpers")
 
-require("./ext/collections.ext");
-require("./ext/dom.ext");
+scope.setGlobal({
+    X: {
+        ...index.Core,
+        ...index.Dom,
+        ...index.Http
+    },
+    VM: {
+        ...index.VM,
+        ...hscript
+    }
+})
+
+require("./ext/collections.ext")
+require("./ext/dom.ext")

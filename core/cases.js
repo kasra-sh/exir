@@ -1,3 +1,12 @@
+/**
+ * @module
+ * @memberOf core
+ */
+/**
+ * @static
+ * @param name
+ * @returns {string}
+ */
 function kebab(name) {
     let kb = "";
     let pres = false;
@@ -18,7 +27,11 @@ function kebab(name) {
     }
     return kb;
 }
-
+/**
+ * @static
+ * @param name
+ * @returns {string}
+ */
 function snake(name) {
     let snk = "";
     let pres = false;
@@ -39,7 +52,11 @@ function snake(name) {
     }
     return snk;
 }
-
+/**
+ * @static
+ * @param name
+ * @returns {string}
+ */
 function camel(name) {
     let cml = "";
     let pres = false;
@@ -60,7 +77,11 @@ function camel(name) {
     }
     return cml;
 }
-
+/**
+ * @static
+ * @param name
+ * @returns {string}
+ */
 function pascal(name) {
     let psc = "";
     let pres = false;

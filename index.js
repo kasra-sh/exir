@@ -1,14 +1,10 @@
-const core = require('./core');
-const dom = require('./dom');
-const http = require('./http');
-const vm = require('./vm');
+const Core = require('./core');
+const Dom = require('./dom');
+const Http = require('./http');
+const VM = require('./vm');
 module.exports = {
-    X: {
-        ...core,
-        ...dom,
-        ...http
-    },
-    XVM: {
-        ...vm
-    }
+    Core,
+    Dom,
+    Http,
+    VM
 }

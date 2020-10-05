@@ -1,0 +1,22 @@
+const {HTMLTags} = require('../dom/htmltags');
+const {map} = require('../core/collections');
+
+const func = 'e';
+
+const hyperMethods = map(HTMLTags, (tag) => {
+    if (tag === 'var')
+        return `function ${tag}_(args, ...children) {return ${func}('${tag}', args, ...children)}`;
+    return `function ${tag}(args, ...children) {return ${func}('${tag}', args, ...children)}`;
+});
+
+const code =
+`const {VNode} = require('../vm/vnode');
+var ${func} = VNode.create;
+${hyperMethods.join('\n')}
+
+module.exports = {
+    ${HTMLTags.join(',\n\t').replace('var', 'var_')}, ${func}}
+`
+module.exports = function () {
+    return code;
+}

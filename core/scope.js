@@ -1,20 +1,34 @@
+/**
+ * Merges an object with global namespace
+ * @private
+ * @param {Object} obj
+ */
 function setGlobal(obj) {
     for (let key of Object.keys(obj)) {
         global[key] = obj[key];
     }
 }
 
+/**
+ * Code generator for prototype modification, used in polyfills
+ */
 class Extension {
     types = []
+    /** Generated code */
     pcode = "\n"
 
+    /**
+     * @constructor
+     * @param {any[]} types - Array of prototypes
+     */
     constructor(types) {
         this.types = types;
     }
 
     /**
+     * Defines a new function for given prototypes
      *
-     * @param namedFunc {Function}
+     * @param {Function} namedFunc A named function
      * @return {string}
      */
     define(namedFunc) {

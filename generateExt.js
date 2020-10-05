@@ -1,18 +1,15 @@
-const fs = require("fs");
+const fs = require("fs")
 const write = fs.writeFileSync
-const path = require("path");
-const stream = require("./ext/collections.ext.codegen")()
-const dom = require("./ext/dom.ext.codegen")()
+const {resolve, extname, dirname} = require("path")
 
-function getPath(file) {
-    return path.resolve(__dirname, 'ext',file.replace(path.extname(file), '.js'))
+function gen(src, dest) {
+    const code = require(src)()
+    write(dest, code)
 }
 
-const streamPath = getPath('collections.ext.codegen');
-const domPath = getPath('dom.ext.codegen');
-
 if (!global.__X_NODE_GEN__) {
-    write(streamPath, stream);
-    write(domPath, dom);
+    gen('./ext/collections.ext.codegen','./ext/collections.ext.js')
+    gen('./ext/dom.ext.codegen', './ext/dom.ext.js')
+    gen('./ext/hscript.codegen', './vm/hscript.helpers.js')
     global.__X_NODE_GEN__ = true
 }

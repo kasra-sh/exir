@@ -1,3 +1,7 @@
+/**
+ * @namespace core
+ */
+
 let stream = require('./collections');
 let logging = require('./logging');
 let types = require('./types');

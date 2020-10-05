@@ -1,11 +1,14 @@
-let app = require('./app');
-let vnode = require('./vnode');
-let component = require('./component');
-let context = require('./context');
+const app = require('./app');
+const vnode = require('./vnode');
+const component = require('./component');
+const context = require('./context');
+const xeer = require('./xeer');
+// const hs = require('../')
 
 module.exports = {
     ...app,
     ...vnode,
     ...component,
-    ...context
+    ...context,
+    ...xeer
 }

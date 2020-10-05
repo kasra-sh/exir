@@ -1,5 +1,11 @@
 const T = require("../core/types");
 const {$, $$} = require("../dom/query")
+
+/**
+ * Http Content class
+ * @field type - Content Type
+ * @field data - Content Data
+ */
 class HttpContent{
     type
     data
@@ -9,7 +15,13 @@ class HttpContent{
     }
 }
 
+/**
+ * Http request class
+ */
 class HttpRq{
+    /**
+     * @param {HttpMethod} m
+     */
     setMethod(m) {
         this.method = m.toUpperCase();
     };
@@ -89,13 +101,13 @@ class HttpRq{
 
     /**
      *
-     * @param method {'GET'|'POST'|'PUT'|'DELETE'|'PATCH'|'OPTIONS'?}
+     * @param {HttpMethod?} method
      * @param url {String?}
      * @param args {{name: value}?}
      * @param headers {{name: value}?}
      * @param content {HttpContent?}
      */
-    constructor(method, url, args, headers, content) {
+    constructor(method='GET', url, args, headers, content) {
         this.args = args || {};
         this.headers = headers || {};
         this.content = content || new HttpContent('#urlencoded', {});

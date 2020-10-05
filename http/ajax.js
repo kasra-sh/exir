@@ -1,109 +1,175 @@
-const Rq = require("./request");
-const Rs = require("./response");
+const {HttpRq, HttpContent} = require("./request");
+const {HttpRs} = require("./response");
 const T = require("../core/types");
 const {forEach} = require("../core/collections");
+
+
+/**
+ * A wrapper class for {@link XMLHttpRequest} to facilitate sending requests and handling events
+ * @property {HttpRq} Rq - Request data object
+ * @property {HttpRs} Rs - Response data object
+ * @memberOf http
+ */
 class Ajax {
     Rq = {}
     Rs = {}
-    constructor(m, url, params={}, headers={}, content=new Rq.HttpContent())  {
-        if (m instanceof Rq.HttpRq) {
+
+    /**
+     * @constructor
+     * @param {HttpMethod|HttpRq} m - Request method string or HttpRq object
+     * @param {String} [url]
+     * @param {Object} [params] - Request parameters object
+     * @param {Object?} [headers] - Headers object
+     * @param {HttpContent?} [content] - Optional http content {@link HttpContent}
+     */
+    constructor(m, url, params = {}, headers = {}, content = new HttpContent()) {
+        if (m instanceof HttpRq) {
             this.Rq = m
         } else {
-            this.Rq = new Rq.HttpRq(m, url, params, headers, content);
+            this.Rq = new HttpRq(m, url, params, headers, content);
         }
         // Fields
         this.Rs = {readyState: 0};
         this.xhr = new XMLHttpRequest();
-        // Events
+
         this.preparedCallback = function (rq) {
-            // to be overridden
         };
 
         this.progressCallback = function (ev, rq) {
-            // to be overridden
         };
 
         this.uploadProgressCallback = function (xhr) {
         };
 
         this.successCallback = function (rq, rs) {
-            // to be overridden
-            // console.log('REQUEST:', rq, 'RESPONSE:', rs)
         };
         this.uploadFinishCallback = function (xhr) {
 
         };
         this.failCallback = function (rq, rs) {
-            // to be overridden
-            // console.log('REQUEST:', rq, 'RESPONSE:', rs)
         };
         Object.defineProperty(this, 'xhr', {enumerable: false})
-        // Object.seal(this);
     }
 
     // Methods
-    header (n, v) {
+    /**
+     * Set header
+     * @param {String} n - header name
+     * @param {String} [v] - header value
+     * @returns {Ajax}
+     */
+    header(n, v) {
         this.Rq.setHeader(n, v);
         return this;
     };
 
-    headers (hdrs={}) {
-        forEach(hdrs, (v, k) =>{
+    /**
+     * Add/Set headers
+     * @param {Object} hdrs - headers object
+     * @returns {Ajax}
+     */
+    headers(hdrs = {}) {
+        forEach(hdrs, (v, k) => {
             this.Rq.setHeader(k, v);
         });
         return this;
     };
 
-    onSuccess (callbackRqRs) {
+    /**
+     * @param {Function} callbackRqRs
+     * @returns {Ajax}
+     */
+    onSuccess(callbackRqRs) {
         this.successCallback = callbackRqRs;
         return this;
     };
 
-    onUploadSuccess (callbackRqRs) {
+    /**
+     * @param {Function} callbackRqRs
+     * @returns {Ajax}
+     */
+    onUploadSuccess(callbackRqRs) {
         this.uploadFinishCallback = callbackRqRs;
         return this;
     };
 
-    onFail (callbackRqRs) {
+    /**
+     * @param {Function} callbackRqRs
+     * @returns {Ajax}
+     */
+    onFail(callbackRqRs) {
         this.failCallback = callbackRqRs;
         return this;
     };
 
-    onProgress (callbackRqRs) {
+    /**
+     * @param {Function} callbackRqRs
+     * @returns {Ajax}
+     */
+    onProgress(callbackRqRs) {
         this.progressCallback = callbackRqRs;
         return this;
     };
 
-    onUploadProgress (callbackRqRs) {
+    /**
+     * @param {Function} callbackRqRs
+     * @returns {Ajax}
+     */
+    onUploadProgress(callbackRqRs) {
         this.uploadProgressCallback = callbackRqRs;
         return this;
     };
 
+    /**
+     * Set custom content {@link HttpContent}
+     * @param {HttpContent} content
+     * @returns {Ajax}
+     */
     withContent(content) {
         this.Rq.setContent(content.type, content.data);
     }
 
-    xmlData (data) {
+    /**
+     * Set xml request data
+     * @param {XMLDocument} data
+     * @returns {Ajax}
+     */
+    xmlData(data) {
         this.Rq.xmlContent(data);
         return this;
     }
 
-    formData (form) {
+    /**
+     * Set form-data request data
+     * @param {String|Node} form
+     * @returns {Ajax}
+     */
+    formData(form) {
         this.Rq.formContent(form);
         return this;
     };
 
-    jsonData (data) {
+    /**
+     * Set json request data
+     * @param {String|Object} data
+     * @returns {Ajax}
+     */
+    jsonData(data) {
         this.Rq.jsonContent(data);
         return this;
     };
 
-    urlEncodedData (data) {
+    /**
+     * Set url-encoded request data
+     * @param {Object} data - simple data object
+     * @returns {Ajax}
+     */
+    urlEncodedData(data) {
         this.Rq.formUrlEncodedContent(data);
         return this;
     };
 
-    _prepare (reset) {
+    _prepare(reset) {
         if (this.isPrepared && !reset) {
             // self.onprepare && self.onprepare(self.Rq);
             return this
@@ -113,7 +179,7 @@ class Ajax {
         let url = this.Rq.url;
 
         if (this.Rq.args && !T.isEmpty(this.Rq.args)) {
-            url.indexOf('?')>=0 || (url += '?');
+            url.indexOf('?') >= 0 || (url += '?');
             url += this.Rq.buildUrlEncoded();
         }
         reset && (this.xhr = new XMLHttpRequest());
@@ -122,7 +188,7 @@ class Ajax {
         // prepare headers
         for (let h in this.Rq.headers) {
             if (this.Rq.headers.hasOwnProperty(h))
-            this.xhr.setRequestHeader(h, this.Rq.headers[h]);
+                this.xhr.setRequestHeader(h, this.Rq.headers[h]);
         }
 
         this.isPrepared = true;
@@ -131,7 +197,12 @@ class Ajax {
         return this;
     };
 
-    send (finishCallback) {
+    /**
+     * Send XHR request
+     * @param {Function} [finishCallback] - called after all other callbacks
+     * @returns {Ajax}
+     */
+    send(finishCallback) {
         this._prepare();
         let ajax = this;
         let xhr = this.xhr;
@@ -145,7 +216,7 @@ class Ajax {
                 } else {
                     callback = ajax.failCallback;
                 }
-                ajax.Rs = new Rs.HttpRs(xhr);
+                ajax.Rs = new HttpRs(xhr);
                 finishCallback && finishCallback(ajax.Rq, ajax.Rs, ajax.xhr);
                 callback && callback(ajax.Rq, ajax.Rs, ajax.xhr);
             }
@@ -169,6 +240,18 @@ class Ajax {
         }
 
         return ajax;
+    }
+
+    async sendAsync() {
+        const ajax = this;
+        const promise = new Promise((res, rej) => {
+            ajax.onSuccess(()=>{
+                return res(ajax)
+            });
+            ajax.onFail(()=>rej(ajax));
+        });
+        ajax.send();
+        return promise;
     }
 }
 
