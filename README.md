@@ -1,20 +1,20 @@
 <p align="center">
-<img width="200px" style="max-width: 70%" src="https://raw.githubusercontent.com/kasra-sh/xeer-js/master/.github/logo.png">
+<img width="200px" style="max-width: 70%" src="https://raw.githubusercontent.com/kasra-sh/exir/master/.github/logo.png">
 </p>
 <br>
 <p align="center">
-<a href="https://npmjs.org/xeer-js"><img src="https://img.shields.io/npm/v/xeer-js" alt="npm"></a>
+<a href="https://npmjs.org/exir"><img src="https://img.shields.io/npm/v/exir" alt="npm"></a>
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-informational.svg" alt="License: MIT" /></a>
 <img src="https://img.shields.io/badge/Gzipped-15Kb-green" alt="Gzipped Size" />
 <img src="https://img.shields.io/badge/Compatibility-Mixed-informational" alt="Compatibility ES5" />
 <img src="https://img.shields.io/badge/node->=8-yellow" alt="Node Version >= 8" />
 <br>
-<h1 align="center">XEER Framework</h1>
+<h1 align="center">eXir Framework</h1>
 </p>
 
 An experimental javascript framework aiming to be a complete prototyping framework .<br>
 
-XEER framework contains :
+eXir framework contains :
 - **Core Utils**
   - Extended Collection utilities: chunk, omit, join, etc.
   - Function helpers: throttle, debounce, etc.
@@ -48,13 +48,13 @@ XEER framework contains :
 #### Package Manager
 Simply use any package manager (npm, yarn, pnpm, ...) to install from [npmjs.org](https://npmjs.org)
 ```shell script
-$ npm i xeer-js
+$ npm i exir
 ```
 #### From Source
 Clone the repository and install dependencies using your prefered package manager
 ```sh
-$ git clone https://github.com/kasra-sh/xeer-js.git
-$ cd xeer-js
+$ git clone https://github.com/kasra-sh/exir.git
+$ cd exir
 $ npm install
 ```
 To regenerate extensions and bundles, make sure you have [Parcel](https://parceljs.org) installed globaly:
@@ -66,18 +66,18 @@ $ pnpm bundle
 #### Node module
 Use any package manager (npm, yarn, pnpm, ...) to install from [npmjs.org](https://npmjs.org)
 ```shell script
-$ npm i xeer-js
+$ npm i exir
 ```
 
 #### Bundled
 Clone the repository and install dependencies using your prefered package manager
 ```sh
-$ git clone https://github.com/kasra-sh/xeer-js.git
-$ cd xeer-js
+$ git clone https://github.com/kasra-sh/exir.git
+$ cd exir
 $ npm install
 $ npm bundle
 ```
-bundled files are generated in `dist` directory. `xeer-bundle-es5.js` supports IE9+ and `xeer-bundle.js` is for modern browsers supporting async/await syntax.
+bundled files are generated in `dist` directory. `exir-bundle-es5.js` supports IE9+ and `exir-bundle.js` is for modern browsers supporting async/await syntax.
 
 ## Extensions
 Extensions are helper methods appended to prototypes which help make the code cleaner.<br>
@@ -88,9 +88,9 @@ Extension method names all have `$` prepended to their names to prevent method o
 - If using a bundled version, extensions are enabled by default.
   ```html
   <!-- Modern !-->
-      <script src="xeer-bundle.js"></script>
+      <script src="exir-bundle.js"></script>
   <!-- Legacy !-->
-      <script src="xeer-bundle-es5.js"></script>
+      <script src="exir-bundle-es5.js"></script>
       <script>
         var obj = {
             ABC: "text1",
@@ -105,13 +105,13 @@ Extension method names all have `$` prepended to their names to prevent method o
 - If using as module in a node project:
   ```javascript
   // All extensions
-  require("xeer-js/ext"); 
+  require("exir/ext"); 
 
   // Stream processing extensions
-  require("xeer-js/colelctions.ext");  
+  require("exir/colelctions.ext");  
   
   // DOM extensions
-  require("xeer-js/dom.ext");
+  require("exir/dom.ext");
   ```
 
 

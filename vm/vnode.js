@@ -56,7 +56,7 @@ class VNode {
         let vNode = new VNode(query.tag);
         vNode.id = query.id;
         vNode.attr = args.attr || {};
-
+        if (args.style) vNode.attr.style = args.style
         if (!vNode.attr.class && query.hasClass)
             vNode.attr.class = query.classes.join(' ');
 

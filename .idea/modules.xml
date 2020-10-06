@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/xeer-js.iml" filepath="$PROJECT_DIR$/.idea/xeer-js.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/exir.iml" filepath="$PROJECT_DIR$/.idea/exir.iml" />
     </modules>
   </component>
 </project>

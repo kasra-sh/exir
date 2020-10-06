@@ -12,7 +12,7 @@
   "sourceType": "module",
   "opts": {
     "encoding": "utf8",
-    "destination": "/media/blkr/SD64/xeer_docs",
+    "destination": "/media/blkr/SD64/exir_docs",
     "recurse": true,
     "readme": "README.md",
     "tutorials": "./tutorials",
@@ -55,8 +55,8 @@
       "url": ""
     },
     "meta": {
-      "title": "XEER JS",
-      "description": "Javascript Framework",
+      "title": "eXir",
+      "description": "Javascript Library",
       "keyword": ""
     },
     "search": true,
@@ -66,7 +66,7 @@
     "scripts": [],
     "menu": {
       "Project Website": {
-        "href":"https://github.com/kasra-sh/xeer-js",
+        "href":"https://github.com/kasra-sh/exir",
         "target":"_blank",
         "class":"menu-item",
         "id":"website_link"

@@ -1,6 +1,6 @@
 An experimental javascript framework aiming to be a complete prototyping framework .<br>
 
-XEER framework contains :
+eXir framework contains :
 - **Core Utils**
   - Extended Collection utilities: chunk, omit, join, etc.
   - Function helpers: throttle, debounce, etc.

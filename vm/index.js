@@ -2,7 +2,8 @@ const app = require('./app');
 const vnode = require('./vnode');
 const component = require('./component');
 const context = require('./context');
-const xeer = require('./xeer');
+const exir = require('./renderer');
+const utility = require('./utility');
 // const hs = require('../')
 
 module.exports = {
@@ -10,5 +11,6 @@ module.exports = {
     ...vnode,
     ...component,
     ...context,
-    ...xeer
+    ...exir,
+    ...utility
 }
