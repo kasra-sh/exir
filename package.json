@@ -6,11 +6,11 @@
   "license": "MIT",
   "scripts": {
     "generate": "node generateExt.js",
-    "bundle-modern": "parcel build exir-bundle.js --target modern --no-cache",
-    "bundle-legacy": "parcel build exir-bundle-es5.js --target legacy --no-cache",
-    "bundle-node": "parcel build index.js --target node",
+    "bundle-modern": "parcel build --target modern exir-bundle.js exir-bundle-ext.js",
+    "bundle-legacy": "parcel build --target legacy exir-bundle-legacy.js exir-bundle-legacy-ext.js",
+    "bundle-node": "parcel build --target node index.js",
     "bundle": "npm run generate && npm run bundle-modern && npm run bundle-legacy",
-    "devServe": "parcel exir-bundle.js"
+    "devServe": "parcel exir-bundle-ext.js"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
@@ -71,7 +71,6 @@
       }
     },
     "node": {
-      "distDir": "dist/node",
       "engines": {
         "node": ">=8.x"
       },
