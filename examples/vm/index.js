@@ -1,11 +1,12 @@
 // cd to project root:
 // parcel examples/vm/index.html
 
-const X = require('../../vm');
+const {VNode, Component, mount} = require('../../vm');
+const e = VNode.create;
 // const {Component, m} = require("../../vm");
-const {e} = require('../../vm/hscript.helpers');
+// const {e} = require('../../vm/hscript.helpers');
 
-class Z extends X.Component {
+class Z extends Component {
     view() {
         return e('h1', {}, 'Banner')
     }
@@ -33,7 +34,7 @@ const C = {
 }
 
 window.addEventListener('load', ()=>{
-    X.mount('#root', e(C, {count: 100}));
+    mount('#root', e(C, {count: 100}));
     // X.mount('#root', C);
     // X.mount('#root', C);
 })
