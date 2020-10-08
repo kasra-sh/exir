@@ -12,45 +12,8 @@
 <h1 align="center">eXir Javascript Library</h1>
 </p>
 
-### What is eXir?
-Persian word اکسیر, pronounced *ex'ear* is a mythical potion which transmutes things to a substance of higher value (iron to gold) or cures all illness.<br>
-**eXir** is a lightweight javascript library (which is not just a sentence!), and it is supposed to cure dependency *infection*!<br>
-
-eXir library contains :
-- **Core Utils**
-An state-of-art approach to the most basic tasks (just some utility functions!)
-  - Extended Collection utilities: chunk, omit, join, etc.
-  - Function helpers: throttle, debounce, etc.
-  - String analyzers and transformers.
-  - Concise Type Checking: isNull, isObj, etc.
-- **DOM Utils**
-The most advanced enterprise DOM altering technology (basic DOM manipulation)
-  - Flexible, Fool-Proof element/class/attribute/style CRUD
-  - Painless, Predicable Event Handling
-  - Optional native method wrappers for addEventListener, etc. for debugging or other purposes
-- **HTTP Client/Methods**
-An elegant wrapper around XHR to satisfy your every request!
-  - Supports Promises, async/await
-  - Timeout and retry (real!)
-  - Rate Limiting (also real!)
-  - Request cancellation (kidding right?)
-- **Web Components**
-  - Virtual DOM
-  - Reactive State Management *(coming soon)*
-  - Routing *(coming soon)*
-
-### Why use eXir?
-*All* of the above in a bundle of *less than* 15Kb gzipped, which could be the size of a whole web app if using only what's necessary (tree-shaking).
-Many libraries/frameworks exist which claim to be fast and lightweight are in fact what they claim to be in early releases or first stages of development,
-but many start to get bigger and more complicated as they try their hardest to make everything convenient or add some extra feature that someone requested.
-Why make it so abstract and complicated that you feel the need to make more advanced tools to be able to debug it?!
-As developers (mainly web developers) there is a constant struggle to make changes quickly and at the same time reduce unnecessary clutter not because your 32xCore bla, bla... cannot handle it,
-but for the sake of those not nearly as powerful or optimized mobile(Android, RPi, ...) browsers, and yes talking about the very same devices which PWAs are also targeting.
-
-*Besides* not all webpages are supposed to render dynamically, what about the statically rendered websites? well ... you can always *put a bundle on it*!
-
----
-
+- [What is eXir?](#what-is-exir)
+- [Why use it?](#why-use-exir)
 - [Installation](#installation)
   - [Package Manager](#package-manager)
   - [From Source](#from-source)
@@ -59,13 +22,55 @@ but for the sake of those not nearly as powerful or optimized mobile(Android, RP
   - [Bundled](#bundled)
 - [Extensions](#extensions)
   - [How to use](#how-to-use)
-- [TODO](#todo)
+- [Disclaimer](#disclaimer)
+
+### What is eXir?
+Persian word اکسیر, pronounced *ex'ear* is a mythical potion which transmutes things to a substance of higher value (iron to gold) or cures all illness.<br>
+**eXir** is a lightweight javascript library (which is not just a sentence!), and it is supposed to cure dependency *infection*!<br>
+
+What's included :
+- **Core Utils**
+  - Extended Collection utilities: chunk, omit, join, etc.
+  - Function helpers: throttle, debounce, etc.
+  - String analyzers and transformers.
+  - Concise Type Checking: isNull, isObj, etc.
+- **DOM Utils**
+Basic DOM manipulation utility functions.
+  - Flexible, Fool-Proof element/class/attribute/style CRUD
+  - Painless, Predicable Event Handling
+  - Optional native method wrappers for addEventListener, etc. for debugging or other purposes
+- **HTTP Client/Methods**
+An elegant wrapper around XHR to satisfy your every request!
+  - Convenient Http Methods Get, Post, ...
+  - Supports Promises, async/await
+  - Timeout and retry
+  - Rate Limiting
+  - Request cancellation
+- **Web Components**
+Reusable/Dynamic pure js components (css-in-js included).
+  - Dynamically Rendered Components (virtual dom)
+  - Reactive State Management *(coming soon)*
+  - Routing *(coming soon)*
+  
+*All* of the above in a bundle of *less than* 15Kb gzipped, which could be the size of a whole web app using only what's necessary (tree-shaking).
+
+### Why use eXir?
+Many libraries/frameworks exist which claim to be fast/lightweight, are in fact what they claim to be in early releases or first stages of development,
+but many start to get bigger and more complicated as they try their hardest to make everything more convenient or add some extra features.
+Why make it so abstract and complicated in the first place and then make some more advanced tools to simplify it?
+Many web developers are dealing with the constant struggle of making frequent changes and optimization, not because some 16core workstation cannot handle extra lines of javascript,
+but for the sake of those not nearly as powerful/optimized mobile browsers (Android, RPi, etc.), the very same devices which are first-class targets for PWAs.
+
+---
 
 ## Installation
 #### Package Manager
-Simply use any package manager (npm, yarn, pnpm, ...) to install from [npmjs.org](https://npmjs.org)
+With your prefered package manager run :
 ```shell script
 $ npm i exir
+```
+```shell script
+$ yarn add exir
 ```
 #### From Source
 Clone the repository and install dependencies using your prefered package manager
@@ -145,14 +150,16 @@ Extension method names all have `$` prepended to their names to prevent method o
   // All extensions
   require("exir/ext"); 
 
-  // Stream processing extensions
+  // Collection extensions
   require("exir/ext/collections.ext");  
   
   // DOM extensions
   require("exir/ext/dom.ext");
   ```
+---
 
 ### Disclaimer
 This project is under heavy development, some parts may change, break or be removed.<br>
 Documentation is not complete **yet**, each part's documentation will be added as soon as it seems stable enough.<br>
 Parcel's zero-config has helped a LOT but is not a necessity, it is completely fine to use another bundler/transpiler like Webpack, Rollup or other "magic" tools.
+eXir is safe to be used beside other libraries, **although** extensions modify Object prototypes which many deem dangerous, unnecessary or whatever else, use them at your own risk!
