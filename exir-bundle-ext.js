@@ -1,7 +1,7 @@
 const scope = require("./core/scope")
 
 const index = require("./index")
-// const hscript = require("./vm/hscript.helpers")
+const hscript = require("./vm/hscript.helpers")
 
 scope.setGlobal({
     X: {
@@ -11,9 +11,9 @@ scope.setGlobal({
     },
     VM: {
         ...index.VM,
-        // ...hscript
+        ...hscript
     }
 })
 
-// require("./ext/collections.ext")
-// require("./ext/dom.ext")
+require("./ext/collections.ext")
+require("./ext/dom.ext")
