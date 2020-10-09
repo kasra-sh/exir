@@ -2,6 +2,12 @@ function bodyOf(func) {
     return func.toString().match(/{[\w\W]*}/)[0]
 }
 
+/**
+ * Check if function bodies are equal
+ * @param {Function} f1
+ * @param {Function} f2
+ * @return {boolean}
+ */
 function funcBodyEquals(f1, f2) {
     return bodyOf(f1) === bodyOf(f2)
 }
