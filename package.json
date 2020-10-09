@@ -1,6 +1,6 @@
 {
   "name": "exir",
-  "version": "0.9.2",
+  "version": "0.10.0",
   "description": "Javascript Framework",
   "author": "Kasra Shamsaei",
   "license": "MIT",
@@ -15,6 +15,7 @@
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
     "docdash": "^1.2.0",
     "jsdoc-memberof-namespace": "^2.2.0",
     "kenpo-js": "0.1.7",

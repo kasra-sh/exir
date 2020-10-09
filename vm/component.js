@@ -1,4 +1,4 @@
-const {isFun} = require("../core/types");
+import {isFun} from "../core/types";
 
 class Component {
     constructor() {

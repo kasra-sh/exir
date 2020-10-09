@@ -1,48 +1,61 @@
-const {Component} = require("./component");
-const {VNode} = require("./vnode");
-const {$$} = require("../dom/query");
-const {filter, forEach, map} = require("../core/collections");
-const {isNull, isStr, isArr, isVal, isFun, hasField} = require("../core/types");
-const {kebab} = require("../core/cases");
-// const {cls} = require("../dom/classes");
-const {append} = require("../dom/append");
+import {Component} from "./component";
+import {VNode} from "./vnode";
+import {forEach, map} from "../core/collections";
+import {hasField, isArr, isFun, isStr} from "../core/types";
+import {kebab} from "../core/cases";
+import {append} from "../dom/append";
+
 
 /**
  *
- * @param {VNode|{view:Function}|Function} vnode
+ * @param {VNode|{view:Function}|Function} node
  * @param {Object} ctx
  * @returns {Text|*}
  */
-function createVDom(vnode, ctx = {}) {
-    // console.log("NODE",vnode)
-    if (Component.isPrototypeOf(vnode)) {
-        let inst = Object.create(vnode.prototype);
-        vnode = inst.view();
-    } else if (hasField(vnode, 'view')) {
-        // console.log("VIEW", vnode)
-        vnode = vnode.view(ctx);
-        // console.log("VIEW-AFTER", vnode)
-    } else if (isFun(vnode)) {
+function createVDom(node, ctx = {}) {
+    // console.log("PRENODE", node)
+    if (Component.isPrototypeOf(node)) { // is component
+        // console.log("COMP", node)
+        let inst = Object.create(node.prototype);
+        node = inst.view(ctx);
+    } else if (hasField(node, 'view')) { // is object
+        // console.log("VIEW", node)
+        node = node.view(ctx);
+        // console.log("VIEW-AFTER", node)
+    } else if (isFun(node)) { // is function
         // console.log("FUN")
-        vnode = vnode(ctx);
-    } else if (isStr(vnode)) {
+        node = node(ctx);
+    } else if (isStr(node)) { // is text
         // console.log("STR")
-        vnode = VNode.createText(vnode);
+        node = VNode.createText(node);
     }
-    if (!(vnode instanceof VNode)) {
-        throw Error(`Illegal value "${vnode}", not supported in VirtualDOM tree`);
-    }
+    // console.log("NODE", node)
 
-    if (vnode.isRef === true) {
-        // console.log("REF",vnode)
-        vnode = createVDom(vnode.target, vnode.props);
+    if (node.isRef === true) {
+        node = createVDom(node.target, node.props);
     }
-    vnode.nodes = map(vnode.nodes, function (child, i) {
-        // console.log("child", i)
-        return createVDom(child)
-    });
+    // console.log("NODEREF", node);
 
-    return vnode;
+
+    // console.log("ARR", node)
+    // if (node instanceof Array) return node;
+
+    if (!(node instanceof VNode)) {
+        console.log("ILL", node)
+        throw Error(`Illegal value "${node}", not supported in VirtualDOM tree`);
+    }
+    // if (node.tag === 'FRAGMENT') {
+    //     console.log("FRAG")
+    //     return map(node.nodes, (ch)=>createDom(ch))
+    // }
+    // let frags =
+    if (node.nodes)
+        node.nodes = map(node.nodes, function (child, i) {
+            // console.log("CHIIILD", child)
+            return createVDom(child)
+        });
+
+    return node;
 }
 
 /**
@@ -88,27 +101,12 @@ function createDom(vn, ctx = {}) {
 
 function render(c, ctx) {
     let vdom = createVDom(c, ctx);
-    console.log("VDOM", vdom);
+    // console.log("VDOM", vdom);
     return createDom(vdom);
-}
-
-function mount(root, component, force = false) {
-    root = $$(root)[0];
-    if (root.__X_VDOM__ && !force) {
-        console.log("must patch", component);
-        return;
-    }
-    root.__X_VDOM__ = true;
-    console.log(root);
-    let rendered = render(component, {});
-    console.log("Rendered", rendered);
-    console.log("Component", component);
-    root.append(rendered);
 }
 
 module.exports = {
     createDom,
     createVDom,
-    render,
-    mount
+    render
 }

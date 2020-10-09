@@ -1,3 +1,9 @@
 {
-  "plugins": ["@babel/plugin-proposal-class-properties"]
+  "plugins": ["@babel/plugin-proposal-class-properties"],
+  "presets": [["@babel/preset-react", {
+    "pragma": "VNode.create",
+    "pragmaFrag": "'FRAG'",
+    "throwIfNamespace": false,
+    "runtime": "classic"
+  }]]
 }

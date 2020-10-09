@@ -1,5 +1,5 @@
 const {parseQuery} = require("../dom/tic");
-const {map} = require("../core/collections");
+const {map, flatMap} = require("../core/collections");
 const {isStr, isObj, isFun, isEmpty, isVal} = require("../core/types");
 
 class VNode {
@@ -37,6 +37,7 @@ class VNode {
     }
 
     static createRef(type, props) {
+        // console.log("REF",type)
         let vRef = new VNode(!isVal(type.name) || isEmpty(type.name)?type.constructor.name:type.name);
         vRef.target = type;
         vRef.isRef = true;
@@ -45,13 +46,23 @@ class VNode {
     }
 
     static create(type, args={attr:{}, on: {}}, ...children) {
+        if (args === null) args = {attr: {}, on:{}};
+        // Fragment
+        // if (type instanceof Array) {
+        //     console.log("FRAG", type)
+        //     children = flatMap(children);
+        //     children = map(children,(ch)=>isStr(ch)?VNode.createText(ch):ch);
+        //     console.log("FRAG Children",children)
+        //     vNode.nodes = children;
+        //     return children
+        // }
         if (isFun(type) || isObj(type))
             return VNode.createRef(type, args);
-
-        if (children[0] instanceof Array)
-            children = children[0]
-
+        // if (children[0] instanceof Array)
+        //     children = children[0]
+        children = flatMap(children);
         children = map(children,(ch)=>isStr(ch)?VNode.createText(ch):ch);
+
         let query = parseQuery(type);
         let vNode = new VNode(query.tag);
         vNode.id = query.id;
