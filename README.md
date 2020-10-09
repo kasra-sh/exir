@@ -73,7 +73,7 @@ $ npm i exir
 $ yarn add exir
 ```
 #### From Source
-Clone the repository and install dependencies using your prefered package manager
+Clone the repository and install dependencies using your preferred package manager
 ```sh
 $ git clone https://github.com/kasra-sh/exir.git
 $ cd exir
@@ -92,18 +92,13 @@ $ npm i exir
 ```
 
 #### Bundled
-Clone the repository and install dependencies using your prefered package manager
-```sh
-$ git clone https://github.com/kasra-sh/exir.git
-```
 Bundles are already included inside *dist* directory, but if you wish to apply your changes to them here's how to do it :
+First clone and install from source [Here](#from-source)
 ```sh
-$ cd exir
-$ npm install
 $ npm run bundle
 ```
-bundled files will be generated inside `dist` directory. `exir-bundle-legacy.js` supports IE9+ (include package "regenerator/runtime" for async/await), `exir-bundle.js` is for more modern browsers which support ES6/ES7.
- 
+bundled files will be updated/generated inside `dist` directory. `exir-bundle-legacy.js` supports IE9+ (include package "regenerator/runtime" for async/await), `exir-bundle.js` is for more modern browsers which support ES6/ES7.
+bundles with the suffix "-ext" contain extensions.
 ## Extensions
 Extensions are helper methods appended to prototypes which help make the code cleaner.(optional)<br>
 For example `X.addClass($('div'), 'container')` will become `$('div').$addClass('container')`.<br>

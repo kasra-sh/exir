@@ -1,10 +1,13 @@
 #### Package Manager
-Simply use any package manager (npm, yarn, pnpm, ...) to install from [npmjs.org](https://npmjs.org)
+With your prefered package manager run :
 ```shell script
 $ npm i exir
 ```
+```shell script
+$ yarn add exir
+```
 #### From Source
-Clone the repository and install dependencies using your prefered package manager
+Clone the repository and install dependencies using your preferred package manager
 ```sh
 $ git clone https://github.com/kasra-sh/exir.git
 $ cd exir
