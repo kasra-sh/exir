@@ -10,16 +10,25 @@ if (!global._X_LOOP_BREAK_) {
     global._X_ANY_ = Symbol("ANY");
     global._X_ALL_ = Symbol("ALL");
 }
-
+/**
+ * Break from functional loops: forEach, filter, ...
+ * @type {symbol}
+ */
 const BREAK = global._X_LOOP_BREAK_;
+/**
+ * Match Any: Used as value in predicate object
+ * @type {symbol}
+ */
 const ANY = global._X_ANY_;
 const ALL = global._X_ALL_;
 const UNSAFE_PROPS = ['__proto__', 'constructor', '__defineGetter__', '__defineSetter__', 'prototype'];
 
 /**
- * @param {{a: Function?}} s
- * @param i
- * @returns {undefined|*}
+ * Get item by index from multiple source types
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} s
+ * @param {Number|String} i
+ * @returns {any|null|undefined}
  */
 function item(s, i) {
     if (!T.isVal(s)) return undefined;
@@ -30,36 +39,38 @@ function item(s, i) {
 }
 
 /**
+ * Source contains value or key:value
  *
- * @param s
- * @param v
- * @param k
+ * @param {Array|Object|String} src
+ * @param {any} value
+ * @param {String|undefined} key
  * @returns {boolean}
  */
-function contains(s, v, k) {
-    if (!T.isVal(s)) return false;
-    if (!T.isArr(s) && T.isObj(s)) return s[k] === v;
-    return s.indexOf(v) >= 0;
+function contains(src, value, key) {
+    if (!T.isVal(src)) return false;
+    if (!T.isArr(src) && T.isObj(src)) return src[key] === value;
+    return src.indexOf(value) >= 0;
 }
 
 /**
+ * Add item(s) to source
  *
- * @param src
- * @param v
+ * @param {Array|{add:Function}} src
+ * @param {any} v
  */
 function add(src, ...v) {
     if (T.isArr(src)) {
         forEach(v, (vi) => src.push(vi))
-        // src.push(v);
     } else if (T.isMutableList(src)) {
         src.add(v);
     }
 }
 
 /**
+ * Remove item(s) from source
  *
- * @param src
- * @param it
+ * @param {Array|String} src
+ * @param {...any} it
  * @returns {boolean}
  */
 function remove(src, ...it) {
@@ -77,9 +88,10 @@ function remove(src, ...it) {
 }
 
 /**
+ * Toggles items in source
  *
- * @param src
- * @param c
+ * @param {Array} src
+ * @param {...any} c
  */
 function toggle(src, ...c) {
     if (c.length === 0) return;
@@ -146,10 +158,11 @@ function funOrKey(f) {
 }
 
 /**
+ * Create empty instance of given source
  *
- * @param {any} src
- * @param def
- * @returns {any} Empty of src
+ * @param {any} src - source object
+ * @param {any} def - default value for primitives
+ * @returns {any} empty instance of src
  */
 function emptyOf(src, def = {}) {
     if (T.isStr(src)) return "";
@@ -170,9 +183,10 @@ function emptyOf(src, def = {}) {
 }
 
 /**
+ * Type-agnostic concat
  *
- * @param target
- * @param source
+ * @param {Array|String|Object} target
+ * @param {Array|String|Object} source
  * @returns {Array|String|Object}
  */
 function concat(target, source) {
@@ -198,9 +212,10 @@ function concat(target, source) {
 }
 
 /**
+ * Polyfill-like for Object.values (uses native method if available)
  *
- * @param obj
- * @returns {Array|Object|undefined}
+ * @param {Object} obj
+ * @returns {Array|undefined} - array of values
  */
 function objectValues(obj) {
     if (Object.values) {
@@ -211,14 +226,34 @@ function objectValues(obj) {
 }
 
 /**
+ * Index for loop from "init" to "finish"(included) by "step"
  *
- * @param src
- * @param func
- * @param start
- * @param end
+ * @param {Function} func
+ * @param {Number} init
+ * @param {Number} finish
+ * @param {Number} [step]
+ */
+function forN(func, init=0, finish=0, step=init<finish?1:-1) {
+    if (step>0) {
+        for (; init<=finish; init+=step) {
+            func(init)
+        }
+    }
+    for (; init>=finish; init+=step) {
+        func(init)
+    }
+}
+
+/**
+ * forEach(left) with limited range
+ *
+ * @param {Array|Object|NodeList|HTMLCollection} src
+ * @param {Function} func
+ * @param {Number} [start]
+ * @param {Number?} [end]
  * @returns {*|number}
  */
-function forRange(src, func, start = 0, end) {
+function forEachRange(src, func, start = 0, end) {
     if (!T.isArr(src) || !T.isStr(src)) {
         let keys = Object.keys(src);
         end = end || keys.length - 1
@@ -237,6 +272,7 @@ function forRange(src, func, start = 0, end) {
 }
 
 /**
+ * Type-agnostic forEach loop
  *
  * @param src
  * @param func
@@ -273,6 +309,7 @@ function forEach(src, func) {
 }
 
 /**
+ * Type-agnostic forEachRight loop
  *
  * @param src
  * @param func
@@ -299,16 +336,17 @@ function forEachRight(src, func, range = []) {
 }
 
 /**
- *
- * @param src
- * @param pred
+ * Extended version of native indexOf method, using {@link forEach}
+ * @see forEach
+ * @param {Array|Object|String|NodeList|HTMLCollection} src
+ * @param {Function|Object|Array} pred - predicate function/{key:value}/[keys]
  * @returns {number}
  */
 function firstIndex(src, pred) {
     pred = predicate(pred, () => true);
     let r = -1;
     forEach(src, function (v, k, i) {
-        r = pred(v, k, i);
+        r = pred(v, k, i, src);
         if (r === true) {
             r = i;
             return BREAK;
@@ -318,19 +356,21 @@ function firstIndex(src, pred) {
 }
 
 /**
- *
- * @param src
- * @param pred
+ * Extended version of native first method, using {@link firstIndex}
+ * @see firstIndex
+ * @param {Array|Object|String|NodeList|HTMLCollection} src
+ * @param {Function|Object|Array} pred - predicate function/{key:value}/[keys]
  * @returns {*}
  */
 function first(src, pred) {
-    return src[firstIndex(src, pred)]
+    return item(src, firstIndex(src, pred))
 }
 
 /**
+ * Returns true if first item matches predicate
  *
- * @param src
- * @param pred
+ * @param {Array|Object|String|NodeList|HTMLCollection} src
+ * @param {Function|Object|Array} pred - predicate function/{key:value}/[keys] pred
  * @returns {boolean|*}
  */
 function startsWith(src, pred) {
@@ -343,8 +383,8 @@ function startsWith(src, pred) {
 
 /**
  *
- * @param src
- * @param pred
+ * @param {Array|Object|String|NodeList|HTMLCollection} src
+ * @param {Function|Array|Object} pred
  * @returns {number}
  */
 function lastIndex(src, pred) {
@@ -360,10 +400,22 @@ function lastIndex(src, pred) {
     return r;
 }
 
+/**
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} src
+ * @param {Function|Array|Object} pred
+ * @returns {*}
+ */
 function last(src, pred) {
     return src[lastIndex(src, pred)]
 }
 
+/**
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} src
+ * @param {Function|Array|Object} pred
+ * @returns {boolean|*}
+ */
 function endsWith(src, pred) {
     if (T.isStr(src) && T.isStr(pred)) {
         return src.indexOf(pred) === src.length - pred.length
@@ -372,6 +424,12 @@ function endsWith(src, pred) {
     return pred(last(src))
 }
 
+/**
+ * Reverse array-like src
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} src
+ * @returns {Array|Object|String|NodeList|HTMLCollection} - reversed src
+ */
 function reverse(src) {
     if (T.isArr(src)) return src.reverse();
     let rev = "";
@@ -381,7 +439,13 @@ function reverse(src) {
     return rev;
 }
 
-/** @category Collections */
+/**
+ * A more versatile alternative to native "some" method
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} src
+ * @param {Function|Array|Object} pred
+ * @returns {boolean}
+ */
 function any(src, pred) {
     // if (!func){
     //     if (T.isArr(src) || T.isStr(src)) return src.length>0;
@@ -395,13 +459,19 @@ function any(src, pred) {
     });
     return r;
 }
-/** @category Collections */
 
-function all(src, func) {
-    func = predicate(func, () => true);
+/**
+ * A more versatile alternative to native "every" method
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} src
+ * @param {Function|Array|Object} pred
+ * @returns {boolean}
+ */
+function all(src, pred) {
+    pred = predicate(pred, () => true);
     let r = true;
     forEach(src, function (v, k, i, src) {
-        r = func(v, k, i, src);
+        r = pred(v, k, i, src);
         if (r === false) return BREAK;
     })
     return r;
@@ -475,25 +545,53 @@ function filterArr(src, pred, right = false, omit = false) {
     }
     return res;
 }
-/** @category Collections */
 
+/**
+ * A more versatile alternative to native "filter" method
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} src - source
+ * @param {Function|Array|Object} pred - predicate function/{key:value}/[keys]
+ * @param {boolean} [right] - reverse loop
+ * @returns {Array|Object|String}
+ */
 function filter(src, pred, right = false) {
     if (T.isStr(src)) return filterStr(src, pred, right);
     if (T.isArr(src) || T.isList(src)) return filterArr(src, pred, right);
     return filterObj(src, pred, right);
 }
-/** @category Collections */
 
+/**
+ * Opposite of filter, returns items not matching predicate
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} src - source
+ * @param {Function|Array|Object} pred - predicate function/{key:value}/[keys]
+ * @param {boolean} [right] - reverse loop
+ * @returns {Array|Object|String}
+ */
 function omit(src, pred, right = false) {
     if (T.isStr(src)) return filterStr(src, pred, right, true);
     if (T.isArr(src) || T.isList(src)) return filterArr(src, pred, right, true);
     return filterObj(src, pred, right, true);
 }
 
+/**
+ * {@link filter} in reverse order (right)
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} src - source
+ * @param {Function|Array|Object} pred - predicate function/{key:value}/[keys]
+ * @returns {Array|Object|String}
+ */
 function filterRight(src, pred) {
     return filter(src, pred, true);
 }
 
+/**
+ * Find max index
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} list
+ * @param {Function|String} pred - predicate function/key
+ * @return {number}
+ */
 function maxIndex(list, pred) {
     pred = funOrKey(pred);
     let mx;
@@ -511,10 +609,24 @@ function maxIndex(list, pred) {
     return index;
 }
 
+/**
+ * Find max
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} list
+ * @param {Function|String} pred - predicate function/key
+ * @return {number}
+ */
 function max(list, pred) {
     return list[maxIndex(list, pred)];
 }
 
+/**
+ * Find min index
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} list
+ * @param {Function|String} pred - predicate function/key
+ * @return {number}
+ */
 function minIndex(list, pred) {
     pred = funOrKey(pred);
     let mn;
@@ -532,6 +644,13 @@ function minIndex(list, pred) {
     return index;
 }
 
+/**
+ * Find min
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} list
+ * @param {Function|String} pred - predicate function/key
+ * @return {number}
+ */
 function min(list, pred) {
     return list[minIndex(list, pred)];
 }
@@ -596,21 +715,36 @@ function mapObj(src, func, right = false) {
     return res;
 }
 
-function map(src, func, right = false) {
-    func = predicate(func, (v) => v);
-    if (T.isArr(src)) return mapArr(src, func, right);
-    else if (T.isObj(src)) return mapObj(src, func, right);
+/**
+ * A more versatile alternative to native "map" method
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} src - source
+ * @param {Function|Array|Object} transform - transformer function
+ * @param {boolean} [right] - reverse loop
+ * @returns {Array|Object|String}
+ */
+function map(src, transform, right = false) {
+    transform = predicate(transform, (v) => v);
+    if (T.isArr(src)) return mapArr(src, transform, right);
+    else if (T.isObj(src)) return mapObj(src, transform, right);
 }
 
-function flatMap(src, func) {
+/**
+ * A more versatile alternative to native "flatMap" method, flattens first level items
+ *
+ * @param {Array|Object|String|NodeList|HTMLCollection} src - source
+ * @param {Function|Array|Object} transform - transformer function
+ * @returns {Array|Object|String}
+ */
+function flatMap(src, transform) {
     let res;
     if (T.isStr(src)) res = ""
     else if (T.isArr(src)) res = []
     else res = {};
     forEach(src, function (a, i) {
         let f;
-        if (!!func) {
-            f = func(a, i, src);
+        if (!!transform) {
+            f = transform(a, i, src);
         } else {
             if (!T.isArr(res) && T.isObj(res)) {
                 f = {};
@@ -624,22 +758,44 @@ function flatMap(src, func) {
     return res;
 }
 
-function reduce(src, func, res = src) {
+/**
+ * A more versatile alternative to native "reduce" method
+ *
+ * @param {any} src - source
+ * @param {Function|Array|Object} func - reducer function
+ * @param {any} [acc] - accumulator
+ * @returns {any}
+ */
+function reduce(src, func, acc = src) {
     if (T.isUnd(func)) {
         func = (rs, v) => rs + v
     }
     forEach(src, (v, k, src) => {
-        res = func(res, v, k, src);
+        acc = func(acc, v, k, src);
     });
-    return res
+    return acc
 }
 
-function reduceRight(src, func, res = src) {
+/**
+ * {@link reduce} in reverse
+ * @see reduce
+ * @param {any} src - source
+ * @param {Function|Array|Object} func - reducer function
+ * @param {any} [acc] - accumulator
+ * @returns {any}
+ */
+function reduceRight(src, func, acc = src) {
     forEachRight(src, (v, k, src) => {
-        res = func(res, v, k, src);
+        acc = func(acc, v, k, src);
     });
 }
 
+/**
+ * Extract single key-value pairs from object
+ *
+ * @param object
+ * @return {Object[]}
+ */
 function keyValuePairs(object) {
     let entries = [];
     forEach(object, (v, k) => {
@@ -648,6 +804,12 @@ function keyValuePairs(object) {
     return entries;
 }
 
+/**
+ * Like Object.entries extracts key-value pairs as [[key1,value1],[key2,value2],...]
+ *
+ * @param {Object} object
+ * @return {Array[]}
+ */
 function entries(object) {
     let entries = [];
     forEach(object, (v, k) => {
@@ -656,19 +818,35 @@ function entries(object) {
     return entries;
 }
 
-function translateObject(source, translations) {
-    if (T.isArr(translations)) {
-        filter(source, translations);
+/**
+ * Translate(rename) object fields using dict parameter, omitting undefined keys
+ * @param {Object} source
+ * @param {Object|Array} dict
+ * @return {Array|Object|String}
+ */
+function translateObject(source, dict) {
+    if (T.isArr(dict)) {
+        filter(source, dict);
     }
-    const keys = Object.keys(translations);
+    const keys = Object.keys(dict);
     let res = filter(source, keys);
     for (let key of keys) {
-        res[translations[key]] = res[key];
+        res[dict[key]] = res[key];
         delete res[key];
     }
     return res;
 }
 
+/**
+ * Recursive deep merge {@param target} with {@param source}
+ *
+ * @param {Object|Array} target
+ * @param {Object|Array} source
+ * @param {Array} excludeKeys - keys to be skipped while merging
+ * @param maxDepth - maximum recursive depth
+ * @param allowUnsafeProps - allow unsafe properties like __proto__
+ * @return {Object|Array}
+ */
 function deepMerge(target,
                    source,
                    {
@@ -689,6 +867,16 @@ function deepMerge(target,
     return target;
 }
 
+/**
+ * Recursive deep clone {@param source}
+ * @see deepMerge
+ *
+ * @param {Object|Array} source
+ * @param {Array} excludeKeys - keys to be skipped while merging
+ * @param maxDepth - maximum recursive depth
+ * @param allowUnsafeProps - allow unsafe properties like __proto__
+ * @return {Object|Array}
+ */
 function deepClone(source,
                    {
                        excludeKeys = [],
@@ -698,6 +886,13 @@ function deepClone(source,
     return deepMerge(emptyOf(source), source, {excludeKeys, maxDepth, allowUnsafeProps})
 }
 
+/**
+ * Join arrays of objects based on a generated or static key
+ *
+ * @param {Function|String} key
+ * @param {Object[]} lists
+ * @return {[]}
+ */
 function join(key, ...lists) {
     if (lists.length === 0) return [];
     if (!all(lists, T.isArr)) throw Error("Join only accepts arrays of data!");
@@ -736,7 +931,7 @@ function join(key, ...lists) {
 // noinspection JSUnusedGlobalSymbols
 module.exports = {
     ANY, ALL, BREAK, item, contains, add, remove, toggle, objMatchOne, objMatchAll,
-    deepMerge, deepClone, forRange, forEach, forEachRight, firstIndex, first,
+    deepMerge, deepClone, forN, forEachRange, forEach, forEachRight, firstIndex, first,
     startsWith, lastIndex, last, endsWith, reverse, any, all, filter, filterRight, reduce, reduceRight,
     map, flatMap, keyValuePairs, entries, maxIndex, max, minIndex, min,
     translateObject, omit, join, objectValues
