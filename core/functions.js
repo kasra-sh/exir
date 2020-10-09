@@ -6,6 +6,13 @@ function funcBodyEquals(f1, f2) {
     return bodyOf(f1) === bodyOf(f2)
 }
 
+/**
+ * Throttle function execution
+ *
+ * @param {Function} func - function
+ * @param {Number} intervalMs
+ * @return {Function} - throttled function
+ */
 function throttle(func, intervalMs) {
     var ___last___ = new Date().getTime();
     function throttled(args) {
@@ -17,6 +24,13 @@ function throttle(func, intervalMs) {
     return throttled;
 }
 
+/**
+ * Debounce function
+ *
+ * @param {Function} func - function
+ * @param {Number} afterMs - milliseconds after last call
+ * @return {Function} - debounced function
+ */
 function debounce(func, afterMs) {
     var ___timeout___ = null;
 
@@ -36,7 +50,14 @@ function debounce(func, afterMs) {
     return debounced
 }
 
-
+/**
+ * Bind args to function and return a no-arg function
+ * @param {Function} func
+ * @param {any[]} args
+ */
+function bindArgs(func, args) {
+    return function () {return func.apply(this,args)}
+}
 
 module.exports = {
     funcBodyEquals,
