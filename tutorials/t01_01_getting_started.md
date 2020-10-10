@@ -1,7 +1,7 @@
 Please first read installation part if you haven't yet.
-eXir can be imported as [modules](#modules) or a single monolithic [bundle](#bundle).
+eXir can be imported as separate [modules](#modules) or a single monolithic [bundle](#bundle).
 
-###Modules
+#### Modules
 CommonJS `require()` example:
 ```js
 // Core
@@ -58,8 +58,9 @@ import "exir/ext/collections.ext";
 import "exir/ext/dom.ext";
 ```
 
-####Bundle
-Include any bundle you prefer in a script tag and it will become available as two global namespaces.<br>Core, Http and DOM functions are all under `X` global variable:
+#### Bundle
+Include any bundle you prefer in a script tag and it will become available as two global namespaces.<br>Core, Http and DOM functions are all under `X` global variable.  
+View-Model rendering classes and functions are under `VM` global variable.
 
 For example to send a request and transform response data:
 ```html
@@ -76,6 +77,8 @@ var rs = await X.sendGet({
       headers: {'X-Custom-Header': 'some value'}
     }).then((ajax)=>ajax.Rs.json);
 
+console.log(X.filter(rs, ['headers', 'args']));
+// the above using $filter extension
 console.log(rs.$filter(['headers', 'args']));
 </script>
 ```
