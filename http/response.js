@@ -39,15 +39,15 @@ class HttpRs {
         Object.defineProperty(this, 'xml', {
             get() {
                 try {
-                    if (!xhr.responseXML) {
+                    if (!xhr.responseXML && !xhr.responseXml) {
                         let parser = new DOMParser();
-                        xhr.responseXML = parser.parseFromString(self.text,"text/xml");
+                            xhr.responseXml = parser.parseFromString(self.text,"text/xml");
                     }
                 }catch (e) {
                     console.log(e)
                 }
 
-                return xhr.responseXML;
+                return xhr.responseXml;
             }
         })
     }

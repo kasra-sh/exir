@@ -6,13 +6,13 @@ const {forEach} = require("../core/collections");
 
 /**
  * A wrapper class for {@link XMLHttpRequest} to facilitate sending requests and handling events
- * @property {HttpRq} Rq - Request data object
- * @property {HttpRs} Rs - Response data object
+ * @property {HttpRq} rq - Request data object
+ * @property {HttpRs} rs - Response data object
  * @memberOf http
  */
 class Ajax {
-    Rq = {}
-    Rs = {}
+    rq = {}
+    rs = {}
 
     /**
      * @constructor
@@ -24,12 +24,12 @@ class Ajax {
      */
     constructor(m, url, params = {}, headers = {}, content = new HttpContent()) {
         if (m instanceof HttpRq) {
-            this.Rq = m
+            this.rq = m
         } else {
-            this.Rq = new HttpRq(m, url, params, headers, content);
+            this.rq = new HttpRq(m, url, params, headers, content);
         }
         // Fields
-        this.Rs = {readyState: 0};
+        this.rs = {readyState: 0};
         this.xhr = new XMLHttpRequest();
 
         this.preparedCallback = function (rq) {
@@ -59,7 +59,7 @@ class Ajax {
      * @returns {Ajax}
      */
     header(n, v) {
-        this.Rq.setHeader(n, v);
+        this.rq.setHeader(n, v);
         return this;
     };
 
@@ -70,7 +70,7 @@ class Ajax {
      */
     headers(hdrs = {}) {
         forEach(hdrs, (v, k) => {
-            this.Rq.setHeader(k, v);
+            this.rq.setHeader(k, v);
         });
         return this;
     };
@@ -125,8 +125,16 @@ class Ajax {
      * @param {HttpContent} content
      * @returns {Ajax}
      */
-    withContent(content) {
-        this.Rq.setContent(content.type, content.data);
+    withContent(content={}) {
+        switch (content.type) {
+            case 'json': this.rq.jsonContent(content.data); break;
+            case 'xml': this.rq.xmlContent(content.data); break;
+            case 'form': this.rq.formContent(content.data); break;
+            case 'form_multipart': this.rq.formMultiPartContent(content.data); break;
+            case 'form_urlencoded': this.rq.formUrlEncodedContent(content.data); break;
+            default: this.rq.setContent(content.type, content.data);
+        }
+        return this;
     }
 
     /**
@@ -135,7 +143,7 @@ class Ajax {
      * @returns {Ajax}
      */
     xmlData(data) {
-        this.Rq.xmlContent(data);
+        this.rq.xmlContent(data);
         return this;
     }
 
@@ -145,7 +153,7 @@ class Ajax {
      * @returns {Ajax}
      */
     formData(form) {
-        this.Rq.formContent(form);
+        this.rq.formContent(form);
         return this;
     };
 
@@ -155,7 +163,7 @@ class Ajax {
      * @returns {Ajax}
      */
     jsonData(data) {
-        this.Rq.jsonContent(data);
+        this.rq.jsonContent(data);
         return this;
     };
 
@@ -165,34 +173,34 @@ class Ajax {
      * @returns {Ajax}
      */
     urlEncodedData(data) {
-        this.Rq.formUrlEncodedContent(data);
+        this.rq.formUrlEncodedContent(data);
         return this;
     };
 
     _prepare(reset) {
         if (this.isPrepared && !reset) {
-            // self.onprepare && self.onprepare(self.Rq);
+            // self.onprepare && self.onprepare(self.rq);
             return this
         }
 
         // prepare url
-        let url = this.Rq.url;
+        let url = this.rq.url;
 
-        if (this.Rq.args && !T.isEmpty(this.Rq.args)) {
+        if (this.rq.args && !T.isEmpty(this.rq.args)) {
             url.indexOf('?') >= 0 || (url += '?');
-            url += this.Rq.buildUrlEncoded();
+            url += this.rq.buildUrlEncoded();
         }
         reset && (this.xhr = new XMLHttpRequest());
-        this.xhr.open(this.Rq.method, url);
+        this.xhr.open(this.rq.method, url);
 
         // prepare headers
-        for (let h in this.Rq.headers) {
-            if (this.Rq.headers.hasOwnProperty(h))
-                this.xhr.setRequestHeader(h, this.Rq.headers[h]);
+        for (let h in this.rq.headers) {
+            if (this.rq.headers.hasOwnProperty(h))
+                this.xhr.setRequestHeader(h, this.rq.headers[h]);
         }
 
         this.isPrepared = true;
-        this.preparedCallback && this.preparedCallback(this.Rq);
+        this.preparedCallback && this.preparedCallback(this.rq);
         // preparedCallback && preparedCallback();
         return this;
     };
@@ -216,9 +224,9 @@ class Ajax {
                 } else {
                     callback = ajax.failCallback;
                 }
-                ajax.Rs = new HttpRs(xhr);
-                finishCallback && finishCallback(ajax.Rq, ajax.Rs, ajax.xhr);
-                callback && callback(ajax.Rq, ajax.Rs, ajax.xhr);
+                ajax.rs = new HttpRs(xhr);
+                finishCallback && finishCallback(ajax.rq, ajax.rs, ajax.xhr);
+                callback && callback(ajax.rq, ajax.rs, ajax.xhr);
             }
         };
         this.xhr.onprogress = function (ev) {
@@ -234,7 +242,7 @@ class Ajax {
         };
 
         try {
-            this.xhr.send(this.Rq.content.data);
+            this.xhr.send(this.rq.content.data);
         } catch (e) {
             this.onFail(e);
         }

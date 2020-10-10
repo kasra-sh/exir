@@ -15,5 +15,9 @@ $ npm install
 ```
 To regenerate extensions and bundles, make sure you have [Parcel](https://parceljs.org) installed globaly:
 ```sh
+npm i -g parcel@next
+```
+then this command:
+```sh
 $ npm run bundle
 ```
