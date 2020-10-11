@@ -196,19 +196,12 @@ function concat(target, source) {
     if (T.isArr(target)) {
         return target.concat(source);
     }
-    let d = target;
-    for (let k of Object.keys(source)) {
-        if (T.isArr(source[k])) {
-            // if (!T.isVal(target[k])) target[k] = [];
-            // concat(target[k], source[k]);
 
-        } else if (T.isObj(source[k])) {
-            // if (!T.isVal(target[k])) target[k] = {};
-            // concat(target[k], source[k])
-        } else
-            d[k] = source[k];
+    for (let k of Object.keys(source)) {
+        if (!target[k])
+            target[k] = source[k];
     }
-    return d
+    return target
 }
 
 /**
@@ -873,8 +866,8 @@ function deepMerge(target,
  *
  * @param {Object|Array} source
  * @param {Array} excludeKeys - keys to be skipped while merging
- * @param maxDepth - maximum recursive depth
- * @param allowUnsafeProps - allow unsafe properties like __proto__
+ * @param {Number} [maxDepth] - maximum recursive depth
+ * @param {boolean} [allowUnsafeProps] - allow unsafe properties like __proto__
  * @return {Object|Array}
  */
 function deepClone(source,
@@ -891,7 +884,7 @@ function deepClone(source,
  *
  * @param {Function|String} key
  * @param {Object[]} lists
- * @return {[]}
+ * @return {Object[]}
  */
 function join(key, ...lists) {
     if (lists.length === 0) return [];
