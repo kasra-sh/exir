@@ -3,20 +3,23 @@ const {$, $$} = require("../dom/query")
 
 /**
  * Http Content class
- * @field type - Content Type
- * @field data - Content Data
  */
 class HttpContent{
-    type
-    data
     constructor(type, data) {
+        /**
+         * @type {String}
+         */
         this.type = type;
+        /**
+         * @type {String|Object|Element}
+         */
         this.data = data;
     }
 }
 
 /**
  * Http request class
+ * @class
  */
 class HttpRq{
     /**
@@ -25,12 +28,23 @@ class HttpRq{
     setMethod(m) {
         this.method = m.toUpperCase();
     };
+
+    /**
+     * @param {String} u
+     */
     setUrl(u) {
         this.url = encodeURI(u);
     };
+
+    /**
+     * Set request param/arg
+     * @param {String} n - name
+     * @param {String} v - value
+     */
     setArg(n, v) {
         this.args[n] = v;
     };
+
     buildUrlEncoded(args) {
         let ue = "";
         args = args || this.args;
@@ -46,18 +60,38 @@ class HttpRq{
         }
         return ue;
     };
+
+    /**
+     * Set request header
+     * @param {String} n - name
+     * @param {String} v - value
+     */
     setHeader(n, v) {
         this.headers[n] = v.toString();
     };
 
+    /**
+     * Get request header
+     * @param {String} n - name
+     */
     getHeader(n) {
         return this.headers[n];
     };
+
+    /**
+     * Set request content
+     * @param {String} contentType
+     * @param {any} data
+     */
     setContent(contentType, data) {
         this.content.type = contentType.toLowerCase();
         this.content.data = data;
     };
 
+    /**
+     * Set request json content
+     * @param {String|Object} data
+     */
     jsonContent(data) {
         let str = "";
         if (typeof data === "string") {
@@ -69,6 +103,10 @@ class HttpRq{
         this.setHeader('Content-Type', 'application/json');
     };
 
+    /**
+     * Set request xml content
+     * @param {String|Node} data
+     */
     xmlContent(data) {
         if (T.isStr(data))
             this.setContent('xml', data);
@@ -76,8 +114,8 @@ class HttpRq{
         this.setHeader('Content-Type', 'application/xml');
     };
     /**
-     *
-     * @param form {string|Node|Element} form id
+     * Set request multipart data from Form element
+     * @param {String|Node|Element} form - form element/id
      */
     formContent(form) {
         let formElement = $$(form)[0];
@@ -86,14 +124,18 @@ class HttpRq{
     };
 
     /**
-     * @param frm {FormData} custom form data object
+     * Set request multipart data from FormData object
+     * @param {FormData} frm - custom form data object
      */
     formMultiPartContent(frm) {
         this.setContent('form_multipart', frm);
         // this.setHeader('Content-Type', 'multipart/form-data; boundary=' + frm.boundary)
     };
 
-    // application/x-www-form-urlencoded
+    /**
+     * Set request data as urlencoded
+     * @param {Object} data
+     */
     formUrlEncodedContent(data) {
         this.setContent('form_urlencoded', this.buildUrlEncoded(data));
         this.setHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -101,11 +143,11 @@ class HttpRq{
 
     /**
      *
-     * @param {HttpMethod?} method
-     * @param url {String?}
-     * @param args {{name: value}?}
-     * @param headers {{name: value}?}
-     * @param content {HttpContent?}
+     * @param {HttpMethod} method
+     * @param {String} url
+     * @param {Object} args
+     * @param {Object} headers
+     * @param {HttpContent} content
      */
     constructor(method='GET', url, args, headers, content) {
         this.args = args || {};
