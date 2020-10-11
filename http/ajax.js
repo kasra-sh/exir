@@ -1,3 +1,8 @@
+/**
+ * Wrapper class for XHR
+ * @module http/ajax
+ * @memberOf http
+ */
 const {HttpRq, HttpContent} = require("./request");
 const {HttpRs} = require("./response");
 const T = require("../core/types");
@@ -6,23 +11,26 @@ const {forEach} = require("../core/collections");
 
 /**
  * A wrapper class for {@link XMLHttpRequest} to facilitate sending requests and handling events
- * @property {HttpRq} rq - Request data object
- * @property {HttpRs} rs - Response data object
- * @memberOf http
+ * @class
  */
 class Ajax {
-    rq = {}
-    rs = {}
-
-    /**
+     /**
      * @constructor
-     * @param {HttpMethod|HttpRq} m - Request method string or HttpRq object
+     * @param {HttpMethod|HttpRq} m - Request method string or {@link http.HttpRq}
      * @param {String} [url]
      * @param {Object} [params] - Request parameters object
      * @param {Object?} [headers] - Headers object
      * @param {HttpContent?} [content] - Optional http content {@link HttpContent}
      */
     constructor(m, url, params = {}, headers = {}, content = new HttpContent()) {
+         /** @type {HttpRq}
+          * @see {http.HttpRq}
+          */
+        this.rq = {}
+         /** @type {http.HttpRs}
+          * @see {http.HttpRs}
+          */
+         this.rs = {}
         if (m instanceof HttpRq) {
             this.rq = m
         } else {
@@ -250,6 +258,10 @@ class Ajax {
         return ajax;
     }
 
+    /**
+     * Send request with Promise
+     * @return {Promise<Ajax>}
+     */
     async sendAsync() {
         const ajax = this;
         const promise = new Promise((res, rej) => {
