@@ -1,3 +1,8 @@
+/**
+ * @module
+ * @memberOf core
+ */
+
 function bodyOf(func) {
     return func.toString().match(/{[\w\W]*}/)[0]
 }
@@ -13,7 +18,8 @@ function funcBodyEquals(f1, f2) {
 }
 
 /**
- * Throttle function execution
+ * Throttle function execution.
+ * {@link https://css-tricks.com/debouncing-throttling-explained-examples/}
  *
  * @param {Function} func - function
  * @param {Number} intervalMs
@@ -31,7 +37,8 @@ function throttle(func, intervalMs) {
 }
 
 /**
- * Debounce function
+ * Debounce function execution.
+ * {@link https://css-tricks.com/debouncing-throttling-explained-examples/}
  *
  * @param {Function} func - function
  * @param {Number} afterMs - milliseconds after last call
@@ -58,8 +65,9 @@ function debounce(func, afterMs) {
 
 /**
  * Bind args to function and return a no-arg function
- * @param {Function} func
- * @param {any[]} args
+ * @param {Function} func - source function
+ * @param {any[]} args - array of arguments to bind
+ * @return {Function}
  */
 function bindArgs(func, args) {
     return function () {return func.apply(this,args)}
