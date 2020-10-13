@@ -65,11 +65,11 @@ View-Model rendering classes and functions are under `VM` global variable.
 For example to send a request and transform response data:
 ```html
 <head>
-  // ...
-  <script src="exir-bundle.js"></script>
-  // ...
+<!--  Bundle with extensions  -->
+  <script src="exir-bundle-ext.js"></script>
+<!--  ...  -->
 </head>
-// ...
+<!--  ...  -->
 <script>
 var rs = await X.sendGet({
       url:'https://httpbin.org/get',

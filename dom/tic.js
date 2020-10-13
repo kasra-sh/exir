@@ -1,27 +1,38 @@
+/**
+ * @module dom
+ * @memberOf dom
+ */
+
 const {contains} = require("../core/collections");
 
 /**
- * @package tic
+ * @class
+ * @see dom.parseQuery
  */
-
+class QueryParams {
+    constructor() {
+        /** @type {String} */
+        this.tag = ""
+        /** @type {String|null} */
+        this.id = null
+        /** @type {String[]} */
+        this.classes = []
+    }
+}
 
 /**
  * Parse Jade-like query to an object containing tag, id and classes
  *
- * @param query A string contining jade-like tag, id and classes
- * @param def Default value if empty
- * @returns {Object|{classes: [], tag: string, id: null}}
+ * @param {String} query - A string containing jade-like tag, id and classes
+ * @param {QueryParams} def - Default value if empty
+ * @returns {QueryParams}
  *
  * @example
  *  parseQuery('div#root.main.container');
- *  // produces {tag: 'div', id: 'root', classes: ['main', 'container']}
+ *  // returns {tag: 'div', id: 'root', classes: ['main', 'container']}
  */
 function parseQuery(query, def={}) {
-    let params = {
-        tag: '',
-        id: null,
-        classes: []
-    };
+    let params = new QueryParams();
     params.tag = "";
     query = query.trim();
     let hasHash = contains(query,"#");

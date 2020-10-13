@@ -16,3 +16,6 @@ module.exports = {
     ...patch,
     ...styles
 };
+/**
+ * @namespace dom
+ */

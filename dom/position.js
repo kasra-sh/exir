@@ -1,11 +1,11 @@
-const {cls} = require("../dom/classes")
-const {attrs} = require("../dom/attributes")
+// const {cls} = require("../dom/classes")
+// const {attrs} = require("../dom/attributes")
 
 function left(e) {
     return e.offset
 }
 
-function leftW(e) {
+function leftWin(e) {
     return e.clientLeft
 }
 
@@ -13,7 +13,7 @@ function width(e) {
     return e.offsetWidth
 }
 
-function widthW(e) {
+function widthWin(e) {
     return e.clientWidth
 }
 
@@ -21,14 +21,12 @@ function right(e) {
     return left(e) + width(e)
 }
 
-function rightW(e) {
-    return leftW(e) + widthW(e)
+function rightWin(e) {
+    return leftWin(e) + widthWin(e)
 }
 
-function translate(e, {x,y,z}) {
-    if (x) {
-
-    }
+function top(e) {
+    return e.clientTop
 }
 
-module.exports = {left, width, right}
+module.exports = {left, leftWin, right, rightWin, width, widthWin}

@@ -1,7 +1,3 @@
-/**
- * @namespace core
- */
-
 let collections = require('./collections');
 let logging = require('./logging');
 let types = require('./types');
@@ -18,3 +14,6 @@ module.exports = {
     ...queryable,
     ...functions
 }
+/**
+ * @namespace core
+ */

@@ -1,5 +1,5 @@
 /**
- * @module
+ * @module core/collections
  * @memberOf core
  */
 
@@ -26,8 +26,8 @@ const UNSAFE_PROPS = ['__proto__', 'constructor', '__defineGetter__', '__defineS
 /**
  * Get item by index from multiple source types
  *
- * @param {Array|Object|String|NodeList|HTMLCollection} s
- * @param {Number|String} i
+ * @param {Array|Object|String|NodeList|HTMLCollection} s - source
+ * @param {Number|String} i - item index
  * @returns {any|null|undefined}
  */
 function item(s, i) {
@@ -43,7 +43,7 @@ function item(s, i) {
  *
  * @param {Array|Object|String} src
  * @param {any} value
- * @param {String|undefined} key
+ * @param {String|undefined} [key]
  * @returns {boolean}
  */
 function contains(src, value, key) {
@@ -55,8 +55,8 @@ function contains(src, value, key) {
 /**
  * Add item(s) to source
  *
- * @param {Array|{add:Function}} src
- * @param {any} v
+ * @param {Array|{add:Function}} src - source
+ * @param {any} v - values
  */
 function add(src, ...v) {
     if (T.isArr(src)) {
@@ -726,7 +726,7 @@ function map(src, transform, right = false) {
  * A more versatile alternative to native "flatMap" method, flattens first level items
  *
  * @param {Array|Object|String|NodeList|HTMLCollection} src - source
- * @param {Function|Array|Object} transform - transformer function
+ * @param {Function|Array|Object} [transform] - transformer function
  * @returns {Array|Object|String}
  */
 function flatMap(src, transform) {
@@ -879,20 +879,10 @@ function deepClone(source,
     return deepMerge(emptyOf(source), source, {excludeKeys, maxDepth, allowUnsafeProps})
 }
 
-/**
- * Join arrays of objects based on a generated or static key
- *
- * @param {Function|String} key
- * @param {Object[]} lists
- * @return {Object[]}
- */
-function join(key, ...lists) {
-    if (lists.length === 0) return [];
-    if (!all(lists, T.isArr)) throw Error("Join only accepts arrays of data!");
-    let keyGen;
+function _keyGen(key, fnName) {
+    let keyGen = key
     if (T.isStr(key)) {
-        const k = key;
-        keyGen = (item)=> item[k]
+        keyGen = (item)=> item[key]
     } else if (T.isArr(key)) {
         keyGen = (item) => reduce(item, (res, v, k)=> {
             if (contains(key, k)) {
@@ -900,9 +890,22 @@ function join(key, ...lists) {
             }
         }, "")
     } else if (!T.isFun(key)) {
-        throw Error("Join key only accepts: String, [String,...], Function")
+        throw Error(`${fnName} key only accepts: String, [String,...], Function`)
     }
-    keyGen = key
+    return keyGen;
+}
+
+/**
+ * Join arrays of objects based on a generated or static key
+ *
+ * @param {Function|String} key
+ * @param {Object[]} lists
+ * @return {Object}
+ */
+function join(key, ...lists) {
+    if (lists.length === 0) return [];
+    if (!all(lists, T.isArr)) throw Error("Join only accepts arrays of data!");
+    let keyGen = _keyGen(key, "Join")
     const joined = {};
     forEach(lists, (list)=>{
         forEach(list, (item) => {
@@ -911,13 +914,40 @@ function join(key, ...lists) {
             if (!presentValue) {
                 joined[joinKey] = item;
             } else {
-                joined[joinKey] = Object.assign(presentValue, item)
+                joined[joinKey] = concat(presentValue, item)
             }
         });
     })
 
-    // return Object.values(joined)
     return (joined)
+
+}
+
+/**
+ * Group arrays based on generated or static key(s)
+ *
+ * @param {Function|String} key
+ * @param {Object[]} lists
+ * @return {Object}
+ */
+function groupBy(key, ...lists) {
+    if (lists.length === 0) return {};
+    if (!all(lists, T.isArr)) throw Error("GroupBy only accepts arrays of data!");
+    let keyGen = _keyGen(key, "GroupBy")
+    const group = {};
+    forEach(lists, (list)=>{
+        forEach(list, (item) => {
+            const joinKey = keyGen(item);
+            const presentValue = group[joinKey];
+            if (!presentValue) {
+                group[joinKey] = [item];
+            } else {
+                group[joinKey] = concat(presentValue, item)
+            }
+        });
+    })
+
+    return (group)
 
 }
 
@@ -927,5 +957,5 @@ module.exports = {
     deepMerge, deepClone, forN, forEachRange, forEach, forEachRight, firstIndex, first,
     startsWith, lastIndex, last, endsWith, reverse, any, all, filter, filterRight, reduce, reduceRight,
     map, flatMap, keyValuePairs, entries, maxIndex, max, minIndex, min,
-    translateObject, omit, join, objectValues
+    translateObject, omit, join, groupBy, objectValues
 }

@@ -1,9 +1,20 @@
-// const {getAttr, setAttr, hasAttr} = require("../dom/attributes")
+/**
+ * @module dom
+ * @memberOf dom
+ */
+
 const {isUnd, isStr} = require("../core/types")
-const {filter, forEach, contains} = require("../core/collections")
+const {filter, contains} = require("../core/collections")
 
 const emptyStyle = ['', 'initial', 'unset', undefined, null];
 
+/**
+ * Set style / Get style / Get all styles
+ * @param {HTMLElement|Element|Node} e - element/node
+ * @param {String} [p] - style property name
+ * @param {String} [v] - style property value
+ * @return {Array|Object|String|*|string}
+ */
 function style(e, p, v) {
     if (isUnd(p)) {
         // let stl = {};
@@ -16,6 +27,12 @@ function style(e, p, v) {
     e.style[p] = v;
 }
 
+/**
+ * Element has style property
+ * @param {HTMLElement|Element|Node} e - element/node
+ * @param {String} p - style property name
+ * @return {boolean}
+ */
 function hasStyle(e, p) {
     let s = style(e, p);
     return !contains(emptyStyle, s)
