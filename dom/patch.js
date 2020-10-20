@@ -1,37 +1,50 @@
-const {isVal, isObj, isEl, hasField} = require("../core/types");
-const {forEach} = require("../core/collections");
-const {setAttr} = require("./attributes");
-const {cls} = require("./classes");
+/**
+ * @module DOM
+ * @memberOf dom
+ */
 const {error} = require("../core/logging");
+const {forEach} = require("../core/collections");
+const {isVal, isArr, isObj, isEl, hasField} = require("../core/types");
+const {setAttr} = require("./attributes");
+const {setEvent} = require("./event");
+// const {cls} = require("./classes");
+const ATR = 'atr'
+const CLS = 'cls'
+const EVT = 'evt'
 
+/**
+ * Modify a DOM element/node
+ * @param {HTMLElement|Element|Node} node - DOM element/node
+ * @param {Object} object - patch data {atr: Attributes, cls: Classes, evt: Events}
+ */
 function patch(node, object) {
     if (!isVal(node)) {
-        error(`Node is ${node}`);
-        return;
+        error(`Node is ${node}`)
+        return
     }
     if (!isEl(node)) {
         error(`"${node}" is not Element or Node`);
-        return;
+        return
     }
-    if (hasField(object, 'attr')) {
-        if (isObj(object['attr'])) {
-            forEach(object['attr'], (v, k)=>{
-                setAttr(node, k, v);
+    if (hasField(object, ATR)) {
+        if (isObj(object[ATR])) {
+            forEach(object[ATR], (v, k)=>{
+                setAttr(node, k, v)
             })
         }
     }
-    if (hasField(object, 'cls')) {
-        if (isObj(object['cls'])) {
-            let c = cls(node);
-            forEach(object['cls'], (v, k)=>{
-                c[k](v);
-            })
+    if (hasField(object, CLS)) {
+        const cls = object[CLS];
+        if (isArr(cls)){
+            node.className = cls.join(' ')
+        } else {
+            node.className = cls
         }
     }
-    if (hasField(object, 'prop')) {
-        if (isObj(object['prop'])) {
-            forEach(object['prop'], (v, k)=>{
-                node[k] = v;
+    if (hasField(object, EVT)) {
+        if (isObj(object[EVT])) {
+            forEach(object[EVT], (v, k)=>{
+                setEvent(node, k, v)
             })
         }
     }
