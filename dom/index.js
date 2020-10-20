@@ -1,3 +1,6 @@
+/**
+ * @namespace dom
+ */
 const query = require('./query');
 const event = require('./event');
 const classes = require('./classes');
@@ -16,6 +19,3 @@ module.exports = {
     ...patch,
     ...styles
 };
-/**
- * @namespace dom
- */

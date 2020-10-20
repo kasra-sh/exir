@@ -1,37 +1,43 @@
+/**
+ * @module DOM
+ * @memberOf dom
+ */
+
 const scope = require("../core/scope");
-const T = require("../core/types");
-const I = require("../core/collections");
-const L = require("../core/logging");
-const F = require("../core/functions");
+const {isArr, hasField, isEmpty} = require("../core/types");
+const {contains, forEach, filter} = require("../core/collections");
+const {error} = require("../core/logging");
+const {funcBodyEquals} = require("../core/functions");
 
 /**
+ * Set listener for event type(s) on element, removes identical event listeners to avoid duplication
  *
- * @param target {Node|Element}
- * @param event {String|Array}
- * @param listener {Function}
- * @param options {AddEventListenerOptions?}
+ * @param {HTMLElement|Element|Node} target - target element
+ * @param {String|Array} event - event type(s)
+ * @param {Function} listener
+ * @param {AddEventListenerOptions?} [options]
  */
 function setEvent(target, event, listener, options) {
     if (!scope.isBrowser()) {
-        L.error("Events are browser only!");
+        error("Events are browser only!");
         return
     }
-    if (!T.isArr(event)) {
-        if (I.contains(event,' ')) {
+    if (!isArr(event)) {
+        if (contains(event,' ')) {
             event = event.split(' ').Map((it)=>it.trim())
         } else
             event = [event];
     }
     target.__EVENTS__ = target.__EVENTS__ || {};
-    I.forEach(event,function (ev) {
+    forEach(event,function (ev) {
         target.__EVENTS__[ev] = target.__EVENTS__[ev] || [];
         let f = function (e) {
             listener(e, target);
         };
-        if (!T.hasField(options, 'duplicates', (a)=>a)) {
+        if (!hasField(options, 'duplicates', (a)=>a)) {
             // console.log('removing dups')
-            target.__EVENTS__[ev] = I.filter(target.__EVENTS__[ev],(fl)=> {
-                if (F.funcBodyEquals(fl.l, listener)) {
+            target.__EVENTS__[ev] = filter(target.__EVENTS__[ev],(fl)=> {
+                if (funcBodyEquals(fl.l, listener)) {
                     target.removeEventListener(ev, fl.f, fl.o);
                     return false
                 } else {
@@ -45,24 +51,30 @@ function setEvent(target, event, listener, options) {
     });
 }
 
+/**
+ * Clear all event listeners of type from element
+ *
+ * @param {HTMLElement|Element|Node} target - target element
+ * @param {String|Array} event - event type(s)
+ */
 function clearEvent(target, event) {
     if (!scope.isBrowser()) {
-        L.error("Events are browser only!");
+        error("Events are browser only!");
         return
     }
-    if (!T.isArr(event)) {
-        if (I.contains(event,' ')) {
+    if (!isArr(event)) {
+        if (contains(event,' ')) {
             event = event.split(' ').Map((it)=>it.trim())
         } else
             event = [event];
     }
     target.__EVENTS__ = target.__EVENTS__ || {};
-    if (T.isEmpty(target.__EVENTS__)) return;
-    I.forEach(event,function (ev) {
+    if (isEmpty(target.__EVENTS__)) return;
+    forEach(event,function (ev) {
         target.__EVENTS__[ev] = target.__EVENTS__[ev] || [];
-        if (T.isEmpty(target.__EVENTS__[ev])) return;
+        if (isEmpty(target.__EVENTS__[ev])) return;
 
-        I.forEach(target.__EVENTS__[ev],(fl)=> {
+        forEach(target.__EVENTS__[ev],(fl)=> {
             target.removeEventListener(ev, fl.f, fl.o);
             return false
         });
@@ -71,4 +83,15 @@ function clearEvent(target, event) {
     });
 }
 
-module.exports = {setEvent, clearEvent};
+/**
+ * Target has event listener for event type
+ *
+ * @param {HTMLElement|Element|Node} target - target element
+ * @param {String} type - event type
+ * @return {boolean}
+ */
+function hasEvent(target, type) {
+    return target.__EVENTS__ && target.__EVENTS__[type] && !isEmpty(target.__EVENTS__[type])
+}
+
+module.exports = {setEvent, clearEvent, hasEvent};

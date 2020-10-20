@@ -173,7 +173,7 @@ function isEmpty(x) {
  * Custom Enum implementation
  *
  * @param src {Object | String[]}
- * @return {(array)}
+ * @return {Object}
  * @constructor
  */
 function Enum(src) {

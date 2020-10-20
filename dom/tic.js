@@ -1,5 +1,5 @@
 /**
- * @module dom
+ * @module DOM
  * @memberOf dom
  */
 

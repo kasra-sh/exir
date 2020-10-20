@@ -1,10 +1,27 @@
+/**
+ * @module DOM
+ * @memberOf dom
+ */
 const T = require("../core/types");
-const I = require("../core/collections");
+const {toggle, any, all, contains, filter, flatMap, forEach} = require("../core/collections");
 
+/**
+ * Element classes CRUD wrapper
+ * @memberOf dom
+ */
 class Classes {
+    /**
+     * Split element `className`
+     * @param className
+     * @return {String[]}
+     */
     static split(className) {
         return className.trim().replace(/\s+/,' ').split(' ');
     }
+
+    /**
+     * @param {HTMLElement|Element|Node} e - element
+     */
     constructor(e) {
         this.element = e;
         Object.defineProperty(this, 'items', {
@@ -25,6 +42,11 @@ class Classes {
         this.items = e.getAttribute('class');
     }
 
+    /**
+     * Equivalent of `new Classes(e)`
+     * @param e
+     * @return {dom.Classes}
+     */
     static of(e) {
         return new Classes(e)
     }
@@ -33,14 +55,23 @@ class Classes {
         this.element.setAttribute('class', this.classes.join(' '))
     }
 
+    /**
+     * Element has class(es)
+     * @param {String} c - class(es)
+     * @return {boolean}
+     */
     contains(...c) {
-        c = I.flatMap(c);
-        return I.all(c, (it)=>I.contains(this.classes, it));
+        c = flatMap(c);
+        return all(c, (it)=>contains(this.classes, it));
     }
 
+    /**
+     * Add class(es)
+     * @param {String} c - class(es)
+     */
     add(...c) {
-        c = I.flatMap(c);
-        I.forEach(c, (it)=>{
+        c = flatMap(c);
+        forEach(c, (it)=>{
             if (!this.contains(it)) {
                 this.classes.push(it.toString());
             }
@@ -48,39 +79,73 @@ class Classes {
         this.__update__();
     }
 
+    /**
+     * Remove class(es)
+     * @param {String} c - class(es)
+     * @return {boolean}
+     */
     remove(...c) {
-        c = I.flatMap(c);
+        c = flatMap(c);
         let l = this.classes.length;
-        this.classes = I.filter(this.classes, (it)=>{
-            return !I.any(c, (ci) => ci.endsWith('*')?it.startsWith(ci.replace('*','')):it===ci);
+        this.classes = filter(this.classes, (it)=>{
+            return !any(c, (ci) => ci.endsWith('*')?it.startsWith(ci.replace('*','')):it===ci);
         });
         this.__update__();
         return l !== this.classes.length
     }
 
+    /**
+     * Toggle class(es) - if exists toggle else adds
+     * @param {String} c - class(es)
+     */
     toggle(...c) {
-        I.toggle(this.classes, c);
+        toggle(this.classes, c);
         this.__update__();
     }
 }
 Object.seal(Classes);
 
+/**
+ * Equivalent of `[new Classes(e)]{@link dom.Classes}`
+ * @param e
+ * @return {dom.Classes}
+ */
 function cls(e) {
     return Classes.of(e);
 }
 
+/**
+ * Add class(es) [cls(e).add()]{@link dom.Classes#add}
+ * @param {HTMLElement|Element|Node} e - element
+ * @param c
+ */
 function addClass(e, ...c) {
     Classes.of(e).add(c);
 }
 
+/**
+ * Remove class(es) [cls(e).remove()]{@link dom.Classes#remove}
+ * @param {HTMLElement|Element|Node} e - element
+ * @param c
+ */
 function removeClass(e, ...c) {
     Classes.of(e).remove(c);
 }
 
+/**
+ * Has class(es) [cls(e).contains()]{@link dom.Classes#contains}
+ * @param {HTMLElement|Element|Node} e - element
+ * @param c
+ */
 function hasClass(e, ...c) {
     Classes.of(e).contains(c);
 }
 
+/**
+ * Toggle classes [cls(e).toggle()]{@link dom.Classes#toggle}
+ * @param {HTMLElement|Element|Node} e - element
+ * @param c
+ */
 function toggleClass(e, ...c) {
     Classes.of(e).toggle(c);
 }

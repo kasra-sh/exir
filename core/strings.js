@@ -3,37 +3,85 @@ const hexRegex = /^[-+]?[a-f0-9]+$/
 const octRegex = /^[-+]?[0][0-7]+$/
 const binRegex = /^[-+]?[01]+$/
 const emailRegex = /^[a-z0-9]([a-z0-9._%-+][a-z0-9]|[a-z0-9])*@[a-z0-9]([a-z0-9.-][a-z0-9]|[a-z0-9])*\.[a-z]{2,6}$/i
+/**
+ * @module core/strings
+ * @memberOf core
+ */
 
-function isDecimal(s) {
-    return decimalRegex.test(s);
+
+/**
+ * String is decimal number
+ * @param {String} str
+ * @return {boolean}
+ */
+function isDecimal(str) {
+    return decimalRegex.test(str);
 }
 
-function isBinary(s) {
-    return binRegex.test(s);
+/**
+ * String is binary number
+ * @param {String} str
+ * @return {boolean}
+ */
+function isBinary(str) {
+    return binRegex.test(str);
 }
 
-function isOctal(s) {
-    return octRegex.test(s);
+/**
+ * String is octal number
+ * @param {String} str
+ * @return {boolean}
+ */
+function isOctal(str) {
+    return octRegex.test(str);
 }
 
-function isHex(s) {
-    return hexRegex.test(s);
+/**
+ * String is hexadecimal number
+ * @param {String} str
+ * @return {boolean}
+ */
+function isHex(str) {
+    return hexRegex.test(str);
 }
 
-function isEmail(s) {
-    return emailRegex.test(s);
+/**
+ * String is valid email address
+ * @param {String} str
+ * @return {boolean}
+ */
+function isEmail(str) {
+    return emailRegex.test(str);
 }
 
-function startsWith(str, s) {
-    return str.indexOf(s) === 0;
+/**
+ * String starts with sequence polyfill
+ * @param {String} str
+ * @param {String} seq
+ * @return {boolean}
+ */
+function startsWith(str, seq) {
+    return str.indexOf(seq) === 0;
 }
 
-function endsWith(str, s) {
-    return str.indexOf(s) === str.length-1;
+/**
+ * String ends with sequence polyfill
+ * @param {String} str
+ * @param {String} seq
+ * @return {boolean}
+ */
+function endsWith(str, seq) {
+    return str.indexOf(seq) === seq.length-1;
 }
 
-function contains(str, s) {
-    return str.indexOf(s)>=0;
+/**
+ * String contains sequence
+ * @param {String} str
+ * @param {String} seq
+ * @return {boolean}
+ */
+function contains(str, seq) {
+    return str.indexOf(seq)>=0;
 }
 
 module.exports = {isDecimal, isHex, isOctal, isBinary, isEmail,startsWith, endsWith, contains};

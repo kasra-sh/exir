@@ -1,32 +1,114 @@
-// const {cls} = require("../dom/classes")
-// const {attrs} = require("../dom/attributes")
+/**
+ * @module DOM
+ * @memberOf dom
+ */
 
-function left(e) {
-    return e.offset
+/**
+ * Element's offsetLeft (relative)
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function relLeft(e) {
+    return e.offsetLeft
 }
 
-function leftWin(e) {
+/**
+ * Element's clientLeft
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function absLeft(e) {
     return e.clientLeft
 }
 
-function width(e) {
+/**
+ * Element's offsetWidth
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function relWidth(e) {
     return e.offsetWidth
 }
 
-function widthWin(e) {
+/**
+ * Element's clientWidth
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function absWidth(e) {
     return e.clientWidth
 }
 
-function right(e) {
-    return left(e) + width(e)
+/**
+ * Element's offsetLeft + offsetWidth
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function relRight(e) {
+    return relLeft(e) + relWidth(e)
 }
 
-function rightWin(e) {
-    return leftWin(e) + widthWin(e)
+/**
+ * Element's clientLeft + clientWidth
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function absRight(e) {
+    return absLeft(e) + absWidth(e)
 }
 
-function top(e) {
+/**
+ * Element's offsetTop
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function relTop(e) {
+    return e.offsetTop
+}
+
+/**
+ * Element's clientTop
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function absTop(e) {
     return e.clientTop
 }
 
-module.exports = {left, leftWin, right, rightWin, width, widthWin}
+/**
+ * Element's offsetHeight
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function relHeight(e) {
+    return e.offsetHeight
+}
+
+/**
+ * Element's clientHeight
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function absHeight(e) {
+    return e.clientHeight
+}
+
+/**
+ * Element's offsetTop + offsetHeight
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function relBottom(e) {
+    return relTop(e) + relHeight(e)
+}
+
+/**
+ * Element's clientTop + clientHeight
+ * @param {HTMLElement|Element|Node} e
+ * @return {number}
+ */
+function absBottom(e) {
+    return absTop(e) + absHeight(e)
+}
+
+module.exports = {left: relLeft, leftWin: absLeft, right: relRight, rightWin: absRight, width: relWidth, widthWin: absWidth}
