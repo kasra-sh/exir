@@ -18,9 +18,8 @@
   - [Package Manager](#package-manager)
   - [From Source](#from-source)
 - [Getting Started](#getting-started)
-- [Tutorials](https://kasra-sh.github.io/exir-docs)
-- [Documentation](https://kasra-sh.github.io/exir-docs)
-- [Disclaimer](#disclaimer)
+- [Documentation & Tutorials](https://kasra-sh.github.io/exir-docs)
+- [Examples](https://github.com/kasra-sh/exir/tree/master/examples/)
 
 ## **What is eXir?**
 Persian word اکسیر, pronounced *ex'ear* is a mythical potion which transmutes things to a substance of higher value (iron to gold) or cures all illness.<br>
@@ -38,16 +37,18 @@ Basic DOM manipulation utility functions.
   - Painless, Predicable Event Handling
   - Optional native method wrappers for addEventListener, etc. for debugging or other purposes
 - **HTTP Client/Methods**
-An elegant wrapper around XHR to satisfy your every request!
+  [Examples](https://github.com/kasra-sh/exir/tree/master/examples/)
+<br> An elegant wrapper around XHR to satisfy your every request!
   - Convenient Http Methods Get, Post, ...
   - Supports Promises, async/await
   - Timeout and retry
   - Rate Limiting
   - Request cancellation
 - **Web Components**
-Reusable/Dynamic pure js components (css-in-js included).
+  [Examples](https://github.com/kasra-sh/exir/tree/master/examples/)
+<br> Reusable/Dynamic pure js components (css-in-js included).
   - Dynamically Rendered Components (virtual dom)
-  - Reactive State Management *(coming soon)*
+  - Reactive State Management *(beta)*
   - Routing *(coming soon)*
   
 *All* of the above in a bundle of *less than* 15Kb gzipped, which could be the size of a whole web app using only what's necessary (tree-shaking).

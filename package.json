@@ -80,8 +80,7 @@
       },
       "context": "node",
       "outputFormat": "commonjs",
-      "isLibrary": true,
-      "minify": false
+      "isLibrary": true
     }
   }
 }
