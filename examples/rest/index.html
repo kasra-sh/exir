@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rest API</title>
+    <script src="../../dist/modern/exir-bundle-ext.js"></script>
+</head>
+<body>
+<form id="file_form" method="post">
+    <input type="file" name="my_file_name">
+    <button formaction="">Send File</button>
+</form>
+<!--suppress JSUnresolvedVariable -->
+<script>
+    window.addEventListener('load', ()=>{
+        // Set custom action for button inside form
+        X.$$('#file_form>button').$event('click',async (event, element)=>{
+            // prevent form submit action
+            event.preventDefault();
+
+            let result = await X.sendPost({url:'https://httpbin.org/post', type: 'form', data: '#file_form'});
+            // or
+            // let result = await X.Post('https://httpbin.org/post').formData('#file_form').sendAsync()
+            console.log(result.rs.json);
+        })
+    })
+
+    // Callback based
+    X.sendGet({
+        url: 'http://httpbin.org/get',
+        params: {param1: 'some param'},
+        headers: {
+            'X-Custom-Header': 'Some value',
+            Authorization: 'Bearer TOKENTOKENTOKENTOKENTOKEN'
+        },
+        finish: function (rq, rs) {
+            console.log(rs.json)
+        }
+    });
+
+    // Request rate limited to maximum 20 requests per minute
+    // means a new request can only be sent when at least 3 seconds has passed since previous request
+    const client = new X.XHttpClient('http://httpbin.org', {ratePerMinute: 20});
+
+    (async ()=>{
+        let get_params = {
+            params: {user_id: 'user1', limit: 10, start: 11},
+            headers: {
+                'X-Custom-Header': 'some value',
+                Authorization: 'Bearer TOKENTOKENTOKENTOKENTOKEN'
+            }
+        };
+        let post_params = {
+            params: { user_id: 'user1', limit: 10, start: 11 },
+            headers: {
+                'X-Custom-Header': 'custom header',
+                Authorization: 'Bearer TOKENTOKENTOKENTOKENTOKEN'
+            },
+            content: {
+                type: 'json',
+                data:{ category: 'posts', post: {id: 123, text: 'some text'}}
+            }
+        };
+        let ajax;
+        for (let i=0;i<10;i++) {
+            // Send GET request to http://httpbin.org/get
+            ajax = await client.get('get', get_params)
+            console.log(ajax.rs.json)
+
+            // Send POST request to http://httpbin.org/post
+            ajax = await client.post('post', post_params)
+            console.log(ajax.rs.json)
+        }
+    })()
+
+</script>
+</body>
+</html>
