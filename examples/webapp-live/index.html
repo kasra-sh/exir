@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebApp Live</title>
+    <script src="../../dist/modern/exir-bundle-ext.js"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+    var App = Exir.createView('App', {
+        state: {count: 0},
+        render() {
+            return H.div({},
+                H.button({
+                    onClick: function () {
+                        this.setState(state => state.count++);
+                        X.info('clicked ' + this.state.count + ' times')
+                    }
+                }, "Click Me!"),
+                H.span({}, this.state.count)
+            )
+        }
+    })
+    window.addEventListener('load', function () {
+        Exir.mount(App, document.getElementById('root'))
+    })
+</script>
+</body>
+</html>
