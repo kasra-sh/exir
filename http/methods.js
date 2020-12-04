@@ -117,7 +117,7 @@ function Post(url, params){
  * Create Ajax DELETE request
  *
  * @param {String} url - server url
- * @param {Object} params - query string params
+ * @param {Object} [params] - query string params
  * @returns {http.Ajax}
  */
 function Delete(url, params){
@@ -128,7 +128,7 @@ function Delete(url, params){
  * Create Ajax PUT request
  *
  * @param {String} url - server url
- * @param {Object} params - query string params
+ * @param {Object} [params] - query string params
  * @returns {Ajax}
  */
 function Put(url, params){
@@ -139,7 +139,7 @@ function Put(url, params){
  * Create Ajax PATCH request
  *
  * @param {String} url - server url
- * @param {Object} params - query string params
+ * @param {Object} [params] - query string params
  * @returns {http.Ajax}
  */
 function Patch(url, params){
