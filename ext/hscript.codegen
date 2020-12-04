@@ -8,7 +8,11 @@ const hyperMethods = map(HTMLTags, (tag) => {
         return `function ${tag}_(args, ...children) {return ${func}('${tag}', args, ...children)}`;
     return `function ${tag}(args, ...children) {return ${func}('${tag}', args, ...children)}`;
 });
-
+const hyperMethodsES6 = map(HTMLTags, (tag) => {
+    if (tag === 'var') return
+        // return `function ${tag}_(args, ...children) {return ${func}('${tag}', args, ...children)}`;
+    return `export function ${tag}(args, ...children) {return ${func}('${tag}', args, ...children)}`;
+});
 const code =
 `const {VNode} = require('../vm/vnode');
 var ${func} = VNode.create;
@@ -17,6 +21,17 @@ ${hyperMethods.join('\n')}
 module.exports = {
     ${HTMLTags.join(',\n\t').replace('var', 'var_')}, ${func}}
 `
+
+const codeES6 =
+    `import {VNode} from '../vm/vnode';
+const ${func} = VNode.create;
+${hyperMethodsES6.join('\n')}
+
+export default {
+    ${HTMLTags.join(',\n\t').replace('var,\n\t', '')}, ${func}}
+`
 module.exports = function () {
-    return code;
+    return {
+        code, codeES6
+    };
 }
