@@ -1,12 +1,12 @@
 {
   "name": "exir",
-  "version": "0.13.2",
+  "version": "0.14.1",
   "description": "Javascript Framework",
   "author": "Kasra Shamsaei",
   "license": "MIT",
   "scripts": {
-    "compileView": "node cli/exir-cli.js compileJSX",
-    "generate": "node cli/generateExt.js",
+    "compileView": "node bin/exir-cli.js compileJSX",
+    "generate": "node bin/generateExt.js",
     "bundle-modern": "parcel build --target modern exir-bundle.js exir-bundle-ext.js --dist-dir dist",
     "bundle-legacy": "parcel build --target legacy exir-bundle-legacy.js exir-bundle-legacy-ext.js --dist-dir dist",
     "bundle-lib": "parcel build --target lib index.js --dist-dir .",

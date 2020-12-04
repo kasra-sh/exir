@@ -22,6 +22,9 @@ export default Exir.createView('List', {
     onCreate() {
         info(`${this.$name} created`)
     },
+    onMount() {
+        info(`${this.$name} MOUNTED`)
+    },
     onUpdate() {
         info(`${this.$name} updated ${this.$instanceId}`)
     },
@@ -30,7 +33,7 @@ export default Exir.createView('List', {
             this.setState(state=>{
                 let items = []
                 for (let i = 0; i < state.count; i++) {
-                    items.push(<Random id={randomId()} />)
+                    items.push(<Random a={randomId()} />)
                 }
                 state.items = items
                 // state.count+=state.step
@@ -39,7 +42,7 @@ export default Exir.createView('List', {
         add() {
             this.setState(state => {
                 for (let i = 0; i < state.step; i++) {
-                    state.items.push(<Random id={randomId()} />)
+                    state.items.push(<Random a={randomId()} />)
                 }
                 state.count+=state.step
             })

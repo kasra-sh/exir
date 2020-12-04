@@ -101,9 +101,10 @@ export function renderDom(node, element, view) {
             }
         }
     }
-    if (view) {
+    if (nodeIsView) {
         view.target = element
         view.$isDirty = false
+        if (view.onMount) setTimeout(()=>view.onMount.call(view), 0)
     }
     return element
 }

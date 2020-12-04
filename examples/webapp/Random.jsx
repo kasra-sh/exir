@@ -15,6 +15,9 @@ export default Exir.createView('Random', {
     onUpdate() {
         log.warn(`updated ${this.props.a}`)
     },
+    onMount() {
+        log.info(`${this.props.a} MOUNTED`)
+    },
     onDestroy() {
         log.warn(`destroyed ${this.props.a}`)
     }
