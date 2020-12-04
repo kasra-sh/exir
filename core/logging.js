@@ -1,4 +1,4 @@
-const {Enum} = require("./types");
+// const {Enum} = require("./types");
 
 /**
  * @module core/logging
@@ -26,7 +26,7 @@ function _prepareLog(args, lt) {
 /**
  * @type {Object}
  */
-const LogLevels = {TRACE:0, INFO:0, WARN:0, ERROR:0, SILENT:0};
+const LogLevels = {TRACE:0, INFO:1, WARN:2, ERROR:3, SILENT:-1};
 /**
  * Log config
  * @type {{LogLevel: *}}
@@ -63,7 +63,7 @@ function lvl(l) {
 function trace(...args) {
     if (!lvl(LogLevels.TRACE)) return;
     args.reverse();
-    args.push(_logTitle("X-TRACE"));
+    args.push(_logTitle("🔍 TRACE"));
     args.reverse();    // args.push("\n");
     console.trace.apply(this, args);
 }
@@ -73,7 +73,7 @@ function trace(...args) {
  */
 function info(...args) {
     if (!lvl(LogLevels.INFO)) return;
-    _prepareLog(args, _logTitle("X-INFO"));
+    _prepareLog(args, _logTitle("🔵 INFO"));
     console.log.apply(this, args);
 }
 /**
@@ -82,7 +82,7 @@ function info(...args) {
  */
 function warn(...args) {
     if (!lvl(LogLevels.WARN)) return;
-    _prepareLog(args, _logTitle("X-WARN"));
+    _prepareLog(args, _logTitle("🚨 WARN"));
     console.warn.apply(this, args);
 }
 /**
@@ -91,7 +91,7 @@ function warn(...args) {
  */
 function error(...args) {
     if (!lvl(LogLevels.ERROR)) return;
-    _prepareLog(args, _logTitle("X-ERROR"));
+    _prepareLog(args, _logTitle("💥 ERROR"));
     console.error.apply(this, args);
 }
 
