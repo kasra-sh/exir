@@ -120,7 +120,7 @@ class XHttpClient {
     }
 
     /**
-     * Equeue http GET request
+     * Enqueue http GET request
      *
      * @param {String} route - request route - appends to host address
      * @param {Object} [params] - request params(args)
@@ -137,12 +137,12 @@ class XHttpClient {
     }
 
     /**
-     * Equeue http POST request
+     * Enqueue http POST request
      *
      * @param {String} route - request route - appends to host address
      * @param {Object} [params] - request params(args)
      * @param {Object} [headers] - request headers
-     * @param {http.HttpContent} [content] - request content. example: {type:'json', data={count: 13}}
+     * @param {http.HttpContent|Object} [content] - request content. example: {type:'json', data={count: 13}}
      * @param {String} [responseType] - "text"|"json"|"xml"|"document"|"arraybuffer"|"blob"|"ms-stream"|""
      * @param {String} [cancelToken] - A token used to cancel a group of requests
      * @return {Promise<Ajax>}
@@ -152,7 +152,7 @@ class XHttpClient {
     }
 
     /**
-     * Equeue http PUT request
+     * Enqueue http PUT request
      *
      * @param {String} route - request route - appends to host address
      * @param {Object} [params] - request params(args)
@@ -167,7 +167,7 @@ class XHttpClient {
     }
 
     /**
-     * Equeue http PATCH request
+     * Enqueue http PATCH request
      *
      * @param {String} route - request route - appends to host address
      * @param {Object} [params] - request params(args)
@@ -182,7 +182,7 @@ class XHttpClient {
     }
 
     /**
-     * Equeue http DELETE request
+     * Enqueue http DELETE request
      *
      * @param {String} route - request route - appends to host address
      * @param {Object} [params] - request params(args)
