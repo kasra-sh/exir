@@ -47,19 +47,18 @@ function throttle(func, intervalMs) {
 function debounce(func, afterMs) {
     var ___timeout___ = null;
 
-    function caller(_this, args) {
-        func.apply(_this, args);
-    }
-
-    function flush(args) {
-        func(args);
-    }
-
     function debounced(...args) {
         clearTimeout(___timeout___);
-        ___timeout___ = setTimeout(caller, afterMs, this, args)
+        ___timeout___ = setTimeout(function (_this) {
+            return func.apply(_this, args)
+        }, afterMs, this)
+
     }
 
+    debounced.flush = function (...args) {
+        clearTimeout(___timeout___)
+        return func.apply(this, args)
+    }
     return debounced
 }
 
@@ -73,8 +72,19 @@ function bindArgs(func, args) {
     return function () {return func.apply(this,args)}
 }
 
+function once(func) {
+    var called = false
+    return function () {
+        if (!called) {
+            called = true
+            return func.apply(this, arguments)
+        }
+    }
+}
 module.exports = {
     funcBodyEquals,
     throttle,
-    debounce
+    debounce,
+    bindArgs,
+    once
 }
