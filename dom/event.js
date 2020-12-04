@@ -29,13 +29,13 @@ function setEvent(target, event, listener, options) {
             event = [event];
     }
     target.__EVENTS__ = target.__EVENTS__ || {};
-    forEach(event,function (ev) {
+    forEach(event,(ev)=> {
         target.__EVENTS__[ev] = target.__EVENTS__[ev] || [];
+
         let f = function (e) {
             listener(e, target);
         };
         if (!hasField(options, 'duplicates', (a)=>a)) {
-            // console.log('removing dups')
             target.__EVENTS__[ev] = filter(target.__EVENTS__[ev],(fl)=> {
                 if (funcBodyEquals(fl.l, listener)) {
                     target.removeEventListener(ev, fl.f, fl.o);
