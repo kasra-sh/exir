@@ -4,7 +4,6 @@ import {isObj} from "../core/types"
 import {prepareChildren, randomId, sameProps} from "./util";
 import NODETYPE from "./nodetype"
 import {updateView} from "./patch";
-// import {th} from "./hscript-esm";
 
 /**
  * @property {Object} state
@@ -85,7 +84,7 @@ export class View {
         return this
     }
 
-    shouldUpdate = (props={}) => {
+    shouldUpdate (props={}) {
         // return this.$isDirty || JSON.stringify(this.props) !== JSON.stringify(props)
         return this.$isDirty || !sameProps(this.props, props)
     }
@@ -118,4 +117,3 @@ export class View {
             return this.$node.$lastElement()
     }
 }
-// global.View = View
