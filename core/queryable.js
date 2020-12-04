@@ -1,8 +1,11 @@
 const T = require("./types");
 
 class Queryable {
-    __src__
-    keys
+    constructor() {
+        this.__src__ = undefined
+        this.keys = undefined
+    }
+
     get count() {
         return this.keys.length
     }

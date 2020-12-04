@@ -13,9 +13,6 @@ function setGlobal(obj) {
  * Code generator for prototype modification, used in polyfills
  */
 class Extension {
-    types = []
-    /** Generated code */
-    pcode = "\n"
 
     /**
      * @constructor
@@ -23,6 +20,9 @@ class Extension {
      */
     constructor(types) {
         this.types = types;
+        this.types = []
+        /** Generated code */
+        this.pcode = "\n"
     }
 
     /**
