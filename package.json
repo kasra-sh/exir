@@ -1,24 +1,27 @@
 {
   "name": "exir",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Javascript Framework",
   "author": "Kasra Shamsaei",
   "license": "MIT",
   "scripts": {
-    "generate": "node generateExt.js",
-    "bundle-modern": "parcel build --target modern exir-bundle.js exir-bundle-ext.js",
-    "bundle-legacy": "parcel build --target legacy exir-bundle-legacy.js exir-bundle-legacy-ext.js",
-    "bundle-node": "parcel build --target node index.js",
+    "compileView": "node cli/exir-cli.js compileJSX",
+    "generate": "node cli/generateExt.js",
+    "bundle-modern": "parcel build --target modern exir-bundle.js exir-bundle-ext.js --dist-dir dist",
+    "bundle-legacy": "parcel build --target legacy exir-bundle-legacy.js exir-bundle-legacy-ext.js --dist-dir dist",
+    "bundle-lib": "parcel build --target lib index.js --dist-dir .",
     "bundle": "npm run generate && npm run bundle-modern && npm run bundle-legacy",
-    "devServe": "parcel exir-bundle-ext.js"
+    "devServe": "parcel exir-bundle-ext.js",
+    "exampleApp": "parcel examples/webapp/index.html --target modern --dist-dir dist/example --no-cache"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.6",
-    "@babel/plugin-proposal-class-properties": "^7.10.4",
-    "@babel/preset-react": "^7.10.4",
+    "@babel/core": "^7.12.9",
+    "@babel/generator": "^7.12.5",
+    "@babel/parser": "^7.12.7",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/preset-react": "^7.12.7",
     "docdash": "^1.2.0",
     "jsdoc-memberof-namespace": "^2.2.0",
-    "kenpo-js": "0.1.7",
     "parcel": "^2.0.0-beta.1",
     "regenerator-runtime": "^0.13.7"
   },
@@ -51,7 +54,7 @@
     "legacy": {
       "engines": {
         "browsers": [
-          "ie >= 9",
+          "ie >= 10",
           "iOS >= 6"
         ]
       }
@@ -66,18 +69,19 @@
     "custom-legacy": {
       "engines": {
         "browsers": [
-          "ie >= 9",
+          "ie >= 10",
           "iOS >= 6"
         ]
       }
     },
-    "node": {
+    "lib": {
       "engines": {
         "node": ">=8.x"
       },
       "context": "node",
       "outputFormat": "commonjs",
-      "isLibrary": true
+      "isLibrary": true,
+      "minify": false
     }
   }
 }
