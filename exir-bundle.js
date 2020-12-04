@@ -7,12 +7,9 @@ scope.setGlobal({
     X: {
         ...index.Core,
         ...index.Dom,
-        ...index.Http
+        ...index.Http,
     },
-    VM: {
-        ...index.VM,
-        // ...hscript
-    }
+    ...index.VM
 })
 
 // require("./ext/collections.ext")
