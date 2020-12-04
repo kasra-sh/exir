@@ -140,11 +140,11 @@ function objMatchAll(o, match) {
 function predicate(f, def = () => true, inc = true) {
     if (T.isUnd(f)) return def;
     if (T.isFun(f)) return f;
-    else if (f instanceof RegExp) return (v) => !T.isObj(v) ? f.test(v.toString()) : false;
+    else if (f instanceof RegExp) return (v, k, i, s) => !T.isObj(v) ? f.test(v.toString()) : false;
     else if (T.isObj(f)) {
         if (Object.keys(f).length === 0) return def;
-        return inc ? (v) => objMatchOne(v, f) : (v) => objMatchAll(v, f);
-    } else return (v) => v === f;
+        return inc ? (v, k, i, s) => objMatchOne(v, f) : (v, k, i, s) => objMatchAll(v, f);
+    } else return (v, k, i, s) => v === f;
 }
 
 function funOrKey(f) {
@@ -183,13 +183,13 @@ function emptyOf(src, def = {}) {
 }
 
 /**
- * Type-agnostic concat
+ * Type-agnostic concat. !!Mutates target!!
  *
  * @param {Array|String|Object} target
  * @param {Array|String|Object} source
  * @returns {Array|String|Object}
  */
-function concat(target, source) {
+function concat(target, source, override=false) {
     if (T.isStr(target)) {
         return target.concat(source);
     }
@@ -198,7 +198,7 @@ function concat(target, source) {
     }
 
     for (let k of Object.keys(source)) {
-        if (!target[k])
+        if (!target[k] || override)
             target[k] = source[k];
     }
     return target
@@ -352,7 +352,7 @@ function firstIndex(src, pred) {
  * Extended version of native first method, using {@link firstIndex}
  * @see firstIndex
  * @param {Array|Object|String|NodeList|HTMLCollection} src
- * @param {Function|Object|Array} pred - predicate function/{key:value}/[keys]
+ * @param {Function|Object|Array} [pred] - predicate function/{key:value}/[keys]
  * @returns {*}
  */
 function first(src, pred) {
@@ -363,7 +363,7 @@ function first(src, pred) {
  * Returns true if first item matches predicate
  *
  * @param {Array|Object|String|NodeList|HTMLCollection} src
- * @param {Function|Object|Array} pred - predicate function/{key:value}/[keys] pred
+ * @param {Function|Object|Array} [pred] - predicate function/{key:value}/[keys] pred
  * @returns {boolean|*}
  */
 function startsWith(src, pred) {
@@ -396,7 +396,7 @@ function lastIndex(src, pred) {
 /**
  *
  * @param {Array|Object|String|NodeList|HTMLCollection} src
- * @param {Function|Array|Object} pred
+ * @param {Function|Array|Object} [pred]
  * @returns {*}
  */
 function last(src, pred) {
@@ -953,7 +953,7 @@ function groupBy(key, ...lists) {
 
 // noinspection JSUnusedGlobalSymbols
 module.exports = {
-    ANY, ALL, BREAK, item, contains, add, remove, toggle, objMatchOne, objMatchAll,
+    ANY, ALL, BREAK, item, contains, add, remove, toggle, concat, emptyOf, objMatchOne, objMatchAll,
     deepMerge, deepClone, forN, forEachRange, forEach, forEachRight, firstIndex, first,
     startsWith, lastIndex, last, endsWith, reverse, any, all, filter, filterRight, reduce, reduceRight,
     map, flatMap, keyValuePairs, entries, maxIndex, max, minIndex, min,
