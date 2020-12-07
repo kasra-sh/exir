@@ -1,5 +1,5 @@
-import {Exir, jsx} from "../../vm";
-import {randomId} from "../../vm/util";
+import {Exir, jsx} from "../../vm_deprecated";
+import {randomId} from "../../vm_deprecated/util";
 import log from "../../core/logging";
 
 export default Exir.createView('Random', {

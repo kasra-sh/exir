@@ -1,4 +1,4 @@
-const scope = require("./core/scope")
+// const scope = require("./core/scope")
 
 const index = require("./index")
 const hscript = require("./vm/hscript")
@@ -18,7 +18,7 @@ global.X = {
     ...index.Http,
 }
 global.H = hscript
-global.Exir = index.VM.Exir
+global.Exir = index.VM
 global.jsx = index.VM.jsx
 
 require("./ext/collections.ext")

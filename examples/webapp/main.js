@@ -1,10 +1,9 @@
-import {Exir} from "../../vm";
-import App from "./app"
-import log from "../../core/logging";
-import {div} from "../../vm/hscript-esm";
+import mount from "../../vm/mount";
+import App from "./App";
+import {showError, showTrace} from "../../core";
 
-// log.showError()
-
-log.trace(div({}, "Hello HyperScript"))
-
-Exir.mount(App, document.getElementById('root'))
+showTrace()
+window.addEventListener('load', function (){
+    console.log(App)
+    mount(App, document.getElementById('root'))
+})

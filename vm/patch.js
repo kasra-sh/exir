@@ -1,225 +1,178 @@
-/////////////////////////////////////////////
-///////// Performance Critical Code /////////
-/////////////////////////////////////////////
 import {updateAttributes} from "./update-attrs";
-import {renderDom} from "./render-dom";
-import {View} from "./view";
-import {concat, isStr} from "../core";
-import {VNode} from "./vnode";
-import {prepareChildren} from "./util";
-import {render} from "./render";
-export function isDirty(node, props) {
+import renderDom, {renderDomView} from "./render";
+// import {sameProps} from "./util";
+import View from "./view";
+import {error, info, showError, showTrace, trace, warn} from "../core";
+
+export function updateViewRoot(view) {
+    let newNodes = VNode.normalizeNodes(view.render.call(view), view, view, true)
+    // console.log(newNodes)
+    // console.log(newNodes, view.$nodes)
+    // return
+    patchNodes(view, newNodes, view.$rootElement)
+    View.$setNodes(view, newNodes, false)
+}
+
+export function isViewDirty(view, props) {
     // return true
-    if (node.$isView) {
-        return node.shouldUpdate && node.shouldUpdate(props)
+    if (view.$isView) {
+        return view.shouldUpdate && view.shouldUpdate(props)
     } else return true
 }
 
-function updateSingleNode(currentNode, newNode) {
-    newNode.target = currentNode.target
-    updateAttributes(newNode.attrs, currentNode.attrs, currentNode.target)
-}
 
-/**
- *
- * @param curNode
- * @param removeTarget
- * @returns {Node|HTMLElement}
- */
-function extractFirstElement(curNode, removeTarget = true) {
-    if (curNode.isText) return curNode.target
-    if (!curNode.$isFrag) return curNode.$isView ? curNode.$node.target : curNode.target
-
-    let curRealNode = curNode.$isView ? curNode.$node.nodes[0] : curNode.nodes[0]
-    while (!curRealNode.target) {
-        curRealNode = curRealNode.$isView ? curRealNode.$node.nodes : curRealNode.nodes[0]
-    }
-    let target = curRealNode.target
-    // console.log('target cleard from', curRealNode.target)
-    if (removeTarget) curRealNode.target = undefined
-    return target;
-}
-
-export function updateViewNodes(currentNodes, newNodes, view, parentElement) {
-    const newLen = newNodes.length
-    const curLen = currentNodes.length
-    const more = curLen < newLen;
-    let newNodeList = []
-    let newIndex = 0
-    for (; newIndex < newLen; newIndex++) {
-        if (more && newIndex === curLen) {
-            break
-        }
-        const newNode = newNodes[newIndex]
-        const curNode = currentNodes[newIndex]
-        const curFrag = curNode.$isFrag
-        const newFrag = newNode.$isFrag
-
-        // LEFT : VIEW
-        if (newNode.$isView) {
-            // BOTH VIEW
-            if (curNode.$isView/* && newNode.isView*/) {
-                if (newNode.$name === curNode.$name) {
-                    // console.log('both view')
-                    if (!isDirty(curNode, newNode.props)) {
-                        newNodes[newIndex] = curNode
-                        continue
-                    }
-                    // pass props
-                    // concat(curNode.props, newNode.props, true)
-                    // update current with new props
-                    updateView(curNode, newNode.props)
-                    newNodes[newIndex] = curNode
-                } else {
-                    // console.log('both view names not match')
-                    // different components
-                    renderDom(render(newNode))
-                    curNode.target.replaceWith(newNode.target)
-                    curNode.target = undefined
-                    // destroy([curNode])
-                    curNode.$remove()
-                }
+function digElement(currentNode) {
+    let element = undefined
+    if (currentNode.$element) {
+        // info('Dug ', currentNode.$element, currentNode)
+        return currentNode.$element
+    } else {
+        let nodes = currentNode.$nodes
+        for (let i = 0; i < nodes.length; i++) {
+            if (element) {
+                nodes[i].$removeDom()
             } else {
-                let pivotElement = curFrag ? extractFirstElement(curNode) : curNode.target;
+                element = digElement(nodes[i])
+                if (element) nodes[i].$element = undefined
+            }
+        }
+    }
+    // console.log('Digged ', element, currentNode)
+    return element
+}
 
-                if (newFrag) {
-                    let newElement = renderDom(render(newNode), curFrag ? document.createElement('div') : pivotElement)
-                    pivotElement.replaceWith(newElement)
-                } else {
-                    let rendered = render(newNode, view.rootView)
-                    pivotElement.replaceWith(renderDom(rendered.$node, undefined, rendered))
+export function patchNodes(current, newNodes, rootElement) {
+    // info('PATCH NODES OF', current)
+    // info('ROOT ELEMENT IS ', rootElement)
+    let parentElement = current.$isNode ? current.$element : rootElement
+    // info('PARENT ELEMENT IS ', rootElement)
+    let currentNodes = current.$nodes
+    let newLen = newNodes.length
+    // if (!parent.$nodes) console.trace(parent)
+    let curLen = current.$nodes.length
+    let added = newLen >= curLen
+    let len = added ? curLen : newLen
+
+    let lastElement
+    let index = 0
+    for (; index < len; index++) {
+        let curNode = currentNodes[index]
+        let newNode = newNodes[index]
+
+        if (newNode.$isText) {
+            if (curNode.$isText && !newNode.$element) {
+                // Text - Text
+                // info('Text - Text', curNode.$text, newNode.$text)
+                if (curNode.$text !== newNode.$text) {
+                    curNode.$element.textContent = newNode.$text
                 }
-
-                // destroy([curNode])
-                curNode.$remove()
+                newNode.$element = curNode.$element
+            } else {
+                //info('Text - Not Text')
+                // Text - VNode/View
+                newNode.$element = document.createTextNode(newNode.$text)
+                let curElement = digElement(curNode)
+                parentElement.insertBefore(newNode.$element, curElement)
+                // curElement.insertAdjacentElement('beforeBegin', newNode.$element)
+                curElement.remove()
             }
             continue
         }
-
-        // LEFT : VNODE
         if (newNode.$isNode) {
-            // BOTH VNODE
-            if (curNode.$isNode/* && newNode.isNode*/) {
-                if (curNode.$tag === newNode.$tag) {
-                    // console.log('tags equal', newNode.$tag)
-                    if (!curFrag && !newFrag) {
-                        // BOTH NON-FRAGMENT
-                        // console.log('update single node', curNode.$tag)
-                        updateSingleNode(curNode, newNode)
-                    }
-                    try {
-                        // console.log('update children', curNode, newNode)
-                        // PATCH CHILDREN
-                        updateViewNodes(curNode.nodes, newNode.nodes, view, parentElement)
-                    } catch (e) {
-                        // console.log(newNode, curNode)
-                        console.log(e)
-                    }
-                } else {
-                    let rendered = renderDom((newNode))
-                    curNode.target.replaceWith(rendered)
+            if (curNode.$isNode && (curNode.$tag === newNode.$tag) && !newNode.$element) {
+                // VNode - VNode
+                // info("VNode - VNode / tags equal", curNode.$element, newNode)
+                updateAttributes(newNode.attrs, curNode.attrs, curNode.$element)
+                newNode.$element = curNode.$element
+                newNode.$element.__node__ = newNode.$element
+                lastElement = newNode.$element
+                if (!newNode.$element) {
+                    trace('Regression: current node has no $element', curNode, newNode)
                 }
-
+                // VNode children
+                patchNodes(curNode, newNode.$nodes, curNode.$element)
             } else {
-                // console.log('right not match node', newNode, curNode)
-
-                // let pivotElement = curFrag ? extractFirstElement(curNode) : curNode.target;
-                let pivotElement = extractFirstElement(curNode);
-                // console.log('pivot', pivotElement)
-                try {
-                    if (newFrag) {
-                        let newElement = renderDom(render(newNode), document.createElement('div'))
-                        pivotElement.replaceWith(newElement)
-                    } else {
-                        pivotElement.replaceWith(renderDom(render(newNode)))
-                    }
-                    // console.log('after', newNode, curNode)
-                    curNode.$remove()
-                } catch (e) {
-                    console.error(e)
-                    // console.log(curNode, pivotElement)
+                // VNode - Different
+                // info("VNode - VNode - different Tags", curNode.$tag, newNode.$tag)
+                let curElement = lastElement || digElement(curNode)
+                if (!newNode.$element)
+                    newNode.$element = renderDom(newNode, curElement)
+                else {
+                    error('NEW NODE HAS ELEMENT', newNode.$element)
                 }
-
-                // RIGHT NOT VNODE
+                if (!curElement) {
+                    // warn('NO CURRENT ELEMENT', newNode)
+                    rootElement.append(newNode.$element)
+                } else {
+                    // info('insert ',newNode.$element.tagName, ' before ', curElement.tagName, ' parent ', rootElement)
+                    // parentElement.insertBefore(newNode.$element, curElement)
+                    // curElement.insertAdjacentElement('afterEnd', newNode.$element)
+                    parentElement.replaceChild(newNode.$element,curElement)
+                    // curElement.remove()
+                }
             }
+            lastElement = newNode.$element
             continue
         }
+        if (newNode.$isView) {
+            if (curNode.$isView && (curNode.$name === newNode.$name)) {
+                // View - View
+                // error('View - View')
+                newNodes[index] = curNode
+                curNode.$parent = current
 
-        // LEFT TEXT
-        if (newNode.text !== curNode.text) {
-            // console.log('pivot text',pivotElement)
-            // console.log(curNode,newNode)
-            if (curNode.isText) {
-                newNode.target = curNode.target
-                curNode.target.textContent = newNode.text
+                if (isViewDirty(curNode, newNode.props)) {
+                    // View is dirty -> update instance & patch nodes
+                    // apply new props & children
+                    curNode.$updateInstance(newNode.props, newNode.$children)
+                    updateViewRoot(curNode)
+                }
             } else {
-                let pivotElement = extractFirstElement(curNode);
-                newNodes[newIndex] = render(newNode, undefined, view)
-                pivotElement.replaceWith(renderDom(newNodes[newIndex]))
+                // error('View - NOT View')
+                requestAnimationFrame(()=>{
+                    newNode.$nodes = renderDomView(newNode, rootElement)
+                    let curElement = digElement(curNode)
+                    // info(curElement, newNode.$element)
+                    curElement.replaceWith(newNode.$element)
+                })
             }
         } else {
-            newNode.target = curNode.target
+            trace('WTH is this?', newNode)
+            throw Error('Illegal node')
         }
+
     }
-    if (more) {
-        let lastElement = newNodes[newIndex-1].$lastElement()
-        let temp = document.createElement('div')
-        temp.style.display = 'none'
-        if (lastElement.nextSibling) {
-            lastElement.parentElement.insertBefore(temp, lastElement.nextSibling)
-            // lastElement = temp
+    if (added) {
+        // console.log('ADDING', curLen, newLen)
+
+        if (newLen-index > 50) {
+            // requestAnimationFrame(()=>{
+                let ch = []
+                for (let i = index; i < newLen; i++) {
+                    let render = renderDom(newNodes[i], current.$rootElement)
+                    ch.push(render)
+                }
+                let temp = document.createElement('slot')
+                temp.style.display = 'none'
+                // console.log(par)
+                parentElement.append(temp)
+                temp.replaceWith.apply(temp, ch)
+            // })
         } else {
-            lastElement.parentElement.append(temp)
+            for (let i = index; i < newLen; i++) {
+                let render = renderDom(newNodes[i], current.$rootElement)
+                parentElement.append(render)
+            }
         }
-        for (let i = newIndex; i < newLen; i++) {
-            let el = renderDom((newNodes[i]), undefined, view)
-            newNodeList.push(el)
-            newNodes[i].target = el
-        }
-        temp.replaceWith(...newNodeList)
-        // setTimeout(()=>{}, 2000)
-    } else if (newLen < curLen) {
-        // let dels = currentNodes.slice(newLen, curLen - 1)
-        for (let i = newLen; i < curLen; i++) {
-            currentNodes[i].$remove()
+
+    }
+    if (curLen > newLen) {
+        let nodes = current.$nodes
+        // info('REMOVING', curLen-newLen-1)
+        for (let i = index; i < curLen; i++) {
+            // info('REMOVE', nodes[i])
+            nodes[i].$removeDom()
         }
     }
-    // console.log('New Nodes', newNodes)
-}
-
-export function updateView(view, newProps) {
-    // to render
-    if (!isDirty(view, newProps)) return view
-    if (newProps) {
-        concat(view.props, newProps, true)
-    }
-
-    // is dirty -> call render
-    let newNode = view.render.call(view, view.props)
-    let newNodes = newNode.$isFrag ? newNode.nodes : [newNode]
-    view.$isFrag = newNode.$isFrag
-    let currentNodes = view.$isFrag ? view.$node.nodes : [view.$node]
-    if (newNode.$isView) {
-        updateView(newNode)
-    }
-    updateViewNodes(currentNodes, newNodes, view)
-    view.$node = newNode
-    view.$isDirty = false
-    if (view.onUpdate) view.onUpdate.call(view)
-    return view
-}
-
-export function destroy(nodes) {
-    nodes.forEach(node => {
-        if (node.$isView && node.onDestroy) {
-            if (node.$isFrag) {
-                destroy(node.$node.nodes)
-            } else destroy([node.$node])
-            node.onDestroy()
-        }
-        if (node.target) node.target.remove()
-        if (node.nodes) {
-            destroy(node.nodes)
-        }
-    })
+    // info('PARENT DONE', rootElement)
 }

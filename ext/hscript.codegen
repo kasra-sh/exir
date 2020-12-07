@@ -23,7 +23,7 @@ module.exports = {
 `
 
 const codeES6 =
-    `import {VNode} from '../vm/vnode';
+    `import VNode from '../vm/vnode';
 const ${func} = VNode.create;
 ${hyperMethodsES6.join('\n')}
 

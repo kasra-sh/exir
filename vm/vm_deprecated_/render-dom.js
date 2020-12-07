@@ -50,7 +50,7 @@ export function renderDom(node, element, view) {
         }
         // node.$root = view
         node.target = element
-        element.__node__ = view
+        // element.__node__ = view
         // if (view) view.target = element
         // renderDomChildren(node, element, view)
         if (node.nodes) {
@@ -61,6 +61,7 @@ export function renderDom(node, element, view) {
                 } else {
                     element.append(renderDom(child, undefined, view))
                 }
+                // if (child.$isView) child.$root = view
             }
         }
         // //

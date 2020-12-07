@@ -1,6 +1,6 @@
 {
   "name": "exir",
-  "version": "0.14.1",
+  "version": "0.15.0",
   "description": "Javascript Framework",
   "author": "Kasra Shamsaei",
   "license": "MIT",
@@ -12,7 +12,8 @@
     "bundle-lib": "parcel build --target lib index.js --dist-dir .",
     "bundle": "npm run generate && npm run bundle-modern && npm run bundle-legacy",
     "devServe": "parcel exir-bundle-ext.js",
-    "exampleApp": "parcel examples/webapp/index.html --target modern --dist-dir dist/example --no-cache"
+    "exampleApp": "parcel examples/webapp/index.html --target modern --dist-dir dist/example --no-cache",
+    "exampleRender": "parcel examples/webapp_deprecated/render/index.html --target modern --dist-dir dist/example_dep --no-cache"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
@@ -62,7 +63,7 @@
     "modern": {
       "engines": {
         "browsers": [
-          "since 2019"
+          "since 2018"
         ]
       }
     },

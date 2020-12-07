@@ -1,128 +1,157 @@
-import {concat} from "../core/collections";
-import util from "./util";
-import {View} from "./view"
-import NODETYPE from "./nodetype"
-import {isNum, isStr} from "../core";
+import {deepClone, error, forEach, isNum, isStr} from "../core";
+import {isEventPropKey, normalizeEventName} from "./util";
+// import View from "./view";
 
-/**
- * @property {[VNode|View|String]|VNode|View|String} nodes
- * @property {View} [$root]
- * @property {Object} [attrs]
- * @property {HTMLElement|Element|Node} [target]
- */
-export class VNode {
-    constructor(tag, props, ...children) {
-        this.$tag = tag;
+export const NodeType = {
+    VNODE: 0,
+    VIEW: 1,
+    TEXT: 2
+}
+
+function VNode(tag, props = {}, nodes) {
+    this.$type = NodeType.VNODE
+    this.$tag = tag
+    if (tag === null) {
+        this.$frag = true
+    } else {
         if (tag === '#text') {
-            this.$type = NODETYPE.TEXT
-            this.text = props
-            this.isText = true
+            this.$isText = true
+            this.$text = props
             return;
         }
         this.$isNode = true
-        this.$type = NODETYPE.NODE
+        let compiled = VNode.compileProps(props)
+        this.events = compiled.events
+        this.attrs = compiled.attrs
+        this.$element = undefined
+    }
+    this.$raw = true
+    // this.$nodes = nodes
+    this.$resetNodes(nodes)
+}
 
-        if (tag === 'FRAGMENT') this.$isFrag = true
+VNode.create = function (type, props = {}, ...nodes) {
+    if (props === null) props = {};
 
-        if (props) {
-            concat(this, util.compileProps(props))
-        }
+    if (type === null) return new VNode(type, props, nodes)
 
-        if (children) {
-            children = util.prepareChildren(children)
-            this.nodes = children
-        }
+    // View class instance
+    if (type.$isView) {
+        // error(,nodes)
+        return type.$createInstance(props, nodes)
     }
 
-    /**
-     * Create View | VNode | #TEXT
-     *
-     * @param {View|VNode|String|Number} type
-     * @param {Object|undefined} props
-     * @param {View|VNode|String|Number} children
-     * @returns {any|VNode}
-     */
-    static create(type, props = {}, ...children) {
-        if (props === null) props = {};
+    // View class
+    if (type.$type === NodeType.VIEW) {
+        // error('update')
+        return new type().$updateInstance(props, nodes)
+    }
 
-        // flatten arrays and change str/num to VNode(#text)
-        // children = util.prepareChildren(children)
-        const nodes = []
-        const len = children.length
-        for (let i=0; i<len; i++) {
-            let child = children[i]
-            if (child.$tag === 'FRAGMENT') {
-                // console.log('FRAG', type, child)
-                child = child.nodes
+    // create VNode instance
+    return VNode.createTag(type, props, nodes);
+}
+
+VNode.compileProps = function (props) {
+    const cats = {
+        events: {},
+        attrs: {}
+    }
+    forEach(props, (v, k) => {
+        if (isEventPropKey(k))
+            cats.events[normalizeEventName(k)] = v
+        else
+            cats.attrs[k] = v
+    })
+    return cats
+}
+
+
+VNode.createText = function (text) {
+    return new VNode('#text', text)
+}
+
+VNode.createTag = function (tag, props, nodes) {
+    return new VNode(tag, props, nodes)
+}
+
+VNode.prototype.$render = function (parent, view) {
+    this.$parent = parent
+    this.$view = view
+    for (let i = 0; i < this.$count; i++) {
+        let curNode = this.$nodes[i]
+        if (curNode.$isText) {
+            curNode.$parent = this
+        } else {
+            try {
+                curNode = curNode.$render(this, view)
+            } catch (e) {
+                console.log(e,curNode)
             }
-            // if (child.constructor.name === 'Array') {
-            if (child instanceof Array) {
-                const clen = child.length
-                for (let j=0; j<clen; j++) {
-                    let ch = child[j]
-                    if (isStr(ch) || isNum(ch)) {
-                        // ch = VNode.createText(ch.toString())
-                        ch = new VNode('#text', ch.toString())
-                    }
-                    // if (after) ch = after(ch)
-                    // ch.rootView = rootView
-                    nodes.push(ch)
-                }
-            } else {
-                if (isStr(child) || isNum(child)) {
-                    // child = VNode.createText(child.toString())
-                    child = new VNode('#text', child.toString())
-                }
-                // if (after) child = after(child)
-                // child.rootView = rootView
-                nodes.push(child)
-                // child.$root = type
-            }
-        }
-        children = nodes
-        // children = util.prepareChildren(children)
-        // View class instance
-        if (type.$isView) {
-            return type.createInstance(props, children)
-        }
-
-        // View class
-        if (type.$type === NODETYPE.VIEW) {
-            return new type().updateInstance(props, children)
-        }
-
-        // create VNode instance
-        // return VNode.createTag(type, props, ...children);
-        return new VNode(type, props, ...children)
-    }
-
-    static createText(str) {
-        return new VNode('#text', str)
-    }
-
-    static createTag(type, props = {}, ...children) {
-        return new VNode(type, props, ...children)
-    }
-
-    $remove() {
-        if (!this.$isFrag && this.target) this.target.remove()
-        if (this.nodes)
-            for (let n of this.nodes) {
-                n.$remove()
-            }
-    }
-
-    $firstElement() {
-        if (!this.$isFrag) return this.target
-        if (this.nodes) {
-            return this.nodes[0].$firstElement()
         }
     }
+    this.$raw = false
+    return this
+}
 
-    $lastElement() {
-        if (!this.$isFrag) return this.target
-        if (this.nodes) {
-            return this.nodes[this.nodes.length-1].$firstElement()
-        }
+VNode.prototype.$resetNodes = function (nodes) {
+    try {
+        this.$nodes = VNode.normalizeNodes(nodes)
+    } catch (e) {
+        console.log(e, this.$nodes)
+    }
+    this.$count = this.$nodes.length
+    if (!(this.$empty = (this.$count === 0))) {
+        this.$first = this.$nodes[0]
+    } else if (this.$count === 1) {
+        this.$single = true
     }
 }
+
+VNode.prototype.$removeDom = function () {
+    try {
+        this.$element.remove();
+    } catch (e) {}
+}
+
+VNode.normalizeNodes = function (nodes = [], parent, view, render = false) {
+    let normalizedNodes = []
+    // console.error(parent, nodes)
+    if (!(nodes instanceof Array)) nodes = [nodes]
+    for (let i = 0; i < nodes.length; i++) {
+        let node = nodes[i]
+        // replace text
+        if (isStr(node) || isNum(node)) {
+            let n = VNode.createText("" + node);
+            n.$parent = parent
+            normalizedNodes.push(n)
+            // pass View
+            continue
+        }
+        if (node.$isView) {
+            normalizedNodes.push(render ? node.$render(parent, node) : node)
+            continue
+        }
+        if (node.$frag) node = node.$nodes
+        // flatten array or non-view fragment
+        if (node instanceof Array) {
+            for (let j = 0; j < node.length; j++) {
+                normalizedNodes.push(render ? node[j].$render(parent, view) : node[j])
+            }
+        } else {
+            normalizedNodes.push(render ? node.$render(parent, view) : node)
+        }
+    }
+    return normalizedNodes
+}
+
+
+VNode.prototype.$clone = function (parent, view) {
+    let cl = VNode.createTag(this.$tag,
+        {attrs: deepClone(this.attrs), events: this.events},
+        this.$nodes.map((n) => n.$clone()))
+    return cl.$render(parent, view)
+}
+
+
+global.VNode = VNode
+export default VNode

@@ -1,58 +1,184 @@
-/////////////////////////////////////////////
-///////// Performance Critical Code /////////
-/////////////////////////////////////////////
-import {prepareChildren} from "./util";
-import {VNode} from "./vnode";
-import {isStr} from "../core";
+// import {compileStyles} from "./vm_deprecated/util";
+import {error, forEach, info, isArr, isStr, isVal, warn} from "../core";
+import {setEvent} from "../dom";
+import JSS from "./jss";
+// import View from "./view";
 
-export function render(node, rootView) {
-    // if (node.$name === 'App') console.log('APP',rootView, node.$root)
-    // rootView = rootView || node.$root
-    if (node.$isView && !rootView) {
-        rootView = undefined
-    }
-    if (isStr(node)) {
-        node = VNode.createText(node)
-        // node.$root = rootView
-        return node
-    }
-    // rootView = rootView || (node.$isView?node:(node.$root||View.create('anonymous', {render:()=>node})))
-    // if (!rootView) {
-    //     console.log('no root view',node)
-    // }
-    if (node.$isView) {
-        return renderView(node, rootView)
-    }
-    if (node instanceof Function) {
-        return render(node(), rootView)
-    }
-    // node.$root = rootView
-    if (node.nodes) {
-        node.nodes=node.nodes.map((n)=>{
-            return render(n, node)
+function compileStyles(styles, joinWith) {
+    if (!isVal(styles)) return ''
+    else if (isStr(styles)) return styles
+    else if (isArr(styles)) return styles.join(joinWith)
+    return JSS.generateCss(styles, joinWith)
+}
+
+function setElementProps(element, node, view) {
+    if (node.attrs) {
+        forEach(node.attrs, (val, key) => {
+            if (key === 'style') {
+                val = compileStyles(val, ' ')
+            } else if (key === 'className') {
+                key = 'class'
+            }
+            element.setAttribute(key, val)
         })
     }
-    return node
+
+    if (node.events) {
+        forEach(node.events, (v, k) => {
+            if (view) v = v.bind(view)
+            setEvent(element, k, v)
+        })
+    }
 }
 
-export function renderView(view, rootView) {
-    // if (view.$name === 'App') console.log('APP',rootView, view.$root)
-    try {
-        let rendered = view.render.call(view, view.props)
-        view.$node = rendered
-        // view.$root = view === rootView?undefined:rootView
-        // view.$root = rootView
-        if (view.onCreate) view.onCreate.call(view)
-        if (rendered.$isView) return renderView(rendered, rootView)
-        // set component as fragment
-        if (rendered.$isFrag) view.$isFrag = true
-        // rendered.$root = rootView
-        if (rendered.nodes) {
-            rendered.nodes = prepareChildren(rendered.nodes, render, rootView)
+
+export function renderDomChildren(node, parentElement) {
+    let nodes = []
+    for (let i = 0; i < node.$count; i++) {
+        const curNode = node.$nodes[i]
+        if (curNode.$isText) {
+            nodes.push(renderDomText(curNode))
+        } else {
+            let childDom = undefined
+            if (curNode.$raw) curNode.$render(curNode, curNode.$view)
+
+            if (curNode.$isView) {
+                childDom = renderDomView(curNode, node.$element || parentElement)
+            } else if (curNode.$isNode) {
+                childDom = renderDom(curNode)
+            } else {
+                error('Illegal node', curNode)
+                throw Error(`Illegal child node`)
+            }
+
+            if (childDom instanceof Array) {
+                childDom.forEach((c)=>nodes.push(c))
+            } else {
+                nodes.push(childDom)
+            }
         }
-        return view
-    } catch (e) {
-        console.log(view, e)
+    }
+    return nodes
+}
+
+
+export function renderDomView(node, parentElement, isRoot=false) {
+    if (node.$raw) {
+        node.$render(node.$parent, node.$view)
+    }
+    // if (node.$empty) {
+    //     View.$setNodes(node, [VNode.create('slot')], false)
+    //     node.$element = renderDom(node.$first)
+    //     node.$element.__view__ = node
+    //     node.$element.__node__ = node.$first
+    //     return [node.$element]
+    // }
+    let children = renderDomChildren(node, parentElement)
+
+    let currentElement = (!node.$parent)?parentElement:undefined
+    if (node.$single){
+        currentElement = children[0]
     }
 
+    if (currentElement && !node.$single) {
+        console.log('not single', children)
+        children.forEach((c)=>currentElement.append(c))
+        children = [currentElement]
+        currentElement.__view__ = node
+    }
+    // warn(node, currentElement,node.$parent&& node.$parent.$rootElement)
+    node.$element = currentElement
+    node.$rootElement = node.$rootElement || parentElement ||
+        (node.$parent && node.$parent.$rootElement) ||
+        (node.$parent && node.$parent.$element)
+
+    if (!node.$rootElement) {
+        info('no root',node)
+    } else {
+        if (node.$element === parentElement) {
+            console.error('same')
+        } else {
+            children.forEach((c)=>parentElement.append(c))
+        }
+        // if (children.length!==1)
+        //     children.forEach((c)=>parentElement.append(c))
+        // else {
+        //     if (node.$element === parentElement) {
+        //         console.error('same')
+        //     } else {
+        //         children.forEach((c)=>parentElement.append(c))
+        //     }
+        // }
+        // children = [node.$rootElement]
+        node.$rootElement.__view__ = node
+    }
+
+    return children
 }
+
+
+export function renderDomText(node) {
+    let textNode = document.createTextNode(node.$text)
+    node.$element = textNode
+    textNode.__node__ = node
+    return textNode
+}
+
+
+export function renderDom(node, parentElement, replaceParent) {
+    if (!node) console.trace(node)
+    let currentElement = undefined
+    if (node.$isText) return renderDomText(node)
+    if (node.$isNode || (node.$frag && parentElement)) {
+        //#region Done
+        let id = undefined
+        // if (!node.$parent) {
+        if (replaceParent) {
+            id = parentElement.id
+            currentElement = parentElement
+        } else {
+            currentElement = document.createElement(node.$tag)
+        }
+
+        setElementProps(currentElement, node, node.$view)
+        if (id) currentElement.id = id
+        currentElement.__node__ = node
+        node.$element = currentElement
+        //#endregion A
+        let children = renderDomChildren(node, currentElement)
+        try {
+            children.forEach((c)=>{
+                try {
+                    currentElement.append(c)
+                }catch (ee) {
+                    console.error(c, ee)
+                }
+            })
+        } catch (e) {
+            console.error(node, e)
+        }
+
+        return currentElement
+    }
+
+    if (node instanceof Array) {
+        node = VNode.create(null, undefined, node)
+        node.$render()
+    }
+    if (node.$frag) {
+        if (!parentElement) {
+            warn('Rendering fragment without rootElement', node)
+            return renderDomChildren(node)
+        } else {
+            let children = renderDomChildren(node, parentElement)
+            children.forEach((ch)=>{
+                parentElement.append(ch)
+            })
+            return parentElement
+        }
+    }
+    return renderDomView(node, parentElement)
+}
+
+
+export default renderDom

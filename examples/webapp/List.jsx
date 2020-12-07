@@ -1,59 +1,53 @@
-import {Exir, jsx} from "../../vm";
-import {randomId} from "../../vm/util";
-import Random from "./Random";
-import {info} from "../../core/logging";
+import Exir from "../../vm/exir"
+import renderDom from "../../vm/render";
+import {deepClone} from "../../core";
+import {randomId} from "../../vm_deprecated/util";
 
-export default Exir.createView('List', {
+export default Exir.createComponent('List', {
+    props: {
+        step: 100
+    },
     state: {
-        step: 3,
-        count: 0,
-        items: []
+        a: 0,
+        items: [],
+        children: []
     },
     render() {
-        return <div>
-            <button id={randomId()} onClick={this.methods.add}>Add</button>
-            <button id={randomId()} onClick={this.methods.remove}>Remove</button>
-            <button id={randomId()} onClick={this.methods.refresh}>Refresh</button>
-            <p>Count: {this.state.count} ({this.state.count%2===0?(<b>Even</b>):(<u>Odd</u>)})</p>
-            <h5>{this.state.items.length} Items</h5>
-            {this.state.items.map((it, i)=><><span>{i}{it}</span></>)}
-        </div>
-    },
-    onCreate() {
-        info(`${this.$name} created`)
-    },
-    onMount() {
-        info(`${this.$name} MOUNTED`)
-    },
-    onUpdate() {
-        info(`${this.$name} updated ${this.$instanceId}`)
-    },
-    methods: {
-        refresh() {
-            this.setState(state=>{
-                let items = []
-                for (let i = 0; i < state.count; i++) {
-                    items.push(<Random a={randomId()} />)
+        return (<div id={'ListParent' + this.state.a}>
+            <button onClick={this.add}>Add 1000</button>
+            <button onClick={this.remove}>Remove 1000</button>
+            {this.state.a}
+            <>
+                {
+                    this.$children.map((child) => child.$clone())
                 }
-                state.items = items
-                // state.count+=state.step
-            })
-        },
-        add() {
-            this.setState(state => {
-                for (let i = 0; i < state.step; i++) {
-                    state.items.push(<Random a={randomId()} />)
-                }
-                state.count+=state.step
-            })
-        },
-        remove() {
-            this.setState(state => {
-                for (let i = 0; i < state.step; i++) {
-                    state.items.pop()
-                }
-                state.count-=state.step
-            })
+            </>
+            <div>
+                {this.state.items.map((idx) => (
+                    <div id={'' + this.state.a + idx}>Link {idx}</div>
+                ))}
+            </div>
+
+        </div>)
+    },
+    add() {
+        // console.log('items', this.state.items.length)
+        for (let i = 0; i < this.props.step; i++) {
+            this.state.items.push(randomId())
         }
+        this.state.a += this.props.step
+        this.$isDirty = true
+        this.$update()
+    },
+    remove() {
+        // for (let i = 0; i < this.state.a; i++) {
+        for (let i = 0; i < this.props.step; i++) {
+            this.state.items.pop()
+        }
+        // console.log(this.state)
+        this.state.a -= this.props.step
+        this.$update()
+
+        // }
     }
 })
