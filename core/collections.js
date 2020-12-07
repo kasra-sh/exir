@@ -784,6 +784,40 @@ function reduceRight(src, func, acc = src) {
 }
 
 /**
+ * Randomly shuffle array's items
+ * @param {ArrayLike} arrayLike
+ */
+function shuffle(arrayLike) {
+    return Array.prototype.sort.call(arrayLike, ()=>Math.random()-0.5)
+}
+
+/**
+ * Sort array ascending with optional field parameter
+ * @param {ArrayLike} arrayLike
+ * @param {Function} [fieldFn]
+ * @param {String} [locale]
+ */
+function sortAsc(arrayLike, fieldFn, locale='en') {
+    let compare = fieldFn?function (a,b){
+        return (''+fieldFn(a)).localeCompare(''+fieldFn(b),locale)
+    }:undefined
+    return Array.prototype.sort.call(arrayLike, compare)
+}
+
+/**
+ * Sort array descending with optional field parameter
+ * @param {ArrayLike} arrayLike
+ * @param {Function} [fieldFn]
+ * @param {String} [locale]
+ */
+function sortDesc(arrayLike, fieldFn, locale='en') {
+    let compare = fieldFn?function (a,b){
+        return (''+fieldFn(b)).localeCompare(''+fieldFn(a),locale)
+    }:undefined
+    return Array.prototype.sort.call(arrayLike, compare)
+}
+
+/**
  * Extract single key-value pairs from object
  *
  * @param object
@@ -956,6 +990,6 @@ module.exports = {
     ANY, ALL, BREAK, item, contains, add, remove, toggle, concat, emptyOf, objMatchOne, objMatchAll,
     deepMerge, deepClone, forN, forEachRange, forEach, forEachRight, firstIndex, first,
     startsWith, lastIndex, last, endsWith, reverse, any, all, filter, filterRight, reduce, reduceRight,
-    map, flatMap, keyValuePairs, entries, maxIndex, max, minIndex, min,
+    map, flatMap, keyValuePairs, entries, maxIndex, max, minIndex, min, shuffle, sortAsc, sortDesc,
     translateObject, omit, join, groupBy, objectValues
 }
