@@ -84,7 +84,7 @@ function isArr(x) {
  * @return {boolean}
  */
 function isPrim(x) {
-    return isVal(x) && !isObj(x) && !isFun(x);
+    return isVal(x) && !isObj(x) && !isFun(x) || typeof x === 'symbol';
 }
 
 /** Is List (has length property and item() function)
