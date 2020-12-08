@@ -91,21 +91,24 @@ export function renderDomView(node, parentElement, isRoot=false) {
     // warn(node, currentElement,node.$parent&& node.$parent.$rootElement)
     node.$element = currentElement
     node.$rootElement = node.$rootElement || parentElement ||
-        (node.$parent && node.$parent.$rootElement) ||
-        (node.$parent && node.$parent.$element)
+        (node.$parent && node.$parent.$element) ||
+        (node.$parent && node.$parent.$rootElement)
 
     if (!node.$rootElement) {
         info('no root',node)
     } else {
         if (node.$element === parentElement) {
             info('Parent is the same element')
-        } else {
+        } else if (parentElement){
             children.forEach((c)=>parentElement.append(c))
+        } else  {
+            children.forEach((c)=>node.$rootElement.append(c))
+            // console.log(node)
         }
         node.$rootElement.__view__ = node
     }
 
-    return children
+    return node.$element || children
 }
 
 
