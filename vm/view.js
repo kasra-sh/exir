@@ -44,8 +44,8 @@ function View(opt = {}, construct = opt) {
 }
 
 View.prototype.setState = function (fn) {
-    let result = fn.call(this, this.state);
-    if (result !== false) this.$update();
+    fn.call(this, this.state);
+    this.$update();
 }
 
 View.create = function (name, opt) {
