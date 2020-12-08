@@ -2,7 +2,7 @@ import {updateAttributes} from "./update-attrs";
 import renderDom, {renderDomView} from "./render";
 // import {sameProps} from "./util";
 import View from "./view";
-import {error, info, showError, showTrace, trace, warn} from "../core";
+import {error, info, showError, showTrace, trace, warn} from "../core/logging";
 
 export function updateViewRoot(view) {
     let newNodes = VNode.normalizeNodes(view.render.call(view), view, view, true)
@@ -11,6 +11,7 @@ export function updateViewRoot(view) {
     // return
     patchNodes(view, newNodes, view.$rootElement)
     View.$setNodes(view, newNodes, false)
+    view.$isDirty = false
 }
 
 export function isViewDirty(view, props) {
@@ -129,12 +130,12 @@ export function patchNodes(current, newNodes, rootElement) {
                 }
             } else {
                 // error('View - NOT View')
-                requestAnimationFrame(()=>{
+                // requestAnimationFrame(()=>{
                     newNode.$nodes = renderDomView(newNode, rootElement)
                     let curElement = digElement(curNode)
                     // info(curElement, newNode.$element)
                     curElement.replaceWith(newNode.$element)
-                })
+                // })
             }
         } else {
             trace('WTH is this?', newNode)

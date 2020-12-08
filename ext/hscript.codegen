@@ -1,4 +1,4 @@
-const {HTMLTags} = require('../dom/htmltags');
+const {HTMLTags, HTMLEssentialTags} = require('../dom/htmltags');
 const {map} = require('../core/collections');
 
 const func = 'e';
@@ -13,8 +13,11 @@ const hyperMethodsES6 = map(HTMLTags, (tag) => {
         // return `function ${tag}_(args, ...children) {return ${func}('${tag}', args, ...children)}`;
     return `export function ${tag}(args, ...children) {return ${func}('${tag}', args, ...children)}`;
 });
+const hyperMethodsEssential = map(HTMLEssentialTags, (tag)=>{
+    return `export function ${tag}(args, ...children) {return ${func}('${tag}', args, ...children)}`;
+})
 const code =
-`const {VNode} = require('../vm/vnode');
+`const VNode = require('../vm/vnode').default;
 var ${func} = VNode.create;
 ${hyperMethods.join('\n')}
 
@@ -30,8 +33,17 @@ ${hyperMethodsES6.join('\n')}
 export default {
     ${HTMLTags.join(',\n\t').replace('var,\n\t', '')}, ${func}}
 `
+
+const codeES6ES =
+    `import VNode from '../vm/vnode';
+const ${func} = VNode.create;
+${hyperMethodsEssential.join('\n')}
+
+export default {
+    ${HTMLEssentialTags.join(',\n\t')}, ${func}}
+`
 module.exports = function () {
     return {
-        code, codeES6
+        code, codeES6, codeES6ES
     };
 }

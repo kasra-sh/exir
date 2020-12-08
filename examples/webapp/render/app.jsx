@@ -1,4 +1,4 @@
-import Exir from "../../../vm/exir";
+import Exir from "../../../vm";
 import View from "../../../vm/view";
 import core, {showTrace, warn} from "../../../core";
 import {renderDom} from "../../../vm/render";

@@ -1,6 +1,6 @@
 {
   "name": "exir",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "description": "Javascript Framework",
   "author": "Kasra Shamsaei",
   "license": "MIT",
@@ -52,6 +52,14 @@
     "example": "examples"
   },
   "targets": {
+    "exirvm": {
+      "engines": {
+        "browsers": [
+          "since 2015"," ie > 10","iOS >= 7"
+        ]
+      },
+      "context": "browser"
+    },
     "legacy": {
       "engines": {
         "browsers": [
@@ -63,7 +71,7 @@
     "modern": {
       "engines": {
         "browsers": [
-          "since 2018"
+          "since 2019"
         ]
       }
     },

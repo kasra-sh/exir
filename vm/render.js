@@ -1,8 +1,8 @@
-// import {compileStyles} from "./vm_deprecated/util";
-import {error, forEach, info, isArr, isStr, isVal, warn} from "../core";
-import {setEvent} from "../dom";
+import {isArr, isStr, isVal} from "../core/types";
+import {info, warn, error, trace} from "../core/logging";
+import {forEach} from "../core/collections";
+import {setEvent} from "../dom/event";
 import JSS from "./jss";
-// import View from "./view";
 
 function compileStyles(styles, joinWith) {
     if (!isVal(styles)) return ''
@@ -81,7 +81,7 @@ export function renderDomView(node, parentElement, isRoot=false) {
     }
 
     if (currentElement && !node.$single) {
-        console.log('not single', children)
+        // console.log('not single', children)
         children.forEach((c)=>currentElement.append(c))
         children = [currentElement]
         currentElement.__view__ = node
@@ -96,20 +96,10 @@ export function renderDomView(node, parentElement, isRoot=false) {
         info('no root',node)
     } else {
         if (node.$element === parentElement) {
-            console.error('same')
+            info('Parent is the same element')
         } else {
             children.forEach((c)=>parentElement.append(c))
         }
-        // if (children.length!==1)
-        //     children.forEach((c)=>parentElement.append(c))
-        // else {
-        //     if (node.$element === parentElement) {
-        //         console.error('same')
-        //     } else {
-        //         children.forEach((c)=>parentElement.append(c))
-        //     }
-        // }
-        // children = [node.$rootElement]
         node.$rootElement.__view__ = node
     }
 

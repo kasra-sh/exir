@@ -6,5 +6,6 @@ import {div} from "../../vm_deprecated/hscript-esm";
 // log.showError()
 
 log.trace(div({}, "Hello HyperScript"))
+log.trace()
 
 Exir.mount(App, document.getElementById('root'))

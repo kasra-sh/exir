@@ -1,5 +1,8 @@
-import {deepClone, error, forEach, isNum, isStr} from "../core";
+import {isVal, isNum, isStr, isPrim} from "../core/types";
+import {deepClone, forEach} from "../core/collections";
 import {isEventPropKey, normalizeEventName} from "./util";
+import View from "./view";
+import {error} from "../core";
 // import View from "./view";
 
 export const NodeType = {
@@ -45,6 +48,11 @@ VNode.create = function (type, props = {}, ...nodes) {
     if (type.$type === NodeType.VIEW) {
         // error('update')
         return new type().$updateInstance(props, nodes)
+    }
+
+    if (!type.$type && type instanceof Function) {
+        console.log('func', type)
+        return View.create(type.name, {render: type}).$createInstance(props, nodes)
     }
 
     // create VNode instance
@@ -117,31 +125,60 @@ VNode.normalizeNodes = function (nodes = [], parent, view, render = false) {
     let normalizedNodes = []
     // console.error(parent, nodes)
     if (!(nodes instanceof Array)) nodes = [nodes]
-    for (let i = 0; i < nodes.length; i++) {
-        let node = nodes[i]
-        // replace text
-        if (isStr(node) || isNum(node)) {
-            let n = VNode.createText("" + node);
-            n.$parent = parent
-            normalizedNodes.push(n)
-            // pass View
-            continue
-        }
-        if (node.$isView) {
-            normalizedNodes.push(render ? node.$render(parent, node) : node)
-            continue
-        }
-        if (node.$frag) node = node.$nodes
-        // flatten array or non-view fragment
-        if (node instanceof Array) {
-            for (let j = 0; j < node.length; j++) {
-                normalizedNodes.push(render ? node[j].$render(parent, view) : node[j])
+    try {
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes[i]
+            // replace text
+            if (!isVal(node)) node = ""+node
+            if (isPrim(node)) {
+                let n = VNode.createText(node.toString());
+                n.$parent = parent
+                normalizedNodes.push(n)
+                continue
             }
+            if (node.$isView) {
+                normalizedNodes.push(render ? node.$render(parent, node) : node)
+                continue
+            }
+            // skip fragments
+            if (node.$frag) node = node.$nodes
+            // flatten array or non-view fragment
+            if (node instanceof Array) {
+                for (let j = 0; j < node.length; j++) {
+                    let nj = node[j]
+                    if (!isVal(nj)) nj = ""+nj
+                    if (isPrim(nj)) {
+                        nj = VNode.createText(nj.toString());
+                        nj.$parent = parent
+                    } else if (!nj.$isView && nj instanceof Function) {
+                        nj = View.create(nj.name, {render: nj})
+                    }
+                    normalizedNodes.push(render ? nj.$render(parent, view) : nj)
+                }
+            } else {
+                if (!node.$isView && (node instanceof Function)) {
+                    node = View.create(node.name, {render: node})
+                    node.$parent = parent
+                } else if (!node.$isNode){
+                    node = VNode.createText("" + node);
+                    node.$parent = parent
+                }
+                normalizedNodes.push((render)? node.$render(parent, view) : node)
+            }
+        }
+        return normalizedNodes
+    }catch (e) {
+        if (process.env.NODE_ENV === 'development') {
+            let n = VNode.createTag('div', {style: "color: red!important; border: 3px dashed orange!important"},
+                e.toString()
+            )
+            n.$parent = parent
+            return [n]
         } else {
-            normalizedNodes.push(render ? node.$render(parent, view) : node)
+            error(e)
+            return []
         }
     }
-    return normalizedNodes
 }
 
 

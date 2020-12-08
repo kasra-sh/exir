@@ -1,5 +1,7 @@
 import VNode, {NodeType} from "./vnode";
-import {concat, debounce, deepClone, error, info, showError, showInfo} from "../core";
+import {concat, deepClone} from "../core/collections";
+// import { error, info, showError, showInfo} from "../core/logging";
+import { debounce} from "../core/functions";
 import {randomId, sameProps} from "./util";
 import {updateViewRoot} from "./patch";
 
@@ -27,6 +29,7 @@ function View(opt = {}, construct = opt) {
             this.$isDirty = true
             if (window.requestAnimationFrame) {
                 requestAnimationFrame(()=>{
+                    if (!this.$isDirty) return
                     updateViewRoot(this)
                 })
             }else {

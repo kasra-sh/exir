@@ -1,4 +1,4 @@
-import Exir from "../../vm/exir";
+import Exir from "../../vm";
 import List from "./List";
 import Empty from "./Empty";
 import Child from "./Child";
