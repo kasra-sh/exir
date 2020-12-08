@@ -6,34 +6,34 @@ import {randomId, sameProps} from "./util";
 import {updateViewRoot} from "./patch";
 
 function View(opt = {}, construct = opt) {
-    this.$type = NodeType.VIEW
+    this.$type = NodeType.VIEW;
     // derived class
-    this.$name = this.constructor.name
-    this.$isView = true
-    this.$nodes = undefined
-    this.$isDirty = true
-    this.$raw = true
-    this.$constructor = construct
+    this.$name = this.constructor.name;
+    this.$isView = true;
+    this.$nodes = undefined;
+    this.$isDirty = true;
+    this.$raw = true;
+    this.$constructor = construct;
     let cons = Object.getOwnPropertyNames(this.$constructor)
     for (let i = 0; i < cons.length; i++) {
-        const prop = cons[i]
+        const prop = cons[i];
         if (this.$constructor[prop] instanceof Function) {
-            this[prop] = this.$constructor[prop]
+            this[prop] = this.$constructor[prop];
         } else {
-            this[prop] = deepClone(this.$constructor[prop])
+            this[prop] = deepClone(this.$constructor[prop]);
         }
     }
 
     Object.defineProperty(this, '$update', {
         value: debounce(()=> {
-            this.$isDirty = true
+            this.$isDirty = true;
             if (window.requestAnimationFrame) {
                 requestAnimationFrame(()=>{
-                    if (!this.$isDirty) return
-                    updateViewRoot(this)
+                    if (!this.$isDirty) return;
+                    updateViewRoot(this);
                 })
             }else {
-                updateViewRoot(this)
+                updateViewRoot(this);
             }
             // console.log('done')
         }, 20),
@@ -43,104 +43,102 @@ function View(opt = {}, construct = opt) {
     })
 }
 
+View.prototype.setState = function (fn) {
+    let result = fn.call(this, this.state);
+    if (result !== false) this.$update();
+}
 
 View.create = function (name, opt) {
-    let c = new View(opt)
-    if (!opt.render) console.warn("render method is not defined")
-    c.$name = name
-    return c
+    let c = new View(opt);
+    if (!opt.render) console.warn("render method is not defined");
+    c.$name = name;
+    return c;
 }
-
 
 View.prototype.$createInstance = function (props, children) {
-    const construct = this.$constructor
-    const name = this.$name
-    let inst = new View(construct, construct)
-    inst.$name = name
-    inst.$instanceId = randomId()
-    inst.$isDirty = true
-    return inst.$updateInstance(props, children)
+    const construct = this.$constructor;
+    const name = this.$name;
+    let inst = new View(construct, construct);
+    inst.$name = name;
+    inst.$instanceId = randomId();
+    Object.keys(inst).forEach((pname)=>{
+        if (inst[pname] instanceof Function) {
+            inst[pname] = inst[pname].bind(inst)
+        }
+    })
+    return inst.$updateInstance(props, children);
 }
 
-
 View.prototype.$updateInstance = function (props, children, parent) {
-    if (!this.props) this.props = {}
+    if (!this.props) this.props = {};
     if (props) {
-        concat(this.props, props, true)
+        concat(this.props, props, true);
     }
 
-    if (children) children = VNode.normalizeNodes(children, undefined, this, true)
-    this.$children = children
+    if (children) children = VNode.normalizeNodes(children, undefined, this, true);
+    this.$children = children;
 
-    this.$instanceId = randomId()
-    this.$isDirty = true
+    this.$instanceId = randomId();
+    this.$isDirty = true;
 
-    return this
+    return this;
 }
 
 
 View.prototype.$render = function (parent, view, initial = true) {
-    if (initial && !this.$raw) return this
-    let rendered = this.render()
+    if (initial && !this.$raw) return this;
+    let rendered = this.render();
     if (rendered.length === 0) {
-        rendered = [VNode.create('slot', {})]
+        rendered = [VNode.create('slot', {})];
     }
-    View.$setNodes(this, rendered, true)
-    // if (this.$empty) {
-    //     View.$setNodes(this, [VNode.create('slot')], false)
-    // }
-    this.$parent = parent
-    this.$view = view
-    this.$raw = false
-    return this
+    View.$setNodes(this, rendered, true);
+    this.$parent = parent;
+    this.$view = view;
+    this.$raw = false;
+    return this;
 }
 
 View.$setNodes = function (view, nodes, normalize) {
-    if (nodes.length === 0) nodes = [VNode.createTag('slot')]
+    if (nodes.length === 0) nodes = [VNode.createTag('slot')];
     if (normalize)
-        view.$nodes = VNode.normalizeNodes(nodes, view, view,true)
+        view.$nodes = VNode.normalizeNodes(nodes, view, view,true);
     else
-        view.$nodes = nodes
-    view.$count = view.$nodes.length
+        view.$nodes = nodes;
+    view.$count = view.$nodes.length;
     if (!(view.$empty = view.$count === 0)) {
-        view.$first = view.$nodes[0]
+        view.$first = view.$nodes[0];
     }
     if (view.$count === 1) {
-        view.$single = true
+        view.$single = true;
     }
 }
 
-//
-// View.$resetNodes = function (view, nodes) {
-//     view.$nodes = VNode.normalizeNodes(nodes, view, view,true)
-//     view.$count = view.$nodes.length
-//     if ((view.$empty = view.$count) !== 0) {
-//         view.$first = view.$nodes[0]
-//     }
-//     if (view.$count === 1) {
-//         view.$single = true
-//     }
-//     return nodes
-// }
-
+View.$shoudUpdateDefault = function (viewInstance, newProps) {
+    return viewInstance.$isDirty || !sameProps(viewInstance.props, newProps);
+}
 
 View.prototype.shouldUpdate = function (newProps) {
-    return this.$isDirty || !sameProps(this.props, newProps)
+    return View.$shoudUpdateDefault(this, newProps);
 }
 
-View.prototype.$removeDom = function () {
-    if (this.$single) return this.$element.remove();
-    this.$nodes.forEach((n)=>n.$removeDom())
+View.prototype.$childByRef = function (ref) {
+    if (this.$element) {
+        return this.$element.querySelector(`[ref=${ref}]`);
+    }
 }
 
+View.prototype.$removeDom = function (rootRemoved) {
+    if (this.$single) {
+        this.$element.remove();
+        rootRemoved = true;
+    }
+    this.$nodes.forEach((n)=>n.$removeDom(rootRemoved));
+    this.$dispatchLifeCycle('onDestroy');
+}
 
-View.prototype.$update = debounce(function () {
-    this.$isDirty = true
-    console.log('UPDATING', this)
-}, 20)
-
-
-View.prototype.$renderDom = function (targetElement) {
+View.prototype.$renderDom = function (targetElement, parent) {
+    this.$parent = parent
+    this.$rootElement = targetElement
     for (let i = 0; i < this.$count; i++) {
         targetElement.append(this.$nodes[i].$renderDom())
     }
@@ -153,6 +151,13 @@ View.prototype.$clone = function (parent, view) {
 
 View.prototype.$serialize = function () {
     return deepClone(this, {excludeKeys:['$parent', '$first', '$view', '$element', '$rootElement']})
+}
+
+View.prototype.$dispatchLifeCycle = function (name, ...args) {
+    let lifecycleMethod = this[name]
+    if (lifecycleMethod instanceof Function) {
+        setTimeout(lifecycleMethod, 1, ...args)
+    }
 }
 
 export default View

@@ -43,7 +43,9 @@ export function renderDomChildren(node, parentElement) {
             if (curNode.$raw) curNode.$render(curNode, curNode.$view)
 
             if (curNode.$isView) {
+                curNode.$dispatchLifeCycle('onCreate', curNode.props)
                 childDom = renderDomView(curNode, node.$element || parentElement)
+                curNode.$dispatchLifeCycle('onMount', curNode.props)
             } else if (curNode.$isNode) {
                 childDom = renderDom(curNode)
             } else {
@@ -167,7 +169,10 @@ export function renderDom(node, parentElement, replaceParent) {
             return parentElement
         }
     }
-    return renderDomView(node, parentElement)
+    node.$dispatchLifeCycle('onCreate', node.props)
+    let rendered = renderDomView(node, parentElement)
+    node.$dispatchLifeCycle('onMount', node.props)
+    return rendered
 }
 
 

@@ -3,6 +3,7 @@ import renderDom, {renderDomView} from "./render";
 // import {sameProps} from "./util";
 import View from "./view";
 import {error, info, showError, showTrace, trace, warn} from "../core/logging";
+import VNode from "./vnode";
 
 export function updateViewRoot(view) {
     let newNodes = VNode.normalizeNodes(view.render.call(view), view, view, true)
@@ -12,12 +13,13 @@ export function updateViewRoot(view) {
     patchNodes(view, newNodes, view.$rootElement)
     View.$setNodes(view, newNodes, false)
     view.$isDirty = false
+    view.$dispatchLifeCycle('onUpdate', view.props)
 }
 
 export function isViewDirty(view, props) {
     // return true
     if (view.$isView) {
-        return view.shouldUpdate && view.shouldUpdate(props)
+        return view.shouldUpdate(props)
     } else return true
 }
 
