@@ -1,8 +1,7 @@
-import {isVal, isNum, isStr, isPrim} from "../core/types";
 import {deepClone, forEach} from "../core/collections";
 import {isEventPropKey, normalizeEventName, normalizeNodes} from "./util";
 import View from "./view";
-import {error} from "../core";
+import {concat, error} from "../core";
 // import View from "./view";
 
 export const NodeType = {
@@ -40,18 +39,16 @@ VNode.create = function (type, props = {}, ...nodes) {
 
     // View class instance
     if (type.$isView) {
-        // error(type)
         return type.$createInstance(props, nodes);
     }
 
     // View class
-    if (type.$type === NodeType.VIEW) {
-        // error('update')
+    if (type.prototype && type.prototype instanceof View) {
         return new type().$updateInstance(props, nodes);
     }
 
+    // Function component
     if (!type.$type && type instanceof Function) {
-        console.log('func', type);
         return View.create(type.name, {render: type}).$createInstance(props, nodes);
     }
 
@@ -126,7 +123,7 @@ VNode.prototype.$removeDom = function (rootRemoved) {
 VNode.prototype.$clone = function (parent, view) {
     let cl = VNode.createTag(this.$tag,
         {attrs: deepClone(this.attrs), events: this.events},
-        this.$nodes.map((n) => n.$clone()));
+        this.$nodes.map((n) => n.$clone(this, view)));
     return cl.$render(parent, view);
 }
 

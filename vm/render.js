@@ -3,6 +3,7 @@ import {info, warn, error, trace} from "../core/logging";
 import {forEach} from "../core/collections";
 import {setEvent} from "../dom/event";
 import JSS from "./jss";
+import VNode from "./vnode";
 
 function compileStyles(styles, joinWith) {
     if (!isVal(styles)) return ''
@@ -84,31 +85,31 @@ export function renderDomView(node, parentElement, isRoot=false) {
 
     if (currentElement && !node.$single) {
         // console.log('not single', children)
-        children.forEach((c)=>currentElement.append(c))
-        children = [currentElement]
-        currentElement.__view__ = node
+        children.forEach((c)=>currentElement.append(c));
+        children = [currentElement];
+        currentElement.__view__ = node;
     }
     // warn(node, currentElement,node.$parent&& node.$parent.$rootElement)
     node.$element = currentElement
     node.$rootElement = node.$rootElement || parentElement ||
         (node.$parent && node.$parent.$element) ||
-        (node.$parent && node.$parent.$rootElement)
+        (node.$parent && node.$parent.$rootElement);
 
     if (!node.$rootElement) {
-        info('no root',node)
+        info('no root',node);
     } else {
         if (node.$element === parentElement) {
-            info('Parent is the same element')
+            info('Parent is the same element');
         } else if (parentElement){
-            children.forEach((c)=>parentElement.append(c))
+            children.forEach((c)=>parentElement.append(c));
         } else  {
-            children.forEach((c)=>node.$rootElement.append(c))
+            children.forEach((c)=>node.$rootElement.append(c));
             // console.log(node)
         }
-        node.$rootElement.__view__ = node
+        node.$rootElement.__view__ = node;
     }
-
-    return node.$element || children
+    node.$isDirty = false
+    return node.$element || children;
 }
 
 

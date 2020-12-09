@@ -7,7 +7,7 @@ import {error, info, showError, showTrace, trace, warn} from "../core/logging";
 import {normalizeNodes} from "./util";
 
 export function updateViewRoot(view) {
-    let newNodes = normalizeNodes(view.render.call(view), view, view, true)
+    let newNodes = normalizeNodes(view.render.call(view, view.props), view, view, true)
     // console.log(newNodes)
     // console.log(newNodes, view.$nodes)
     // return

@@ -79,7 +79,7 @@ View.prototype.$updateInstance = function (props, children, parent) {
     this.$children = children;
 
     this.$instanceId = randomId();
-    this.$isDirty = true;
+    // this.$isDirty = false;
     // console.warn("$update "+this.$instanceId+" "+name, this.state)
     return this;
 }
@@ -87,7 +87,7 @@ View.prototype.$updateInstance = function (props, children, parent) {
 
 View.prototype.$render = function (parent, view, initial = true) {
     if (initial && !this.$raw) return this;
-    let rendered = this.render.call(this);
+    let rendered = this.render.call(this, this.props);
     // console.log(this.$name, this.state)
     // console.log(this.$name, rendered)
     if (rendered.length === 0) {
@@ -161,6 +161,28 @@ View.prototype.$dispatchLifeCycle = function (name, ...args) {
     if (lifecycleMethod instanceof Function) {
         setTimeout(lifecycleMethod, 1, ...args)
     }
+}
+
+
+View.prototype.useState = function useState(state) {
+    let items = (this.$state) || [];
+    this.$state = items;
+    let count = this.$stateCount || 0;
+    items[count] = state
+    let current = [
+        function stateGetter() {
+            return items[count]
+        },
+        function stateSetter(val) {
+            items[count] = val
+        }
+    ]
+    this.$stateCount = count + 1
+    return current
+}
+
+View.prototype.initHook = function initHook(name, func) {
+    if (!this[name]) this[name] = func
 }
 
 export default View
