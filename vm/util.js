@@ -15,6 +15,10 @@ export function randomId() {
     return (Date.now().toString(24).slice(2)+ Math.random().toString(24).slice(6))
 }
 
+export function randomHexColor() {
+    return '#'+(Math.random().toString(16)).slice(2, 8)
+}
+
 export function compileProps(props) {
     const cats = {
         events: {},
