@@ -1,9 +1,10 @@
 import VNode, {NodeType} from "./vnode";
 import {concat, deepClone} from "../core/collections";
 // import { error, info, showError, showInfo} from "../core/logging";
-import { debounce} from "../core/functions";
+import {debounce} from "../core/functions";
 import {normalizeNodes, randomId, sameProps} from "./util";
 import {updateViewRoot} from "./patch";
+import {isObj} from "../core/types";
 
 function View(opt = {}, construct = opt) {
     this.$type = NodeType.VIEW;
@@ -25,14 +26,14 @@ function View(opt = {}, construct = opt) {
     }
 
     Object.defineProperty(this, '$update', {
-        value: debounce(()=> {
+        value: debounce(() => {
             this.$isDirty = true;
             if (window.requestAnimationFrame) {
-                requestAnimationFrame(()=>{
+                requestAnimationFrame(() => {
                     // if (!this.$isDirty) return;
                     updateViewRoot(this);
                 })
-            }else {
+            } else {
                 updateViewRoot(this);
             }
             // console.log('done')
@@ -41,11 +42,6 @@ function View(opt = {}, construct = opt) {
         configurable: false,
         writable: false
     })
-}
-
-View.prototype.setState = function (fn) {
-    fn.call(this, this.state);
-    this.$update();
 }
 
 View.create = function (name, opt) {
@@ -61,11 +57,13 @@ View.prototype.$createInstance = function (props, children) {
     let inst = new View(construct, construct);
     inst.$name = name;
     inst.$instanceId = randomId();
-    Object.keys(inst).forEach((pname)=>{
+    Object.keys(inst).forEach((pname) => {
         if (inst[pname] instanceof Function) {
             inst[pname] = inst[pname].bind(inst)
         }
     })
+    inst.$useStateCount = 0
+    inst.$useStates = []
     return inst.$updateInstance(props, children);
 }
 
@@ -85,11 +83,14 @@ View.prototype.$updateInstance = function (props, children, parent) {
 }
 
 
+View.$callRender = function (view) {
+    view.$useStateIndex = 0
+    return view.render.call(view, view.props);
+}
+
 View.prototype.$render = function (parent, view, initial = true) {
     if (initial && !this.$raw) return this;
-    let rendered = this.render.call(this, this.props);
-    // console.log(this.$name, this.state)
-    // console.log(this.$name, rendered)
+    let rendered = View.$callRender(this);
     if (rendered.length === 0) {
         rendered = [VNode.create('slot', {})];
     }
@@ -104,7 +105,7 @@ View.prototype.$render = function (parent, view, initial = true) {
 View.$setNodes = function (view, nodes, normalize) {
     if (nodes.length === 0) nodes = [VNode.createTag('slot')];
     if (normalize)
-        view.$nodes = normalizeNodes(nodes, view, view,true);
+        view.$nodes = normalizeNodes(nodes, view, view, true);
     else
         view.$nodes = nodes;
     view.$count = view.$nodes.length;
@@ -135,7 +136,7 @@ View.prototype.$removeDom = function (rootRemoved) {
         this.$element.remove();
         rootRemoved = true;
     }
-    this.$nodes.forEach((n)=>n.$removeDom(rootRemoved));
+    this.$nodes.forEach((n) => n.$removeDom(rootRemoved));
     this.$dispatchLifeCycle('onDestroy');
 }
 
@@ -148,12 +149,12 @@ View.prototype.$renderDom = function (targetElement, parent) {
 }
 
 View.prototype.$clone = function (parent, view) {
-    let cl = this.$createInstance(deepClone(this.props), this.$children.map((ch)=>ch.$clone()))
-    return cl.$render(parent, view||cl)
+    let cl = this.$createInstance(deepClone(this.props), this.$children.map((ch) => ch.$clone()))
+    return cl.$render(parent, view || cl)
 }
 
 View.prototype.$serialize = function () {
-    return deepClone(this, {excludeKeys:['$parent', '$first', '$view', '$element', '$rootElement']})
+    return deepClone(this, {excludeKeys: ['$parent', '$first', '$view', '$element', '$rootElement']})
 }
 
 View.prototype.$dispatchLifeCycle = function (name, ...args) {
@@ -163,26 +164,28 @@ View.prototype.$dispatchLifeCycle = function (name, ...args) {
     }
 }
 
-
-View.prototype.useState = function useState(state) {
-    let items = (this.$state) || [];
-    this.$state = items;
-    let count = this.$stateCount || 0;
-    items[count] = state
-    let current = [
-        function stateGetter() {
-            return items[count]
-        },
-        function stateSetter(val) {
-            items[count] = val
-        }
-    ]
-    this.$stateCount = count + 1
-    return current
+View.prototype.setState = function (setter) {
+    if (setter instanceof Function)
+        setter = setter.call(this, this.state);
+    if (isObj(setter)) {
+        concat(this.state, setter, true)
+    }
+    this.$update();
 }
 
-View.prototype.initHook = function initHook(name, func) {
-    if (!this[name]) this[name] = func
+
+View.prototype.useState = function useState(initial) {
+    let index = this.$useStateIndex;
+    if (index === this.$useStateCount) {
+        this.$useStates.push(initial)
+        this.$useStateCount+=1
+    }
+    this.$useStateIndex += 1
+    return [()=>this.$useStates[index], (val)=>{this.$useStates[index] = val; this.$isDirty=true;this.$update()}]
+}
+
+View.prototype.useEffect = function useEffect(func) {
+    if (!this.onUpdate) this.onUpdate = func
 }
 
 export default View
