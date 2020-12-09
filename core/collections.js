@@ -166,7 +166,7 @@ function funOrKey(f) {
  */
 function emptyOf(src, def = {}) {
     if (T.isStr(src)) return "";
-    if (T.isList(src)) return [];
+    if (T.isList(src) || T.isArr(src)) return [];
     if (T.isObj(src)) {
         if (T.isEl(src)) {
             if (src.nodeType === 3 || src.nodeType === 8) {
