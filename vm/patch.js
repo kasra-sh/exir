@@ -3,10 +3,11 @@ import renderDom, {renderDomView} from "./render";
 // import {sameProps} from "./util";
 import View from "./view";
 import {error, info, showError, showTrace, trace, warn} from "../core/logging";
-import VNode from "./vnode";
+// import VNode from "./vnode";
+import {normalizeNodes} from "./util";
 
 export function updateViewRoot(view) {
-    let newNodes = VNode.normalizeNodes(view.render.call(view), view, view, true)
+    let newNodes = normalizeNodes(view.render.call(view), view, view, true)
     // console.log(newNodes)
     // console.log(newNodes, view.$nodes)
     // return

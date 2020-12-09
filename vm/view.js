@@ -2,7 +2,7 @@ import VNode, {NodeType} from "./vnode";
 import {concat, deepClone} from "../core/collections";
 // import { error, info, showError, showInfo} from "../core/logging";
 import { debounce} from "../core/functions";
-import {randomId, sameProps} from "./util";
+import {normalizeNodes, randomId, sameProps} from "./util";
 import {updateViewRoot} from "./patch";
 
 function View(opt = {}, construct = opt) {
@@ -29,7 +29,7 @@ function View(opt = {}, construct = opt) {
             this.$isDirty = true;
             if (window.requestAnimationFrame) {
                 requestAnimationFrame(()=>{
-                    if (!this.$isDirty) return;
+                    // if (!this.$isDirty) return;
                     updateViewRoot(this);
                 })
             }else {
@@ -75,23 +75,26 @@ View.prototype.$updateInstance = function (props, children, parent) {
         concat(this.props, props, true);
     }
 
-    if (children) children = VNode.normalizeNodes(children, undefined, this, true);
+    if (children) children = normalizeNodes(children, parent, this, false);
     this.$children = children;
 
     this.$instanceId = randomId();
     this.$isDirty = true;
-
+    // console.warn("$update "+this.$instanceId+" "+name, this.state)
     return this;
 }
 
 
 View.prototype.$render = function (parent, view, initial = true) {
     if (initial && !this.$raw) return this;
-    let rendered = this.render();
+    let rendered = this.render.call(this);
+    // console.log(this.$name, this.state)
+    // console.log(this.$name, rendered)
     if (rendered.length === 0) {
         rendered = [VNode.create('slot', {})];
     }
     View.$setNodes(this, rendered, true);
+    // console.log(this.$name, this.$nodes)
     this.$parent = parent;
     this.$view = view;
     this.$raw = false;
@@ -101,7 +104,7 @@ View.prototype.$render = function (parent, view, initial = true) {
 View.$setNodes = function (view, nodes, normalize) {
     if (nodes.length === 0) nodes = [VNode.createTag('slot')];
     if (normalize)
-        view.$nodes = VNode.normalizeNodes(nodes, view, view,true);
+        view.$nodes = normalizeNodes(nodes, view, view,true);
     else
         view.$nodes = nodes;
     view.$count = view.$nodes.length;
@@ -123,7 +126,7 @@ View.prototype.shouldUpdate = function (newProps) {
 
 View.prototype.$childByRef = function (ref) {
     if (this.$element) {
-        return this.$element.querySelector(`[ref=${ref}]`);
+        return this.$element.querySelector(`[ref=${ref}]`).__node__;
     }
 }
 
