@@ -181,11 +181,11 @@ View.prototype.useState = function useState(initial) {
         this.$useStateCount+=1
     }
     this.$useStateIndex += 1
-    return [()=>this.$useStates[index], (val)=>{this.$useStates[index] = val; this.$isDirty=true;this.$update()}]
+    return [this.$useStates[index], (val)=>{this.$useStates[index] = val; this.$isDirty=true;this.$update()}]
 }
 
 View.prototype.useEffect = function useEffect(func) {
-    if (!this.onUpdate) this.onUpdate = func
+    this.onUpdate = func
 }
 
 export default View
