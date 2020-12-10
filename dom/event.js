@@ -40,9 +40,10 @@ function setEvent(target, event, listener, options) {
                 if (funcBodyEquals(fl.l, listener)) {
                     target.removeEventListener(ev, fl.f, fl.o);
                     return false
-                } else {
-                    console.log('notEqual',fl.l.toString(), listener.toString())
                 }
+                // else {
+                //     console.log('notEqual',fl.l.toString(), listener.toString())
+                // }
             });
         }
 
