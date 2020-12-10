@@ -1,13 +1,6 @@
-// import {compileStyles} from "../vm/util";
-import {isArr, isStr, isVal} from "../core";
-import JSS from "./jss";
-
-export function compileStyles(styles, joinWith) {
-    if (!isVal(styles)) return ''
-    else if (isStr(styles)) return styles
-    else if (isArr(styles)) return styles.join(joinWith)
-    return JSS.generateCss(styles, joinWith)
-}
+import {forEach} from "../core/collections";
+import {clearEvent, hasEvent, setEvent} from "../dom/event";
+import {compileStyles} from "./util";
 
 export function updateAttributes(newAttrs, currentAttrs, element) {
     const newKeys = Object.keys(newAttrs)
@@ -41,4 +34,18 @@ export function updateAttributes(newAttrs, currentAttrs, element) {
             element.removeAttribute(key)
         }
     }
+}
+
+export function updateEventListeners(newEvents={}, oldEvents={}, element) {
+    forEach(oldEvents, function (listener, event) {
+        if (newEvents[event] !== listener) {
+            clearEvent(element, event)
+        }
+    })
+    forEach(newEvents, function (listener, event) {
+        // console.log(event, listener)
+        setEvent(element, event, listener)
+    })
+
+
 }
