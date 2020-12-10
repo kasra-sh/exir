@@ -4,7 +4,8 @@
  */
 
 function bodyOf(func) {
-    return func.toString().match(/{[\w\W]*}/)[0]
+    let match = func.toString().match(/{[\w\W]*}/)
+    return match===null?func.toString():match[0]
 }
 
 /**
