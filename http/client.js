@@ -9,7 +9,9 @@ const {startsWith, endsWith, filter, forEach} = require('../core/collections');
 
 
 class InterceptorStore {
-    all = []
+    constructor() {
+        this.all = []
+    }
     use(interceptor) {
         this.all.push(interceptor);
     }
