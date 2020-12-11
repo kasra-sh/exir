@@ -20,8 +20,6 @@ class InterceptorStore {
 /**
  * Async Http Client using XHR
  * @class
- * @property {Response} rs
- * @property {Request} rq
  */
 class XHttpClient {
     /**

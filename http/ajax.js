@@ -12,6 +12,8 @@ const {forEach} = require("../core/collections");
 /**
  * A wrapper class for {@link XMLHttpRequest} to facilitate sending requests and handling events
  * @class
+ * @property {Response} rs
+ * @property {Request} rq
  */
 class Ajax {
      /**
