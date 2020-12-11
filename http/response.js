@@ -5,9 +5,6 @@
  *
  */
 class HttpRs {
-    json
-    xml
-
     /**
      * @constructor
      * @param {XMLHttpRequest} xhr
@@ -21,6 +18,8 @@ class HttpRs {
         this.headers = xhr.getAllResponseHeaders();
         this.contentLength = xhr.response.length || 0;
         this.data = xhr.response;
+        this.json = undefined
+        this.xml = undefined
         if (xhr.responseType === 'text' || xhr.responseType === '')
             this.text = xhr.responseText;
         Object.defineProperty(this, 'json', {

@@ -9,7 +9,9 @@ const {startsWith, endsWith, filter, forEach} = require('../core/collections');
 
 
 class InterceptorStore {
-    all = []
+    constructor() {
+        this.all = []
+    }
     use(interceptor) {
         this.all.push(interceptor);
     }
@@ -18,6 +20,8 @@ class InterceptorStore {
 /**
  * Async Http Client using XHR
  * @class
+ * @property {Response} rs
+ * @property {Request} rq
  */
 class XHttpClient {
     /**
