@@ -48,7 +48,8 @@
     "render",
     "viewmodel",
     "rest",
-    "ajax"
+    "ajax",
+    "ui"
   ],
   "directories": {
     "example": "examples"

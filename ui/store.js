@@ -24,7 +24,7 @@ export function Store(reducer) {
     this.dispatch = function (action) {
         state = reducer(state, action)
         listeners.forEach((callback)=>{
-            setTimeout(callback, 1);
+            setTimeout(callback, 1, state, action);
         })
     }
 
