@@ -73,16 +73,9 @@ export function normalizeNodes(nodes = [], parent, view, render = false) {
             if (node.$frag) node = node.$nodes;
             // flatten array or non-view fragment
             if (node instanceof Array) {
-                for (let j = 0; j < node.length; j++) {
-                    let nj = node[j];
-                    if (!isVal(nj)) nj = ""+nj;
-                    if (isPrim(nj)) {
-                        nj = VNode.createText(nj.toString());
-                        nj.$parent = parent;
-                    } else if (!nj.$isView && nj instanceof Function) {
-                        nj = View.create(nj.name, {render: nj});
-                    }
-                    normalizedNodes.push(render ? nj.$render(parent, view) : nj);
+                let nn = normalizeNodes(node, parent, view, render)
+                for (let j = 0; j < nn.length; j++) {
+                    normalizedNodes.push(render ? nn[j].$render(parent, view) : nn[j]);
                 }
             } else {
                 if (!node.$isView && (node instanceof Function)) {
