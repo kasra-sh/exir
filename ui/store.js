@@ -1,49 +1,41 @@
 import {isObj, isVal} from "../core/types";
 import View from "./view";
 
-export function createStore(reducer) {
+
+export function Store(reducer) {
     var state = reducer(undefined, {});
+    var listeners = [];
 
-    if (!isVal(this.state)) throw TypeError('Store: Initial state is null or undefined,' +
-        ' reducer does not return properly on random/empty state')
-
-    Object.defineProperty(this, 'listeners', {
-        value: [],
-        writable: false,
-        configurable: false
-    })
-
-    Object.defineProperty(this, 'reducer', {
-        value: reducer,
-        writable: false,
-        configurable: false
-    })
+    if (!isVal(state)) throw TypeError('Store: Initial state is null or undefined,' +
+        ' reducer does not return properly on random/empty state');
 
     this.subscribe = function (callback) {
-        this.listeners.push(callback)
+        listeners.push(callback);
     }
 
     this.unsubscribe = function (callback) {
-        this.listeners.splice(this.listeners.indexOf(callback), 1)
+        listeners.splice(listeners.indexOf(callback), 1);
     }
 
     this.getState = function () {
-        return state
+        return state;
     }
 
     this.dispatch = function (action) {
-        state = reducer(this.getState(), action)
-        this.listeners.forEach((callback)=>{
-            setTimeout(callback, 1)
+        state = reducer(state, action)
+        listeners.forEach((callback)=>{
+            setTimeout(callback, 1);
         })
     }
 
 }
-
+export function createStore(reducer) {
+    return new Store(reducer);
+}
 export function createGlobalStore(reducer) {
-    View.prototype.$store = createStore(reducer)
+    View.prototype.$store = createStore(reducer);
 }
 
 export function setGlobalStore(store) {
-    View.prototype.$store = store
+    View.prototype.$store = store;
 }
