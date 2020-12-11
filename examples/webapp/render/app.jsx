@@ -1,7 +1,7 @@
-import Exir from "../../../vm";
-import View from "../../../vm/view";
+import Exir from "../../../ui";
+import View from "../../../ui/view";
 import core, {showTrace, warn} from "../../../core";
-import {renderDom} from "../../../vm/render";
+import {renderDom} from "../../../ui/render";
 
 // const jsx = VNode.create
 

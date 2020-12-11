@@ -1,4 +1,4 @@
-import Exir from "../../vm"
+import Exir from "../../ui"
 
 export default Exir.createComponent('Child', {
     props: {

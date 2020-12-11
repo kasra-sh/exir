@@ -8,5 +8,5 @@ module.exports = {
     Core,
     Dom,
     Http,
-    VM: require('./vm')
+    UI: require('./ui')
 }

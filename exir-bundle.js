@@ -9,8 +9,5 @@ scope.setGlobal({
         ...index.Dom,
         ...index.Http,
     },
-    ...index.VM
+    ...index.UI
 })
-
-// require("./ext/collections.ext")
-// require("./ext/dom.ext")

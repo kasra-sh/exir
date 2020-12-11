@@ -10,6 +10,7 @@
     "bundle-modern": "parcel build --target modern exir-bundle.js exir-bundle-ext.js --dist-dir dist",
     "bundle-legacy": "parcel build --target legacy exir-bundle-legacy.js exir-bundle-legacy-ext.js --dist-dir dist",
     "bundle-lib": "parcel build --target lib index.js --dist-dir .",
+    "bundle-ui": "parcel build --target exirvm ui/global.js --dist-dir .",
     "bundle": "npm run generate && npm run bundle-modern && npm run bundle-legacy",
     "devServe": "parcel exir-bundle-ext.js",
     "exampleApp": "parcel examples/webapp/index.html --target modern --dist-dir dist/example --no-cache",
@@ -53,11 +54,10 @@
     "example": "examples"
   },
   "targets": {
-    "exirvm": {
+    "ui": {
       "engines": {
         "browsers": [
-          "since 2015",
-          " ie > 10",
+          "ie >= 11",
           "iOS >= 7"
         ]
       },
@@ -75,14 +75,6 @@
       "engines": {
         "browsers": [
           "since 2019"
-        ]
-      }
-    },
-    "custom-legacy": {
-      "engines": {
-        "browsers": [
-          "ie >= 10",
-          "iOS >= 6"
         ]
       }
     },

@@ -1,7 +1,7 @@
-import Exir from "../../vm"
-import renderDom from "../../vm/render";
+import Exir from "../../ui"
+import renderDom from "../../ui/render";
 import {deepClone} from "../../core";
-import {randomId} from "../../vm/util";
+import {randomId} from "../../ui/util";
 
 export default Exir.createComponent('List', {
     props: {

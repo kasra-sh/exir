@@ -1,4 +1,4 @@
-import Exir from "../../vm";
+import Exir from "../../ui";
 import List from "./List";
 import Empty from "./Empty";
 import Child from "./Child";

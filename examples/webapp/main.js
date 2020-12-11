@@ -1,4 +1,4 @@
-import mount from "../../vm/mount";
+import mount from "../../ui/mount";
 import App from "./App";
 import {showError, showTrace} from "../../core";
 

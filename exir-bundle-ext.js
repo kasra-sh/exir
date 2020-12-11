@@ -1,7 +1,7 @@
 // const scope = require("./core/scope")
 
 const index = require("./index")
-const hscript = require("./vm/hscript")
+const hscript = require("./ui/hscript")
 
 // scope.setGlobal({
 //     X: {
@@ -18,8 +18,8 @@ global.X = {
     ...index.Http,
 }
 global.H = hscript
-global.Exir = index.VM
-global.jsx = index.VM.jsx
+global.Exir = index.UI
+global.jsx = index.UI.jsx
 
 require("./ext/collections.ext")
 require("./ext/dom.ext")

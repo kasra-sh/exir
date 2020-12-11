@@ -13,8 +13,8 @@ if (!global.__X_NODE_GEN__) {
     gen('../ext/dom.ext.codegen', root+'/../ext/dom.ext.js')
     // gen('./ext/hscript.codegen', './vm/hscript.js')
     const {code, codeES6, codeES6ES} = require('../ext/hscript.codegen')()
-    write(root+'/../vm/hscript.js', code)
-    write(root+'/../vm/hscript-esm.js', codeES6)
-    write(root+'/../vm/hscript-minimal.js', codeES6ES)
+    write(root+'/../ui/hscript.js', code)
+    write(root+'/../ui/hscript-esm.js', codeES6)
+    write(root+'/../ui/hscript-minimal.js', codeES6ES)
     global.__X_NODE_GEN__ = true
 }

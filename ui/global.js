@@ -6,4 +6,6 @@ import mount from "./mount";
 global.Exir = {
     View, VNode, jsx, mount, createComponent:View.create, render:renderDom
 }
-global.v = {...H, jsx, h:jsx}
+global.h = jsx;
+global.jsx = jsx;
+global.v = H
