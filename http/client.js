@@ -5,15 +5,27 @@
  */
 
 const http = require('./methods');
+const {error} = require("../core/logging");
+const {Ajax} = require("./ajax");
 const {startsWith, endsWith, filter, forEach} = require('../core/collections');
 
 
 class InterceptorStore {
     constructor() {
         this.all = []
+        this.any = false
     }
+
     use(interceptor) {
         this.all.push(interceptor);
+        this.any = true
+    }
+
+    async intercept(ajax) {
+        for (let i = 0; i < this.all.length; i++) {
+            ajax = await this.all[i](ajax)
+        }
+        return ajax
     }
 }
 
@@ -26,17 +38,26 @@ class XHttpClient {
      *
      * @param {String} host - Server host address
      * @param {Number} [ratePerMinute] - Maximum requests allowed per minute (default 300)
+     * @param {Object} [defaultParams] - Default params set on every request
+     * @param {Object} [defaultHeaders] - Default headers set on every request
+     * @param {Number} [timeout=3000]
+     * @param {Number} [retries]
      */
-    constructor(host = '' ,{ratePerMinute = 300}={}) {
+    constructor(host = '', {
+        ratePerMinute = 300,
+        defaultParams,
+        defaultHeaders,
+        timeout, retries
+    } = {}) {
         if (endsWith(host, '/')) {
-            host = host.split('').splice(host.length-1).join()
+            host = host.split('').splice(host.length - 1).join()
         }
         /**
          * Interceptors
          * @type {{request: InterceptorStore, response: InterceptorStore}}
          */
         this.interceptors = {
-            request : new InterceptorStore(),
+            request: new InterceptorStore(),
             response: new InterceptorStore()
         }
         this.host = host
@@ -44,8 +65,12 @@ class XHttpClient {
         this.__sending = []
         this.__interval = undefined
         this.__ratePerMinute = ratePerMinute
-        this.__timeBetween = 60000/ratePerMinute
+        this.__timeBetween = 60000 / ratePerMinute
         this.__lastRequestTime = new Date().getTime() - this.__timeBetween;
+        this.timeout = timeout || 60000
+        this.retries = retries || 0
+        this.defaultHeaders = defaultHeaders || {}
+        this.defaultParams = defaultParams || {}
     }
 
     /**
@@ -61,9 +86,31 @@ class XHttpClient {
         }
         let now = new Date().getTime();
         if (now - client.__lastRequestTime > client.__timeBetween) {
-            let ajax = client.__queue.pop().send();
-            client.__sending.push(ajax);
-            client.__lastRequestTime = now;
+            let ajax = client.__queue.shift();
+            client._sendImmediately(ajax, now);
+        }
+    }
+
+    _sendImmediately(ajax, now) {
+        if (this.interceptors.request.any) {
+            this.interceptors.request.intercept(ajax).then(() => {
+                ajax.send()
+                this.__sending.push(ajax);
+                this.__lastRequestTime = now;
+            }).catch((e) => {
+                console.error(e)
+            })
+        } else {
+            ajax.send()
+            this.__sending.push(ajax);
+            this.__lastRequestTime = now;
+        }
+    }
+
+    _removeSendingRequest(request) {
+        let rqi = this.__sending.indexOf(request);
+        if (rqi >= 0) {
+            this.__sending.splice(rqi);
         }
     }
 
@@ -82,12 +129,45 @@ class XHttpClient {
         }
         ajax.cancelToken = cancelToken;
         if (responseType) ajax.xhr.responseType = responseType;
-        return http.makePromise(ajax, ({client, request}) => {
-            let rqi = client.__sending.indexOf(request);
-            if (rqi >= 0) {
-                client.__sending.splice(rqi);
+        ajax.RETRIES = 0
+        ajax.xhr.timeout = this.timeout
+        if (this.defaultHeaders) {
+            ajax.headers(this.defaultHeaders)
+        }
+        if (this.defaultParams) {
+            forEach(this.defaultParams, (val, key) => {
+                ajax.rq.setArg(key, val)
+            })
+        }
+        let promise = http.makePromise(ajax, {
+            default(ajax, res, rej, client) {
+                client._removeSendingRequest(ajax)
+            },
+            onSuccess(ajax, res, rej, client) {
+                if (client.interceptors.response.any) {
+                    client.interceptors.response.intercept(ajax)
+                        .then(() => res(ajax))
+                        .catch((e) => rej(e))
+                } else res(ajax)
+            },
+            onFail(ajax, res, rej, client) {
+                if (client.interceptors.response.any) {
+                    client.interceptors.response.intercept(ajax)
+                        .then(() => rej(ajax))
+                        .catch((ajax, err) => rej(ajax, err))
+                } else rej(ajax)
+                return rej(ajax, Error('Request failed.'))
+            },
+            onTimeout(ajax, res, rej, client) {
+                if (ajax.RETRIES >= client.retries) {
+                    return rej(ajax, Error('Request timed out after ' + ajax.RETRIES + ' retries.'))
+                }
+                client.__sending.push(ajax.resend());
+                ajax.RETRIES += 1;
             }
-        }, {client: this, request: ajax});
+        }, this);
+        ajax._promise_ = promise;
+        return promise
     }
 
     /**
@@ -95,7 +175,7 @@ class XHttpClient {
      * @param {Ajax} ajax
      */
     send(ajax) {
-        this._addRequest(ajax)
+        return this._addRequest(ajax)
     }
 
     /**
@@ -110,15 +190,15 @@ class XHttpClient {
      * @return {Promise<Ajax>}
      * @private
      */
-    _contentRequest(method, route, {params, headers, content,responseType, cancelToken}) {
+    _contentRequest(method, route, {params, headers, content, responseType, cancelToken}) {
         if (!startsWith(route, '/') && route.length > 1) {
             route = '/' + route;
         }
         return this._addRequest(
-            method(this.host+route, params || {})
+            method(this.host + route, params || {})
                 .headers(headers || {})
                 .withContent(content || {type: '', data: ''})
-        , {responseType, cancelToken})
+            , {responseType, cancelToken})
     }
 
     /**
@@ -131,11 +211,11 @@ class XHttpClient {
      * @param {String} [cancelToken] - A token used to cancel a group of requests
      * @return {Promise<Ajax>}
      */
-    get(route, {params, headers, responseType, cancelToken}={}) {
+    get(route, {params, headers, responseType, cancelToken} = {}) {
         if (!startsWith(route, '/') && route.length > 1) {
             route = '/' + route;
         }
-        return this._addRequest(http.Get(this.host+route, params).headers(headers), {responseType, cancelToken});
+        return this._addRequest(http.Get(this.host + route, params).headers(headers), {responseType, cancelToken});
     }
 
     /**
@@ -149,8 +229,8 @@ class XHttpClient {
      * @param {String} [cancelToken] - A token used to cancel a group of requests
      * @return {Promise<Ajax>}
      */
-    post(route, {params, headers, content,responseType, cancelToken}={}) {
-        return this._contentRequest(http.Post, route, {params, headers, content,responseType, cancelToken});
+    post(route, {params, headers, content, responseType, cancelToken} = {}) {
+        return this._contentRequest(http.Post, route, {params, headers, content, responseType, cancelToken});
     }
 
     /**
@@ -164,8 +244,8 @@ class XHttpClient {
      * @param {String} [cancelToken] - A token used to cancel a group of requests
      * @return {Promise<Ajax>}
      */
-    put(route, {params, headers, content,responseType, cancelToken}={}) {
-        return this._contentRequest(http.Put, route, {params, headers, content,responseType, cancelToken});
+    put(route, {params, headers, content, responseType, cancelToken} = {}) {
+        return this._contentRequest(http.Put, route, {params, headers, content, responseType, cancelToken});
     }
 
     /**
@@ -179,8 +259,8 @@ class XHttpClient {
      * @param {String} [cancelToken] - A token used to cancel a group of requests
      * @return {Promise<Ajax>}
      */
-    patch(route, {params, headers, content,responseType, cancelToken}={}) {
-        return this._contentRequest(http.Patch, route, {params, headers, content,responseType, cancelToken});
+    patch(route, {params, headers, content, responseType, cancelToken} = {}) {
+        return this._contentRequest(http.Patch, route, {params, headers, content, responseType, cancelToken});
     }
 
     /**
@@ -194,8 +274,8 @@ class XHttpClient {
      * @param {String} [cancelToken] - A token used to cancel a group of requests
      * @return {Promise<Ajax>}
      */
-    delete(route, {params, headers, content,responseType, cancelToken}={}) {
-        return this._contentRequest(http.Delete, route, {params, headers, content,responseType, cancelToken});
+    delete(route, {params, headers, content, responseType, cancelToken} = {}) {
+        return this._contentRequest(http.Delete, route, {params, headers, content, responseType, cancelToken});
     }
 
     /**
@@ -203,17 +283,30 @@ class XHttpClient {
      * @param {String} token
      */
     cancel(token) {
-        this.__queue = filter(this.__queue, (a)=>a.cancelToken !== token);
-        let sending = filter(this.__sending, (a)=>a.cancelToken === token);
-        forEach(sending, (ajax)=>{
+        this.__queue = filter(this.__queue, (a) => a.cancelToken !== token);
+        let sending = filter(this.__sending, (a) => a.cancelToken === token);
+        forEach(sending, (ajax) => {
             try {
                 ajax.xhr.abort();
             } catch (e) {
-                console.log(e)
+                console.error(e)
             }
         });
 
-        this.__sending = filter(this.__sending, (a)=>a.cancelToken !== token);
+        this.__sending = filter(this.__sending, (a) => a.cancelToken !== token);
+    }
+
+    cancelAll() {
+        if (this.__interval >= 0) clearInterval(this.__interval);
+        setTimeout(()=>{
+            forEach(this.__sending, function (a) {
+                try {
+                    a.xhr.abort()
+                } catch (e) {
+                }
+            });
+            this.__queue = []
+        }, 1)
     }
 }
 
