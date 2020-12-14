@@ -125,12 +125,19 @@ View.prototype.shouldUpdate = function (newProps) {
     return View.$shoudUpdateDefault(this, newProps);
 }
 
-View.prototype.$childByRef = function (ref) {
-    if (this.$element) {
-        return this.$element.querySelector(`[ref=${ref}]`).__node__;
-    } else {
-        return this.$rootElement.querySelector(`[ref=${ref}]`).__node__;
+View.prototype.$ref = function (ref) {
+    if (!this.$refs) {
+        this.$refs = {}
     }
+    let refChild = this.$refs[ref]
+    if (this.props && this.props.ref === ref) return this
+    if (this.$nodes) {
+        for (let index = 0; (index < this.$nodes.length) && (refChild === undefined); index++) {
+            refChild = this.$nodes[index].$ref(ref)
+        }
+    }
+    this.$refs[ref] = refChild
+    return refChild
 }
 
 View.prototype.$removeDom = function (rootRemoved) {

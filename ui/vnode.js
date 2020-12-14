@@ -127,5 +127,20 @@ VNode.prototype.$clone = function (parent, view) {
     return cl.$render(parent, view);
 }
 
+
+VNode.prototype.$ref = function (ref) {
+    if (!this.$refs) {
+        this.$refs = {}
+    }
+    let refChild = this.$refs[ref]
+    if (this.attrs && this.attrs.ref === ref) return this
+    if (this.$nodes) {
+        for (let index = 0; (index < this.$nodes.length) && (refChild === undefined); index++) {
+            refChild = this.$nodes[index].$ref(ref)
+        }
+    }
+    return refChild
+}
+
 // global.VNode = VNode
 export default VNode
