@@ -41,8 +41,17 @@
     // Request rate limited to maximum 20 requests per minute
     // means a new request can only be sent when at least 3 seconds has passed since previous request
     const client = new X.XHttpClient('http://httpbin.org', {ratePerMinute: 20});
-
-    (async ()=>{
+    console.log(client.interceptors)
+    client.interceptors.request.use(function (ajax) {
+        ajax.rq.INTERCEPTED = true;
+        return ajax
+    });
+    client.interceptors.response.use(function (ajax) {
+        ajax.rs.INTERCEPTED = true;
+        console.log(ajax.rs)
+        return ajax
+    });
+    ;(async ()=>{
         let get_params = {
             params: {user_id: 'user1', limit: 10, start: 11},
             headers: {
@@ -65,11 +74,11 @@
         for (let i=0;i<10;i++) {
             // Send GET request to http://httpbin.org/get
             ajax = await client.get('get', get_params)
-            console.log(ajax.rs.json)
+            console.log(ajax.rs)
 
             // Send POST request to http://httpbin.org/post
             ajax = await client.post('post', post_params)
-            console.log(ajax.rs.json)
+            console.log(ajax.rs)
         }
     })()
 
