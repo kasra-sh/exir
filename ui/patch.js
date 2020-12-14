@@ -71,7 +71,7 @@ export function patchNodes(current, newNodes, rootElement) {
             if (curNode.$isNode && (curNode.$tag === newNode.$tag) && !newNode.$element) {
                 // VNode - VNode
                 newNode.$element = curNode.$element;
-                newNode.$element.__node__ = newNode.$element;
+                newNode.$element.__node__ = newNode;
                 newNode.$view = curNode.$view;
                 lastElement = newNode.$element;
                 updateAttributes(newNode.attrs, curNode.attrs, curNode.$element);

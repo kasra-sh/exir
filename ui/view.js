@@ -128,6 +128,8 @@ View.prototype.shouldUpdate = function (newProps) {
 View.prototype.$childByRef = function (ref) {
     if (this.$element) {
         return this.$element.querySelector(`[ref=${ref}]`).__node__;
+    } else {
+        return this.$rootElement.querySelector(`[ref=${ref}]`).__node__;
     }
 }
 
