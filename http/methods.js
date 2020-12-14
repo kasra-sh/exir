@@ -62,21 +62,58 @@ function makeRequest(opts) {
 
 /**
  * @private
- * @param {http.Ajax} r - Ajax request
- * @param {Function} resolved - resolved callback
- * @param {array<any>} params - passed to resolved callback
+ * @param {Ajax} ajax - Ajax request
+ * @param {Object} callbacks - ajax event listeners
+ * @param {any} extra - passed to callbacks
  * @returns {Promise<Ajax>}
  */
-function makePromise(r, resolved = null, params = null) {
-    return new Promise((res, rej) => {
-        r.onSuccess(()=>{
-            if (resolved)
+function makePromise(ajax, callbacks={}, extra={}) {
+    return new Promise((resolve, reject) => {
+        ajax.onSuccess(async ()=>{
+            if (callbacks.default) {
+                callbacks.default(ajax, resolve, reject, extra)
+            }
+            let callback = callbacks.onSuccess
+            if (callback)
                 try {
-                    resolved(params);
+                    callback(ajax, resolve, reject, extra);
                 } catch (e) {}
-            return res(r)
+            else resolve(ajax)
         });
-        r.onFail(()=>rej(r));
+        ajax.onFail(async ()=>{
+            if (callbacks.default) {
+                callbacks.default(ajax, resolve, reject, extra)
+            }
+            let callback = callbacks.onFail
+            if (callback)
+                try {
+                    callback(ajax, resolve, reject, extra);
+                } catch (e) {}
+            else reject(ajax)
+        });
+        ajax.onAbort(async ()=>{
+            if (callbacks.default) {
+                callbacks.default(ajax, resolve, reject, extra)
+            }
+            let callback = callbacks.onAbort
+            if (callback)
+                try {
+                    callback(ajax, resolve, reject, extra);
+                } catch (e) {}
+            else reject(ajax)
+        })
+
+        ajax.onTimeout(async ()=>{
+            if (callbacks.default) {
+                callbacks.default(ajax, resolve, reject, extra)
+            }
+            let callback = callbacks.onTimeout
+            if (callback)
+                try {
+                    callback(ajax, resolve, reject, extra);
+                } catch (e) {}
+            else reject(ajax)
+        })
     })
 }
 
