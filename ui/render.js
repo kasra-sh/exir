@@ -1,9 +1,15 @@
-import {isArr, isStr, isVal} from "../core/types";
-import {info, warn, error, trace} from "../core/logging";
-import {forEach} from "../core/collections";
-import {setEvent} from "../dom/event";
-import JSS from "./jss";
-import VNode from "./vnode";
+// import {isArr, isStr, isVal} from "../core/types";
+// import {info, warn, error, trace} from "../core/logging";
+// import {forEach} from "../core/collections";
+// import {setEvent} from "../dom/event";
+// import JSS from "./jss";
+// import VNode from "./vnode";
+const {isArr, isStr, isVal} = require("../core/types");
+const {info, warn, error, trace} = require("../core/logging");
+const {forEach} = require("../core/collections");
+const {setEvent} = require("../dom/event");
+const JSS = require("./jss");
+const VNode = require("./vnode");
 
 function compileStyles(styles, joinWith) {
     if (!isVal(styles)) return ''
@@ -32,8 +38,7 @@ function setElementProps(element, node, view) {
     }
 }
 
-
-export function renderDomChildren(node, parentElement) {
+function renderDomChildren(node, parentElement) {
     let nodes = []
     for (let i = 0; i < node.$count; i++) {
         const curNode = node.$nodes[i]
@@ -55,7 +60,7 @@ export function renderDomChildren(node, parentElement) {
             }
 
             if (childDom instanceof Array) {
-                childDom.forEach((c)=>nodes.push(c))
+                childDom.forEach((c) => nodes.push(c))
             } else {
                 nodes.push(childDom)
             }
@@ -65,7 +70,7 @@ export function renderDomChildren(node, parentElement) {
 }
 
 
-export function renderDomView(node, parentElement, isRoot=false) {
+function renderDomView(node, parentElement, isRoot = false) {
     if (node.$raw) {
         node.$render(node.$parent, node.$view)
     }
@@ -78,14 +83,14 @@ export function renderDomView(node, parentElement, isRoot=false) {
     // }
     let children = renderDomChildren(node, parentElement)
 
-    let currentElement = (!node.$parent)?parentElement:undefined
-    if (node.$single){
+    let currentElement = (!node.$parent) ? parentElement : undefined
+    if (node.$single) {
         currentElement = children[0]
     }
 
     if (currentElement && !node.$single) {
         // console.log('not single', children)
-        children.forEach((c)=>currentElement.append(c));
+        children.forEach((c) => currentElement.append(c));
         children = [currentElement];
         currentElement.__view__ = node;
     }
@@ -96,14 +101,14 @@ export function renderDomView(node, parentElement, isRoot=false) {
         (node.$parent && node.$parent.$rootElement);
 
     if (!node.$rootElement) {
-        info('no root',node);
+        info('no root', node);
     } else {
         if (node.$element === parentElement) {
             info('Parent is the same element');
-        } else if (parentElement){
-            children.forEach((c)=>parentElement.append(c));
-        } else  {
-            children.forEach((c)=>node.$rootElement.append(c));
+        } else if (parentElement) {
+            children.forEach((c) => parentElement.append(c));
+        } else {
+            children.forEach((c) => node.$rootElement.append(c));
             // console.log(node)
         }
         node.$rootElement.__view__ = node;
@@ -113,7 +118,7 @@ export function renderDomView(node, parentElement, isRoot=false) {
 }
 
 
-export function renderDomText(node) {
+function renderDomText(node) {
     let textNode = document.createTextNode(node.$text)
     node.$element = textNode
     textNode.__node__ = node
@@ -121,7 +126,7 @@ export function renderDomText(node) {
 }
 
 
-export function renderDom(node, parentElement, replaceParent) {
+function renderDom(node, parentElement, replaceParent) {
     if (!node) console.trace(node)
     let currentElement = undefined
     if (node.$isText) return renderDomText(node)
@@ -143,10 +148,10 @@ export function renderDom(node, parentElement, replaceParent) {
         //#endregion A
         let children = renderDomChildren(node, currentElement)
         try {
-            children.forEach((c)=>{
+            children.forEach((c) => {
                 try {
                     currentElement.append(c)
-                }catch (ee) {
+                } catch (ee) {
                     console.error(c, ee)
                 }
             })
@@ -167,7 +172,7 @@ export function renderDom(node, parentElement, replaceParent) {
             return renderDomChildren(node)
         } else {
             let children = renderDomChildren(node, parentElement)
-            children.forEach((ch)=>{
+            children.forEach((ch) => {
                 parentElement.append(ch)
             })
             return parentElement
@@ -179,5 +184,5 @@ export function renderDom(node, parentElement, replaceParent) {
     return rendered
 }
 
-
-export default renderDom
+module.exports = {renderDom, renderDomView}
+// export default renderDom

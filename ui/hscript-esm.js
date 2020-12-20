@@ -1,4 +1,4 @@
-import VNode from './vnode';
+import VNode from './vnode_base';
 const e = VNode.create;
 export function a(args, ...children) {return e('a', args, ...children)}
 export function abbr(args, ...children) {return e('abbr', args, ...children)}

@@ -1,10 +1,15 @@
-import {updateAttributes, updateEventListeners} from "./update-element";
-import renderDom, {renderDomView} from "./render";
-import View from "./view";
-import {error, trace, warn} from "../core/logging";
-import {normalizeNodes} from "./util";
+// import {updateAttributes, updateEventListeners} from "./update-element";
+// import renderDom, {renderDomView} from "./render";
+// import View from "./view";
+// import {error, trace, warn} from "../core/logging";
+// import {normalizeNodes} from "./util";
+const {updateAttributes, updateEventListeners} = require("./update-element");
+const {renderDom, renderDomView} = require("./render");
+const {error, trace, warn} = require("../core/logging");
+const normalizeNodes = require("./normalizeNodes");
+const View = require("./view_base");
 
-export function updateViewRoot(view) {
+function updateViewRoot(view) {
     let newNodes = normalizeNodes(View.$callRender(view), view, view, true);
     patchNodes(view, newNodes, view.$rootElement);
     View.$setNodes(view, newNodes, false);
@@ -12,7 +17,7 @@ export function updateViewRoot(view) {
     view.$dispatchLifeCycle('onUpdate', view.props);
 }
 
-export function isViewDirty(view, props) {
+function isViewDirty(view, props) {
     if (view.$isView) {
         return view.shouldUpdate(props);
     } else return true;
@@ -37,7 +42,7 @@ function digElement(currentNode) {
     return element;
 }
 
-export function patchNodes(current, newNodes, rootElement) {
+function patchNodes(current, newNodes, rootElement) {
     let parentElement = current.$isNode ? current.$element : rootElement;
     let currentNodes = current.$nodes;
     let newLen = newNodes.length;
@@ -155,4 +160,9 @@ export function patchNodes(current, newNodes, rootElement) {
             nodes[i].$removeDom();
         }
     }
+}
+
+module.exports = {
+    updateViewRoot,
+    patchNodes
 }

@@ -1,15 +1,14 @@
 {
   "name": "exir",
-  "version": "0.20.2",
+  "version": "0.21.0",
   "description": "Javascript Framework",
   "author": "Kasra Shamsaei",
   "license": "MIT",
   "scripts": {
-    "compileView": "node bin/exir-cli.js compileJSX",
-    "generate": "node bin/generateExt.js",
+    "compileView": "node scripts/exir-cli.js compileJSX",
+    "generate": "node scripts/generateExt.js",
     "bundle-modern": "parcel build --target modern exir-bundle.js exir-bundle-ext.js --dist-dir dist",
     "bundle-legacy": "parcel build --target legacy exir-bundle-legacy.js exir-bundle-legacy-ext.js --dist-dir dist",
-    "bundle-lib": "parcel build --target lib index.js --dist-dir .",
     "bundle-ui": "parcel build --target ui ui/global.js",
     "bundle": "npm run generate && npm run bundle-modern && npm run bundle-legacy",
     "devServe": "parcel exir-bundle-ext.js",
@@ -26,7 +25,9 @@
     "docdash": "^1.2.0",
     "jsdoc-memberof-namespace": "^2.2.0",
     "parcel": "^2.0.0-beta.1",
-    "regenerator-runtime": "^0.13.7"
+    "regenerator-runtime": "^0.13.7",
+    "vue-template-compiler": "^2.6.12",
+    "node-html-parser": "^2.0.0"
   },
   "repository": {
     "type": "git",
@@ -78,14 +79,6 @@
           "since 2019"
         ]
       }
-    },
-    "lib": {
-      "engines": {
-        "node": ">=8.x"
-      },
-      "context": "node",
-      "outputFormat": "commonjs",
-      "isLibrary": true
     }
   }
 }

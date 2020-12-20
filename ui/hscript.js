@@ -1,4 +1,4 @@
-const VNode = require('./vnode').default;
+const VNode = require('./vnode_base');
 var e = VNode.create;
 function a(args, ...children) {return e('a', args, ...children)}
 function abbr(args, ...children) {return e('abbr', args, ...children)}

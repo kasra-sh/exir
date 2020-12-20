@@ -1,60 +1,7 @@
-import {deepClone, forEach} from "../core/collections";
-import {isEventPropKey, normalizeEventName, normalizeNodes} from "./util";
-import View from "./view";
-import {concat, error} from "../core";
-// import View from "./view";
-
-export const NodeType = {
-    VNODE: 0,
-    VIEW: 1,
-    TEXT: 2
-}
-
-function VNode(tag, props = {}, nodes) {
-    this.$type = NodeType.VNODE;
-    this.$tag = tag;
-    if (tag === null) {
-        this.$frag = true;
-    } else {
-        if (tag === '#text') {
-            this.$isText = true;
-            this.$text = props;
-            return;
-        }
-        this.$isNode = true;
-        let compiled = VNode.compileProps(props);
-        this.events = compiled.events;
-        this.attrs = compiled.attrs;
-        this.$element = undefined;
-    }
-    this.$raw = true;
-    // this.$nodes = nodes
-    this.$resetNodes(nodes);
-}
-
-VNode.create = function (type, props = {}, ...nodes) {
-    if (props === null) props = {};
-
-    if (type === null) return new VNode(type, props, nodes);
-
-    // View class instance
-    if (type.$isView) {
-        return type.$createInstance(props, nodes);
-    }
-
-    // View class
-    if (type.prototype && type.prototype instanceof View) {
-        return new type().$updateInstance(props, nodes);
-    }
-
-    // Function component
-    if (!type.$type && type instanceof Function) {
-        return View.create(type.name, {render: type}).$createInstance(props, nodes);
-    }
-
-    // create VNode instance
-    return VNode.createTag(type, props, nodes);
-}
+const {deepClone, forEach} = require("../core/collections");
+const {isEventPropKey, normalizeEventName} = require("./util");
+const normalizeNodes = require("./normalizeNodes");
+const VNode = require("./vnode_base");
 
 VNode.compileProps = function (props) {
     const cats = {
@@ -68,14 +15,6 @@ VNode.compileProps = function (props) {
             cats.attrs[k] = v;
     })
     return cats;
-}
-
-VNode.createText = function (text) {
-    return new VNode('#text', text);
-}
-
-VNode.createTag = function (tag, props, nodes) {
-    return new VNode(tag, props, nodes);
 }
 
 VNode.prototype.$render = function (parent, view) {
@@ -142,5 +81,7 @@ VNode.prototype.$ref = function (ref) {
     return refChild
 }
 
-// global.VNode = VNode
-export default VNode
+/**
+ * @type {View}
+ */
+module.exports = VNode

@@ -1,8 +1,11 @@
-import {forEach} from "../core/collections";
-import {clearEvent, hasEvent, setEvent} from "../dom/event";
-import {compileStyles} from "./util";
+// import {forEach} from "../core/collections";
+// import {clearEvent, hasEvent, setEvent} from "../dom/event";
+// import {compileStyles} from "./util";
+const {forEach} = require("../core/collections");
+const {clearEvent, hasEvent, setEvent} = require("../dom/event");
+const {compileStyles} = require("./util");
 
-export function updateAttributes(newAttrs, currentAttrs, element) {
+function updateAttributes(newAttrs, currentAttrs, element) {
     const newKeys = Object.keys(newAttrs)
     const currentKeys = Object.keys(currentAttrs)
 
@@ -36,7 +39,7 @@ export function updateAttributes(newAttrs, currentAttrs, element) {
     }
 }
 
-export function updateEventListeners(newEvents={}, oldEvents={}, element) {
+function updateEventListeners(newEvents={}, oldEvents={}, element) {
     forEach(oldEvents, function (listener, event) {
         if (newEvents[event] !== listener) {
             clearEvent(element, event)
@@ -46,6 +49,9 @@ export function updateEventListeners(newEvents={}, oldEvents={}, element) {
         // console.log(event, listener)
         setEvent(element, event, listener)
     })
+}
 
-
+module.exports = {
+    updateAttributes,
+    updateEventListeners
 }

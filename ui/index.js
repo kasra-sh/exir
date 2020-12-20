@@ -1,21 +1,20 @@
-import View from "./view";
-import VNode from "./vnode";
-import mount from "./mount"
+const View = require("./view_base"); require("./view")
+const VNode = require("./vnode_base");require("./vnode");
+const mount = require("./mount");
 
 /**
- * @type {function(*, *=): View}
+ * @type {View.create}
  */
-export const createComponent = View.create
+const createComponent = View.create
 /**
  * @type {function(*, *=): [VNode]}
  */
-export const jsx = VNode.create
+const jsx = VNode.create
 
 /**
- * @type {function(*, *=)}
+ *
+ * @type {{createComponent: View.create, View: View, mount: function(*=, *=): void, jsx: (function(*, *=): VNode[])}}
  */
-
-
-export default {
-    createComponent, jsx, mount
+module.exports = {
+    View, createComponent, jsx, mount
 }

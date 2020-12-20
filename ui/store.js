@@ -1,8 +1,9 @@
-import {isObj, isVal} from "../core/types";
+// import {isObj, isVal} from "../core/types";
+// import View from "./view";
+import {isVal} from "../core/types";
 import View from "./view";
 
-
-export function Store(reducer) {
+function Store(reducer) {
     var state = reducer(undefined, {});
     var listeners = [];
 
@@ -29,13 +30,13 @@ export function Store(reducer) {
     }
 
 }
-export function createStore(reducer) {
+function createStore(reducer) {
     return new Store(reducer);
 }
-export function createGlobalStore(reducer) {
+function createGlobalStore(reducer) {
     View.prototype.$store = createStore(reducer);
 }
 
-export function setGlobalStore(store) {
+function setGlobalStore(store) {
     View.prototype.$store = store;
 }
