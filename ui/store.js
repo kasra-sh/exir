@@ -1,7 +1,5 @@
-// import {isObj, isVal} from "../core/types";
-// import View from "./view";
-import {isVal} from "../core/types";
-import View from "./view_base";
+const {isVal} = require("../core/types");
+const View = require("./view_base");
 
 function Store(reducer) {
     var state = reducer(undefined, {});
