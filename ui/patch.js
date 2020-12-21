@@ -1,8 +1,3 @@
-// import {updateAttributes, updateEventListeners} from "./update-element";
-// import renderDom, {renderDomView} from "./render";
-// import View from "./view";
-// import {error, trace, warn} from "../core/logging";
-// import {normalizeNodes} from "./util";
 const {updateAttributes, updateEventListeners} = require("./update-element");
 const {renderDom, renderDomView} = require("./render");
 const {error, trace, warn} = require("../core/logging");

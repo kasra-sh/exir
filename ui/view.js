@@ -179,6 +179,7 @@ View.prototype.useEffect = function useEffect(func) {
 }
 
 /**
- * @type {View}
+ * @constructor
+ * @extends View
  */
 module.exports = View;

@@ -1,11 +1,5 @@
-// import {isArr, isStr, isVal} from "../core/types";
-// import {info, warn, error, trace} from "../core/logging";
-// import {forEach} from "../core/collections";
-// import {setEvent} from "../dom/event";
-// import JSS from "./jss";
-// import VNode from "./vnode";
 const {isArr, isStr, isVal} = require("../core/types");
-const {info, warn, error, trace} = require("../core/logging");
+const {info, warn, error} = require("../core/logging");
 const {forEach} = require("../core/collections");
 const {setEvent} = require("../dom/event");
 const JSS = require("./jss");

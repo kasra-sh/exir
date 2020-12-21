@@ -1,8 +1,5 @@
-// import {forEach} from "../core/collections";
-// import {clearEvent, hasEvent, setEvent} from "../dom/event";
-// import {compileStyles} from "./util";
 const {forEach} = require("../core/collections");
-const {clearEvent, hasEvent, setEvent} = require("../dom/event");
+const {clearEvent, setEvent} = require("../dom/event");
 const {compileStyles} = require("./util");
 
 function updateAttributes(newAttrs, currentAttrs, element) {

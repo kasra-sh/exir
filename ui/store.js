@@ -1,7 +1,7 @@
 // import {isObj, isVal} from "../core/types";
 // import View from "./view";
 import {isVal} from "../core/types";
-import View from "./view";
+import View from "./view_base";
 
 function Store(reducer) {
     var state = reducer(undefined, {});
@@ -40,3 +40,5 @@ function createGlobalStore(reducer) {
 function setGlobalStore(store) {
     View.prototype.$store = store;
 }
+
+module.exports = {Store, createStore, createGlobalStore, setGlobalStore}

@@ -82,6 +82,7 @@ VNode.prototype.$ref = function (ref) {
 }
 
 /**
- * @type {View}
+ * @constructor
+ * @extends VNode
  */
 module.exports = VNode

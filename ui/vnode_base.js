@@ -1,10 +1,18 @@
 const View = require("./view_base");
 const NodeType = require("./nodetype");
 
-/**
- * @class
- * @property $nodes
- */
+// /**
+//  * @class
+//  * @property $type
+//  * @property $tag
+//  * @property $frag
+//  * @property $nodes
+//  * @property attrs
+//  * @property events
+//  * @property $element
+//  * @property $isNode
+//  * @property $isText
+//  */
 function VNode(tag, props = {}, nodes) {
     this.$type = NodeType.VNODE;
     this.$tag = tag;
