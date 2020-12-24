@@ -1,163 +1,127 @@
-const {updateAttributes, updateEventListeners} = require("./update-element");
-const {renderDom, renderDomView} = require("./render");
-const {error, trace, warn} = require("../core/logging");
-const normalizeNodes = require("./normalizeNodes");
-const View = require("./view_base");
+const {createDom} = require("./render");
+const {createNodeDom} = require("./render");
+const {error} = require("../core/logging");
+const {patchAttrs, patchEvents} = require("./patch-element");
+const {concat} = require("../core/collections");
+const {createText} = require("./vnode");
+const {normalize} = require("./utils");
 
-function updateViewRoot(view) {
-    let newNodes = normalizeNodes(View.$callRender(view), view, view, true);
-    patchNodes(view, newNodes, view.$rootElement);
-    View.$setNodes(view, newNodes, false);
-    view.$isDirty = false;
-    view.$dispatchLifeCycle('onUpdate', view.props);
-}
-
-function isViewDirty(view, props) {
-    if (view.$isView) {
-        return view.shouldUpdate(props);
-    } else return true;
-}
-
-
-function digElement(currentNode) {
-    let element = undefined;
-    if (currentNode.$element) {
-        return currentNode.$element;
-    } else {
-        let nodes = currentNode.$nodes;
-        for (let i = 0; i < nodes.length; i++) {
-            if (element) {
-                nodes[i].$removeDom();
-            } else {
-                element = digElement(nodes[i]);
-                if (element) nodes[i].$element = undefined;
-            }
+function patchView(view, props, children) {
+    if (view.shouldUpdate) {
+        try {
+            if (!view.shouldUpdate.call(view, {oldProps: view.props, newProps: props})) return;
+        } catch (e) {
+            setTimeout(error('('+view.$name+').shouldUpdate', e),0);
         }
     }
-    return element;
+    if (view.beforeUpdate) {
+        try {
+            view.beforeUpdate.call(view, props);
+        } catch (e) {
+            setTimeout(error('('+view.$name+').Updated', e));
+        }
+    }
+    view.$children = normalize(children, {createText})
+    concat(view.props, props || {});
+    const newNodes = view.$renderNodes();
+    view.$nodes = patchNodes(newNodes, view.$nodes, view, view.$rootElement);
+    if (view.Updated) {
+        setTimeout(function () {
+            try {
+                view.Updated.call(view);
+            } catch (e) {
+                error('(' + view.$name + ').Updated', e)
+            }
+        }, 0);
+    }
 }
 
-function patchNodes(current, newNodes, rootElement) {
-    let parentElement = current.$isNode ? current.$element : rootElement;
-    let currentNodes = current.$nodes;
+function patchNode(_new, _cur, view) {
+    if (_new.tag === _cur.tag) {
+        _new.element = _cur.element;
+        // _cur.element = undefined;
+        _new.element.__node = _new;
+        patchAttrs(_new.attrs, _cur.attrs, _cur.element);
+        patchEvents(_new.events, _cur.events, _new.element);
+        if (!_new.element) {
+            error('Fatal: current node has no element', _cur, _new);
+        }
+        // VNode children
+        patchNodes(_new.children, _cur.children, view, _new.element);
+    } else {
+        _new.element = createNodeDom(_new, view);
+        _cur.element.replaceWith(_new.element);
+        _new.element.__node = _new;
+    }
+
+}
+
+function patchText(_new, _cur) {
+    if (_new.text !== _cur.text) {
+        _cur.element.textContent = _new.text;
+    }
+    _new.element = _cur.element;
+    _new.element.__node = _new;
+}
+
+function patchNodes(newNodes, currentNodes, parentView, rootElement) {
+    if (!rootElement) throw Error('patchNodes: rootElement is not defined');
     let newLen = newNodes.length;
-    let curLen = current.$nodes.length;
+    let curLen = currentNodes.length;
     let added = newLen >= curLen;
     let len = added ? curLen : newLen;
-
-    let lastElement;
-    let index = 0;
-    for (; index < len; index++) {
-        let curNode = currentNodes[index];
-        let newNode = newNodes[index];
-        if (newNode.$isText) {
-            if (curNode.$isText && !newNode.$element) {
-                // Text - Text
-                if (curNode.$text !== newNode.$text) {
-                    curNode.$element.textContent = newNode.$text;
-                }
-                newNode.$element = curNode.$element;
-            } else {
-                // Text - VNode/View
-                newNode.$element = document.createTextNode(newNode.$text);
-                let curElement = digElement(curNode);
-                parentElement.insertBefore(newNode.$element, curElement);
-                // curElement.insertAdjacentElement('beforeBegin', newNode.$element)
-                curElement.remove();
+    let idx = 0;
+    for (; idx < len; idx++) {
+        const _cur = currentNodes[idx];
+        const _new = newNodes[idx];
+        if (_cur.$t === _new.$t) {
+            if (_cur.isNode) {
+                patchNode(_new, _cur, parentView);
+                continue;
             }
-            continue
-        }
-        if (newNode.$isNode) {
-            if (curNode.$isNode && (curNode.$tag === newNode.$tag) && !newNode.$element) {
-                // VNode - VNode
-                newNode.$element = curNode.$element;
-                newNode.$element.__node__ = newNode;
-                newNode.$view = curNode.$view;
-                lastElement = newNode.$element;
-                updateAttributes(newNode.attrs, curNode.attrs, curNode.$element);
-                updateEventListeners(newNode.events, curNode.events, lastElement);
-                if (!newNode.$element) {
-                    error('Fatal: current node has no $element', curNode, newNode);
-                }
-                // VNode children
-                patchNodes(curNode, newNode.$nodes, curNode.$element);
-            } else {
-                // VNode - Different
-                let curElement = lastElement || digElement(curNode);
-                if (!newNode.$element)
-                    newNode.$element = renderDom(newNode, curElement);
-                else {
-                    warn('Do not store and reuse tags, ' +
-                        'instead generate them dynamically from state or other sources of data.', newNode.$element);
-                }
-                if (!curElement) {
-                    // warn('NO CURRENT ELEMENT', newNode)
-                    rootElement.append(newNode.$element);
-                } else {
-                    parentElement.replaceChild(newNode.$element,curElement);
-                    // parentElement.insertBefore(newNode.$element, curElement)
-                    // curElement.insertAdjacentElement('afterEnd', newNode.$element)
-                    // curElement.remove()
-                }
+            if (_cur.isText) {
+                patchText(_new, _cur);
+                continue;
             }
-            lastElement = newNode.$element;
-            continue
-        }
-        if (newNode.$isView) {
-            if (curNode.$isView && (curNode.$name === newNode.$name)) {
-                // View - View
-                newNodes[index] = curNode;
-                curNode.$parent = current;
-
-                if (isViewDirty(curNode, newNode.props)) {
-                    // View is dirty -> update instance & patch nodes
-                    // apply new props & children
-                    curNode.$updateInstance(newNode.props, newNode.$children);
-                    updateViewRoot(curNode);
-                }
+            if (_cur.$name === _new.$name) {
+                patchView(_cur, _new.props, _new.$children);
+                _cur.$parent = _new.$parent;
+                _new.$parent = undefined;
+                newNodes[idx] = _cur;
             } else {
-                // requestAnimationFrame(()=>{
-                    newNode.$nodes = renderDomView(newNode, rootElement);
-                    let curElement = digElement(curNode);
-                    curElement.replaceWith(newNode.$element);
-                // })
+                const el = createDom(_new, parentView, rootElement);
+                let anchor = undefined;
+                anchor = _cur.$destroy(true);
+                Element.prototype.replaceWith.apply(anchor, el);
+                _new.element = el;
             }
         } else {
-            trace('Unexpected node', newNode);
-            throw Error('Illegal node');
+            const el = createDom(_new, parentView, rootElement);
+            let anchor = undefined;
+            if (_cur.isNode || _cur.isText) {
+                anchor = _cur.element;
+            } else {
+                anchor = _cur.$destroy(true);
+            }
+            if (anchor) {
+                Element.prototype.replaceWith.apply(anchor, el);
+                _new.element = el;
+            } else {
+                console.error('Empty anchor', _cur);
+            }
         }
-
     }
     if (added) {
-        if (newLen-index > 50) {
-            // requestAnimationFrame(()=>{
-                let ch = [];
-                for (let i = index; i < newLen; i++) {
-                    let render = renderDom(newNodes[i], current.$rootElement);
-                    ch.push(render);
-                }
-                let temp = document.createElement('slot');
-                temp.style.display = 'none';
-                parentElement.append(temp);
-                temp.replaceWith.apply(temp, ch);
-            // })
-        } else {
-            for (let i = index; i < newLen; i++) {
-                let render = renderDom(newNodes[i], current.$rootElement);
-                parentElement.append(render);
-            }
+        for (let i = idx; i < newLen; i++) {
+            let render = createDom(newNodes[i], parentView, rootElement);
+            rootElement.append(render);
         }
-
-    }
-    if (curLen > newLen) {
-        let nodes = current.$nodes;
-        for (let i = index; i < curLen; i++) {
-            nodes[i].$removeDom();
+    } else if (curLen > newLen) {
+        for (let i = idx; i < curLen; i++) {
+            currentNodes[i].$destroy();
         }
     }
+    return newNodes;
 }
 
-module.exports = {
-    updateViewRoot,
-    patchNodes
-}
+module.exports = {patchView}

@@ -1,182 +1,83 @@
-const {isArr, isStr, isVal} = require("../core/types");
-const {info, warn, error} = require("../core/logging");
-const {forEach} = require("../core/collections");
-const {setEvent} = require("../dom/event");
-const JSS = require("./jss");
-const VNode = require("./vnode");
+const {error} = require("../core/logging");
+const {flatMap} = require("../core/collections");
+const {createNode} = require("./vnode");
+const {normalize, setElementProps} = require("./utils");
+const {createText} = require("./vnode");
 
-function compileStyles(styles, joinWith) {
-    if (!isVal(styles)) return ''
-    else if (isStr(styles)) return styles
-    else if (isArr(styles)) return styles.join(joinWith)
-    return JSS.generateCss(styles, joinWith)
+function createElement(tag, attrs, events, parentView) {
+    let el = document.createElement(tag);
+    setElementProps(el, attrs, events, parentView);
+    return el;
 }
 
-function setElementProps(element, node, view) {
-    if (node.attrs) {
-        forEach(node.attrs, (val, key) => {
-            if (key === 'style') {
-                val = compileStyles(val, ' ')
-            } else if (key === 'className') {
-                key = 'class'
-            }
-            element.setAttribute(key, val)
-        })
-    }
-
-    if (node.events) {
-        forEach(node.events, (v, k) => {
-            if (view) v = v.bind(view)
-            setEvent(element, k, v)
-        })
-    }
+function createTextDom(text) {
+    return document.createTextNode(text);
 }
 
-function renderDomChildren(node, parentElement) {
-    let nodes = []
-    for (let i = 0; i < node.$count; i++) {
-        const curNode = node.$nodes[i]
-        if (curNode.$isText) {
-            nodes.push(renderDomText(curNode))
-        } else {
-            let childDom = undefined
-            if (curNode.$raw) curNode.$render(curNode, curNode.$view)
-
-            if (curNode.$isView) {
-                curNode.$dispatchLifeCycle('onCreate', curNode.props)
-                childDom = renderDomView(curNode, node.$element || parentElement)
-                curNode.$dispatchLifeCycle('onMount', curNode.props)
-            } else if (curNode.$isNode) {
-                childDom = renderDom(curNode)
-            } else {
-                error('Illegal node', curNode)
-                throw Error(`Illegal child node`)
-            }
-
-            if (childDom instanceof Array) {
-                childDom.forEach((c) => nodes.push(c))
-            } else {
-                nodes.push(childDom)
-            }
-        }
-    }
-    return nodes
-}
-
-
-function renderDomView(node, parentElement, isRoot = false) {
-    if (node.$raw) {
-        node.$render(node.$parent, node.$view)
-    }
-    // if (node.$empty) {
-    //     View.$setNodes(node, [VNode.create('slot')], false)
-    //     node.$element = renderDom(node.$first)
-    //     node.$element.__view__ = node
-    //     node.$element.__node__ = node.$first
-    //     return [node.$element]
-    // }
-    let children = renderDomChildren(node, parentElement)
-
-    let currentElement = (!node.$parent) ? parentElement : undefined
-    if (node.$single) {
-        currentElement = children[0]
-    }
-
-    if (currentElement && !node.$single) {
-        // console.log('not single', children)
-        children.forEach((c) => currentElement.append(c));
-        children = [currentElement];
-        currentElement.__view__ = node;
-    }
-    // warn(node, currentElement,node.$parent&& node.$parent.$rootElement)
-    node.$element = currentElement
-    node.$rootElement = node.$rootElement || parentElement ||
-        (node.$parent && node.$parent.$element) ||
-        (node.$parent && node.$parent.$rootElement);
-
-    if (!node.$rootElement) {
-        info('no root', node);
-    } else {
-        if (node.$element === parentElement) {
-            info('Parent is the same element');
-        } else if (parentElement) {
-            children.forEach((c) => parentElement.append(c));
-        } else {
-            children.forEach((c) => node.$rootElement.append(c));
-            // console.log(node)
-        }
-        node.$rootElement.__view__ = node;
-    }
-    node.$isDirty = false
-    return node.$element || children;
-}
-
-
-function renderDomText(node) {
-    let textNode = document.createTextNode(node.$text)
-    node.$element = textNode
-    textNode.__node__ = node
-    return textNode
-}
-
-
-function renderDom(node, parentElement, replaceParent) {
-    if (!node) console.trace(node)
-    let currentElement = undefined
-    if (node.$isText) return renderDomText(node)
-    if (node.$isNode || (node.$frag && parentElement)) {
-        //#region Done
-        let id = undefined
-        // if (!node.$parent) {
-        if (replaceParent) {
-            id = parentElement.id
-            currentElement = parentElement
-        } else {
-            currentElement = document.createElement(node.$tag)
-        }
-
-        setElementProps(currentElement, node, node.$view)
-        if (id) currentElement.id = id
-        currentElement.__node__ = node
-        node.$element = currentElement
-        //#endregion A
-        let children = renderDomChildren(node, currentElement)
+function createViewDom(view, rootElement) {
+    if (view.beforeMount) {
         try {
-            children.forEach((c) => {
-                try {
-                    currentElement.append(c)
-                } catch (ee) {
-                    console.error(c, ee)
-                }
-            })
+            view.beforeMount.call(view);
         } catch (e) {
-            console.error(node, e)
-        }
-
-        return currentElement
-    }
-
-    if (node instanceof Array) {
-        node = VNode.create(null, undefined, node)
-        node.$render()
-    }
-    if (node.$frag) {
-        if (!parentElement) {
-            warn('Rendering fragment without rootElement', node)
-            return renderDomChildren(node)
-        } else {
-            let children = renderDomChildren(node, parentElement)
-            children.forEach((ch) => {
-                parentElement.append(ch)
-            })
-            return parentElement
+            setTimeout(error('(' + view.$name + ').beforeMount', e));
         }
     }
-    node.$dispatchLifeCycle('onCreate', node.props)
-    let rendered = renderDomView(node, parentElement)
-    node.$dispatchLifeCycle('onMount', node.props)
-    return rendered
+    if (!view.$nodes) {
+        view.$renderAndSetNodes();
+    }
+    view.$rootElement = rootElement;
+    let elements = view.$nodes.map(ch => ch.$isView ? createViewDom(ch, rootElement) : createNodeDom(ch, view));
+    if (view.Mounted) {
+        setTimeout(function () {
+            try {
+                view.Mounted.call(view);
+            } catch (e) {
+                error('(' + view.$name + ').Mounted', e)
+            }
+        }, 0);
+    }
+    return elements
 }
 
-module.exports = {renderDom, renderDomView}
-// export default renderDom
+function createNodeDom(node, parentView) {
+    if (node.isText) {
+        node.element = createTextDom(node.text);
+        node.element.__node = node;
+        return node.element;
+    }
+
+    node.element = createElement(node.tag, node.attrs, node.events, parentView);
+
+    node.element.__node = node;
+
+    if (!node.isEmpty) {
+        let el = node.children.map(c => createDom(c, parentView, node.element));
+        HTMLElement.prototype.append.apply(node.element, normalize(el, {createText, parent: this}))
+    }
+
+    return node.element;
+}
+
+function createDom(node, parentView, rootElement) {
+    return node.$isView ? createViewDom(node, rootElement) : createNodeDom(node, parentView)
+}
+
+function render(view, rootElement) {
+    if (!rootElement) throw Error('render(): rootElement is undefined');
+    let current = rootElement.__view;
+    if (current) {
+        console.error('already rendered');
+        return;
+    }
+    view.$rootElement = rootElement
+    rootElement.innerHTML = "";
+    let els = createDom(view, view, rootElement);
+    if (!(els instanceof Array)) els = [els];
+    els = flatMap(els)
+    for (let i = 0; i < els.length; i++) {
+        Node.prototype.appendChild.call(rootElement, els[i])
+    }
+    rootElement.__view = view
+}
+
+module.exports = {render, createDom, createNodeDom, createViewDom, createTextDom, createElement}

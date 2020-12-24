@@ -1,5 +1,5 @@
 const {isVal} = require("../core/types");
-const View = require("./view_base");
+const {View} = require("./view");
 
 function Store(reducer) {
     var state = reducer(undefined, {});

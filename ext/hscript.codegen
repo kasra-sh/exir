@@ -1,7 +1,7 @@
 const {HTMLTags, HTMLEssentialTags} = require('../dom/htmltags');
 const {map} = require('../core/collections');
 
-const func = 'e';
+const func = 'h';
 
 const hyperMethods = map(HTMLTags, (tag) => {
     if (tag === 'var')
@@ -17,8 +17,7 @@ const hyperMethodsEssential = map(HTMLEssentialTags, (tag)=>{
     return `function ${tag}(args, ...children) {return ${func}('${tag}', args, ...children)}`;
 })
 const code =
-`const VNode = require('./vnode_base');
-var ${func} = VNode.create;
+`const {h} = require('./h');
 ${hyperMethods.join('\n')}
 
 module.exports = {
@@ -26,8 +25,7 @@ module.exports = {
 `
 
 const codeES6 =
-    `import VNode from './vnode_base';
-const ${func} = VNode.create;
+    `import {h} from './h';
 ${hyperMethodsES6.join('\n')}
 
 export default {
@@ -35,8 +33,7 @@ export default {
 `
 
 const codeESS =
-    `const VNode = require('./vnode_base');
-const ${func} = VNode.create;
+    `const {h} = require('./h');
 ${hyperMethodsEssential.join('\n')}
 
 module.exports = {
