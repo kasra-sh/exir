@@ -162,7 +162,24 @@ function parseTag(str, index = 0) {
     }
 
     const lowerName = name.toLowerCase();
-    if (lowerName === 'meta') stage = 3;
+    if ((name === 'meta' || name === 'link') && stage === 2) {
+        let mark = index;
+        // trim left
+        while (index < length) {
+            let cur = str[index];
+            if (!spaceExp.test(cur)) break;
+            index++;
+        }
+        if (matchAhead(str, index, '</')) {
+            if (matchAhead(str, index, '</'+name+'>')) {
+                stage = 3;
+                index+=name.length+3
+            } else {
+                index = mark;
+            }
+        }
+        stage = 3;
+    }
 
     if (stage < 3) {
         if (lowerName !== 'script' || lowerName !== 'style') {
