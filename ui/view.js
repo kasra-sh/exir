@@ -1,16 +1,13 @@
 require("../core/scope")
 const TYPE = require("./type");
+const {updateView} = require("./patch");
+const {debounce} = require("../core/functions");
 const {error} = require("../core/logging");
-const {randomId} = require("./utils");
+const {randomId, normalize, sameProps} = require("./utils");
 const {createNode} = require("./vnode");
-const {patchView} = require("./patch");
-// const {flatMap} = require("../core/collections");
 const {warn} = require("../core/logging");
-// const {debounce} = require("../core/functions");
-const {deepClone, concat} = require("../core/collections");
-const {normalize} = require("./utils");
+const {deepClone} = require("../core/collections");
 const {createText} = require("./vnode");
-const {dispatchTask} = require("./scheduler");
 
 /**
  * @param {Object} args.state
@@ -26,7 +23,7 @@ const {dispatchTask} = require("./scheduler");
  */
 function View(args = {}) {
     this.$t = TYPE.VIEW;
-    args.name = 'View' + '::' + randomId();
+    args.name = args.name || 'View' + '::' + randomId();
     this.$name = args.name;
     this.$proto = Object.freeze(args);
     let props = Object.getOwnPropertyNames(args);
@@ -39,7 +36,8 @@ function View(args = {}) {
         }
     }
 
-    this.$instanceId = Symbol('view')
+    // this.$instanceId = Symbol('view')
+    // this.$instanceId = randomId();
     this.props = this.props || {};
     this.state = this.state || {};
     // this.$children = [];
@@ -72,11 +70,17 @@ View.prototype.$clone = function () {
 }
 
 View.prototype.$updateWith = function (props, children) {
-
+    if (props.key) {
+        this.$key = props.key;
+        // delete props.key
+    }
+    this.props = {...this.props, ...props};
+    this.$children = normalize(children, {createText})
+    return this
 }
 
-View.prototype.$renderNodes = function (prop = this.props) {
-    return normalize(this.render({props: concat(this.props, prop, true), state: this.state}),
+View.prototype.$renderNodes = function () {
+    return normalize(this.render({props: this.props, state: this.state}),
         {createText, parent: this, empty: [createNode('slot', {style: 'display: none'})]})
 }
 
@@ -125,11 +129,30 @@ View.prototype.$clean = function () {
     this.state = undefined;
     this.props = undefined;
 }
+//
+View.prototype.$update = debounce(function () {
+    updateView(this);
+}, 20);
+//
+// View.prototype.$update = function () {
+//     updateView(this);
+// };
 
-View.prototype.$update = function () {
-    // console.log('$update', this.$children)
-    dispatchTask(() => patchView(this, this.props, this.$children), this.$instanceId)
+View.prototype.setState = function (fn) {
+    let state = this.state;
+    fn.call(this, state);
+    // this.$isDirty = !sameProps(this.state, state);
+    this.$isDirty = true;
+    // console.log('setState', this)
+    this.$update();
 }
+
+// View.prototype.$update = debounce(function () {
+//     this.$isDirty = true;
+//     // console.trace('$update', this.$name, this.props)
+//     dispatchTask(() => patchView(this, this.props, this.$children), this.$instanceId)
+// }, 5)
+
 
 function isViewClass(cls) {
     return Object.prototype.isPrototypeOf.call(View, cls)
@@ -149,16 +172,16 @@ function getViewInstance(view, newArgs) {
 }
 
 function renderView(view, props, children) {
-    // if (!view.props) view.props = {};
-    if (props) {
-        concat(view.props, props, true);
-    }
+    // // if (!view.props) view.props = {};
+    // if (props) {
+    //     concat(view.props, props, true);
+    // }
 
     // if (children) {
     children = normalize(children || [], {createText});
     view.$children = children;
     // }
-
+    view.$updateWith(props, children)
     view.$renderAndSetNodes();
 
     return view;

@@ -1,20 +1,24 @@
 const {View, createView} = require("./view");
-const h = require("./h");
+const {h} = require("./h");
 const {render} = require("./render");
 
 /**
- * @type {View.create}
+ * @type {function(*): View}
+ * @alias createView
  */
 const createComponent = createView;
 /**
- * @type {function(*, *=): [VNode]}
+ * @type {function(type, props, ...children): View|VNode}
  */
 const jsx = h;
 
 /**
- *
- * @type {{createComponent: View.create, View: View, mount: function(*=, *=): void, jsx: (function(*, *=): VNode[])}}
+ * @param {{attachTo: function(type)}} plugin
  */
-module.exports = {
-    View, createComponent, jsx, mount: render
+const use = function (plugin) {
+    plugin.attachTo(View);
 }
+
+module.exports = {Exir:{
+    View, createComponent, jsx, mount: render, use
+}}

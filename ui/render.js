@@ -14,6 +14,10 @@ function createTextDom(text) {
     return document.createTextNode(text);
 }
 
+function createChildrenDom(nodes, parentView, rootElement) {
+    return nodes.flatMap((n)=>createDom(n, parentView, rootElement))
+}
+
 function createViewDom(view, rootElement) {
     if (view.beforeMount) {
         try {
@@ -23,6 +27,7 @@ function createViewDom(view, rootElement) {
         }
     }
     if (!view.$nodes) {
+        // view.$updateWith(view.props)
         view.$renderAndSetNodes();
     }
     view.$rootElement = rootElement;
@@ -36,6 +41,7 @@ function createViewDom(view, rootElement) {
             }
         }, 0);
     }
+    view.$isDirty = false;
     return elements
 }
 
@@ -64,7 +70,7 @@ function createDom(node, parentView, rootElement) {
 
 function render(view, rootElement) {
     if (!rootElement) throw Error('render(): rootElement is undefined');
-    let current = rootElement.__view;
+    let current = rootElement.__app;
     if (current) {
         console.error('already rendered');
         return;
@@ -77,7 +83,7 @@ function render(view, rootElement) {
     for (let i = 0; i < els.length; i++) {
         Node.prototype.appendChild.call(rootElement, els[i])
     }
-    rootElement.__view = view
+    rootElement.__app = view
 }
 
-module.exports = {render, createDom, createNodeDom, createViewDom, createTextDom, createElement}
+module.exports = {render, createDom, createNodeDom, createViewDom, createTextDom, createChildrenDom, createElement}

@@ -1,37 +1,61 @@
 const scheduler = Object.seal({
     queue: [],
     busy: false,
-    interval: null
+    running: false,
+    idle: 0
 })
+
+function setFrameInterval(fn, interval) {
+    let busy = false;
+    const queue = [];
+
+    function runner() {
+        requestAnimationFrame(function () {
+            if (queue.length > 0) {
+                let task = queue.shift();
+                let time = Date.now();
+                busy = true;
+                task();
+            }
+            let to = interval - (Date.now() - time);
+            setTimeout(runner, to);
+        })
+    }
+
+
+}
 
 function runner() {
     if (scheduler.queue.length === 0) {
-        clearInterval(scheduler.interval);
-        scheduler.interval = null
-        return;
-    }
-    if (!scheduler.busy) {
-        let [id, task] = scheduler.queue.shift();
-        if (scheduler.queue.some(s=>s[0] === id)){
+        scheduler.idle++;
+        if (scheduler.idle>3) {
+            scheduler.running = false;
             return;
         }
-        task();
-        scheduler.busy = false;
+        return;
     }
+    scheduler.idle = 0;
+    if (!scheduler.busy) {
+        let task = scheduler.queue.shift();
+        scheduler.busy = true;
+        task();
+        task = null;
+        setTimeout(function () {
+            scheduler.busy = false;
+        })
+    }
+    setTimeout(runner, 20)
 }
 
 function start() {
-    if (scheduler.interval === null) {
-        scheduler.interval = setInterval(runner, 20)
+    if (!scheduler.running) setTimeout(runner, 1);
+}
+
+function dispatchTask(task) {
+    if (task) {
+        scheduler.queue.push(task);
+        start()
     }
 }
 
-function dispatchTask(task, id) {
-    if (scheduler.queue.some(s=>s[0] === id)){
-        return;
-    }
-    scheduler.queue.push([id, task]);
-    start()
-}
-
-module.exports = {dispatchTask}
+module.exports = {dispatchTask, scheduler}

@@ -1,19 +1,16 @@
 const JSS = require("./jss");
-const {isArr} = require("../core/types");
-const {isStr} = require("../core/types");
-const {isVal} = require("../core/types");
 const {setEvent} = require("../dom/event");
 const {forEach} = require("../core/collections");
-const {isPrim} = require("../core/types");
+const {isPrim,isArr,isStr,isVal} = require("../core/types");
 
 function randomId() {
     return (Date.now().toString(24).slice(2)+ Math.random().toString(24).slice(6))
 }
 
-function normalize(children, {createText, parent, empty}) {
+function normalize(children, {createText, parent, empty=[], list}) {
     if (!(children instanceof Array)) {
         if (children === null || children === undefined)
-            return empty || []
+            return empty
         else children = [children]
     }
     let norm = [];
@@ -32,17 +29,18 @@ function normalize(children, {createText, parent, empty}) {
             child = child.children || [];
         }
         if (child instanceof Array) {
-            child = normalize(child, {createText});
+            child = normalize(child, {createText, parent});
             for (let j = 0; j < child.length; j++) {
                 child[j].$parent = parent;
-                norm.push(child[j])
+                norm.push(child[j]);
             }
+            // norm.push(list(child))
             continue;
         }
         child.$parent = parent;
-        norm.push(child)
+        norm.push(child);
     }
-    if (norm.length === 0) norm = empty||[];
+    if (norm.length === 0) norm = empty;
     return norm
 }
 
@@ -96,4 +94,18 @@ function setElementProps(element, attrs, events, view) {
     }
 }
 
-module.exports = {randomId, normalize, setElementProps, compileProps, compileStyles}
+function randomHexColor() {
+    return '#'+(Math.random().toString(16)).slice(2, 8)
+}
+
+function sameProps(currentProps={}, newProps={}) {
+    const curKeys = Object.keys(currentProps)
+    const newKeys = Object.keys(newProps)
+    if (curKeys.length !== newKeys.length) return false
+    for (let curKey of curKeys) {
+        if (newProps[curKey] !== currentProps[curKey]) return false
+    }
+    return true
+}
+
+module.exports = {randomId, normalize, setElementProps, compileProps, compileStyles, sameProps, randomHexColor}

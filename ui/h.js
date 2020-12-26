@@ -2,7 +2,6 @@ const {normalize} = require("./utils");
 const {renderView} = require("./view");
 const {createNode, createText} = require("./vnode");
 
-
 function h(type, prop, ...children) {
     if (type === null) {
         return children || [];
@@ -11,7 +10,8 @@ function h(type, prop, ...children) {
         prop = {};
     }
     if (type.$isView) {
-        return renderView(type.$clone(), prop, children);
+        // return renderView(type.$clone(), prop, children);
+        return type.$clone().$updateWith(prop, children)
     }
 
     return createNode(type, prop, normalize(children, {createText}));

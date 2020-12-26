@@ -1,3 +1,4 @@
+const {debounce} = require("../core/functions");
 const {isVal} = require("../core/types");
 const {View} = require("./view");
 
@@ -9,7 +10,7 @@ function Store(reducer) {
         ' reducer does not return properly on random/empty state');
 
     this.subscribe = function (callback) {
-        listeners.push(callback);
+        listeners.push(debounce(callback, 20));
     }
 
     this.unsubscribe = function (callback) {
@@ -21,9 +22,10 @@ function Store(reducer) {
     }
 
     this.dispatch = function (action) {
-        state = reducer(state, action)
+        state = reducer(state, action);
         listeners.forEach((callback)=>{
-            setTimeout(callback, 1, state, action);
+            callback(state, action)
+            // setTimeout(callback, 1, state, action);
         })
     }
 
